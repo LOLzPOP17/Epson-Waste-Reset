@@ -194,8 +194,8 @@ static void PrintUsage()
               << "  --list, -l       List every Epson USB interface with its IEEE 1284\n"
               << "                   device ID and database match, then exit. Read-only.\n"
               << "  --model <name>   Skip the menu and use this database model. Accepts\n"
-              << "                   the exact name, an alias, or a unique part of one\n"
-              << "                   (e.g. --model ET-2803).\n"
+              << "                   the exact name, an alias, or the name the printer\n"
+              << "                   reports (e.g. --model \"EPSON ET-2803 Series\").\n"
               << "  --interface <n>  Pin the whole run to interface <n> from --list and\n"
               << "                   disable the automatic fallback. For composite\n"
               << "                   devices where detection picks the wrong interface.\n"
@@ -383,18 +383,23 @@ static void PrintResetCoverage(const ewr::DbPrinterModel& model)
     }
 }
 
-// Diagnostic runs are often piped, so they skip the interactive pause.
-static bool g_exitPause = true;
+// Diagnostic runs are often piped, so they skip the interactive pause. Decided
+// once the command line parses: one rejected before that was typed or spawned,
+// never double-clicked, so it has no window about to vanish.
+static bool g_exitPause = false;
 
 // The pause exists for the Windows user who ran ewr.exe by double-clicking and
 // would otherwise watch the window vanish. A caller that pipes stdin has no
 // keyboard behind it: a pipe that stays open never delivers the Enter, and the
 // run hangs forever holding the printer (issue #39 found one sitting for seven
 // hours). Piped answers still work - only the final keypress is skipped.
+// _isatty is true for any character device, NUL included, so a caller that
+// spawns EWR with stdin on devnull got the pause. Only a console has a mode.
 static bool StdinIsInteractive()
 {
 #ifdef _WIN32
-    return _isatty(_fileno(stdin)) != 0;
+    DWORD mode = 0;
+    return GetConsoleMode(GetStdHandle(STD_INPUT_HANDLE), &mode) != 0;
 #else
     return isatty(fileno(stdin)) != 0;
 #endif
@@ -403,7 +408,8 @@ static bool StdinIsInteractive()
 static bool StdoutIsTerminal()
 {
 #ifdef _WIN32
-    return _isatty(_fileno(stdout)) != 0;
+    DWORD mode = 0;
+    return GetConsoleMode(GetStdHandle(STD_OUTPUT_HANDLE), &mode) != 0;
 #else
     return isatty(fileno(stdout)) != 0;
 #endif
@@ -2018,6 +2024,13 @@ int main(int argc, char* argv[])
         {
             std::cout << "\n[i] --yes: zeroing every color's ink counter without asking." << std::endl;
         }
+        else if (cli.json)
+        {
+            // The prompt below would wait on a stdin nobody types into, and a
+            // caller holding it open would wait forever.
+            JsonFail("blocked", "The cartridge ink reset needs --yes under --json.");
+            return FinishRun(1);
+        }
         else
         {
             std::cout << "\nType 'reset' to zero every color's ink counter, anything else to abort: ";
@@ -2027,7 +2040,8 @@ int main(int argc, char* argv[])
             if (toLower(confirm) != "reset")
             {
                 std::cout << "[i] Aborted before any EEPROM write. Nothing was changed." << std::endl;
-                return FinishRun(0);
+                JsonFail("blocked", "The cartridge ink reset was declined; nothing was written.");
+                return FinishRun(1);
             }
         }
     }
@@ -2072,6 +2086,16 @@ int main(int argc, char* argv[])
             return true;
         }
 
+        // Before the --yes branch, which writes only to the silenced stdout.
+        if (cli.json)
+        {
+            // Same answer as --yes, and for the same reason: only --force-yes
+            // overrules what the printer reports.
+            JsonFail("blocked", "The printer reports a condition EWR will not write past: "
+                                + blocker.errorName + ". Pass --force-yes to overrule it.");
+            return false;
+        }
+
         if (cli.assumeYes)
         {
             std::cout << "\n[i] --yes does not push past this: it answers the reset confirmation,"
@@ -2080,15 +2104,6 @@ int main(int argc, char* argv[])
                       << std::endl;
             std::cout << "    --yes to decide at the keyboard, or pass --force-yes to overrule it."
                       << std::endl;
-            return false;
-        }
-
-        if (cli.json)
-        {
-            // Same answer as --yes, and for the same reason: only --force-yes
-            // overrules what the printer reports.
-            JsonFail("blocked", "The printer reports a condition EWR will not write past: "
-                                + blocker.errorName + ". Pass --force-yes to overrule it.");
             return false;
         }
 

@@ -170,6 +170,12 @@ namespace {
 
     int ResolveModel(ewr_session* session, const char* name, ewr::DbPrinterModel& model)
     {
+        if (!name || !*name)
+        {
+            session->Fail("No model name was given.");
+            return EWR_ERR_INVALID_ARGUMENT;
+        }
+
         if (session->database.IsEmpty())
         {
             session->Fail("No printer database is loaded.");

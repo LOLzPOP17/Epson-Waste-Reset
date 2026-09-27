@@ -48,7 +48,7 @@ Running with no options is the supported path. These exist for diagnosis and for
 | --- | --- |
 | `--status`, `-s` | Read-only: printer status, ink levels and waste counter values. Sends no writes. |
 | `--list`, `-l` | List every Epson USB interface with its IEEE 1284 device ID and database match, then exit. Read-only. |
-| `--model <name>` | Skip the menu. Takes the exact name, an alias, or a unique fragment (`--model ET-2803`). |
+| `--model <name>` | Skip the menu. Takes the exact name, an alias, or the name the printer reports (`--model "EPSON ET-2803 Series"`). |
 | `--interface <n>` | Pin the run to interface `<n>` from `--list` and disable the automatic fallback. |
 | `--dry-run` | Detect, read, and show exactly what a reset *would* write - then stop. |
 | `--dump` | Read the EEPROM into a timestamped file. Dump twice around a change and diff to map an unknown printer. |

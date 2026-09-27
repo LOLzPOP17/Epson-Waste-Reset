@@ -5485,6 +5485,11 @@ void test_c_abi_database_calls_need_no_printer()
     CHECK(json == nullptr);
     CHECK(!std::string(ewr_session_last_error(session)).empty());
 
+    // No name is the caller's mistake, not a model the database lacks.
+    CHECK(ewr_plan(session, nullptr, 0, &json) == EWR_ERR_INVALID_ARGUMENT);
+    CHECK(ewr_plan(session, "", 0, &json) == EWR_ERR_INVALID_ARGUMENT);
+    CHECK(json == nullptr);
+
     ewr_session_close(session);
 }
 
