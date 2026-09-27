@@ -110,7 +110,7 @@ typedef void (*ewr_event_cb)(const ewr_event* event, void* user);
  * `json` describes what is being asked; see docs/c-api.md. */
 typedef int (*ewr_decision_cb)(const char* json, void* user);
 
-EWR_API const char* ewr_version(void);              /* "1.3.1" */
+EWR_API const char* ewr_version(void);              /* "1.4.0" */
 EWR_API int         ewr_abi_version(void);          /* this header's revision */
 EWR_API int         ewr_json_contract_version(void);/* docs/json-output.md `v` */
 
