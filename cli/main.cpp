@@ -801,14 +801,6 @@ int main(int argc, char* argv[])
         std::cout << "\nDetected Epson USB interfaces (in automatic fallback order):" << std::endl;
         for (const auto& iface : interfaces)
         {
-            nlohmann::json entry;
-            entry["index"] = iface.index;
-            entry["class"] = iface.className;
-            entry["interface_number"] = iface.interfaceNumber;
-            entry["path"] = iface.path;
-            entry["device_id"] = iface.deviceId.empty() ? nlohmann::json(nullptr) : nlohmann::json(iface.deviceId);
-            entry["model_match"] = nullptr;
-
             std::cout << "\n  [" << iface.index << "] " << iface.className;
             if (iface.interfaceNumber >= 0)
                 std::cout << " mi_" << (iface.interfaceNumber < 10 ? "0" : "") << iface.interfaceNumber;
@@ -817,24 +809,25 @@ int main(int argc, char* argv[])
             if (iface.deviceId.empty())
             {
                 std::cout << "      IEEE 1284 device ID: (no reply)" << std::endl;
-                jsonInterfaces.push_back(std::move(entry));
+                jsonInterfaces.push_back(ewr::JsonInterface(iface, ""));
                 continue;
             }
 
             const ewr::DeviceIdInfo devId = ewr::ParseIeee1284DeviceId(iface.deviceId);
             std::cout << "      IEEE 1284 device ID: " << (devId.model.empty() ? iface.deviceId : "MDL \"" + devId.model + "\"") << std::endl;
 
+            std::string match;
             if (!devId.model.empty() && !listEntries.empty())
             {
                 const std::vector<std::string> matches = ewr::MatchModelEntries(devId.model, listEntries);
                 if (!matches.empty())
                 {
                     std::cout << "      Database entry:      " << matches[0] << std::endl;
-                    entry["model_match"] = matches[0];
+                    match = matches[0];
                 }
             }
 
-            jsonInterfaces.push_back(std::move(entry));
+            jsonInterfaces.push_back(ewr::JsonInterface(iface, match));
         }
 
         std::cout << "\nUse --interface <n> to pin a run to one specific interface." << std::endl;

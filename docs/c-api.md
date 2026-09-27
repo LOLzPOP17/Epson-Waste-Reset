@@ -166,7 +166,7 @@ ctypes frees a thunk that nothing holds, and EWR will call it.
 | --- | --- | --- |
 | `ewr_list_models` | no | `{"models": [{"name", "aliases", "resettable", "has_ink_reset"}]}` |
 | `ewr_plan` | no | `{"model", "target", "planned_writes": [{"address", "value"}], "reset_covers": [{"kind", "name", "readable"}]}`; `reset_covers` is `[]` for an ink reset |
-| `ewr_list_interfaces` | yes | `{"interfaces": [...]}`, indexes for `ewr_session_set_interface` |
+| `ewr_list_interfaces` | yes | `{"interfaces": [{"index", "class", "interface_number", "path", "device_id", "model_match"}]}`, the same entries as `--list`; `index` is what `ewr_session_set_interface` takes |
 | `ewr_detect_model` | yes | `{"device_id", "reported_model", "model"}` |
 | `ewr_read_status` | yes | `{"model", "detected_model", "printer", "counters", "pads", "pads_total", "reset_covers"}`; `detected_model` stays null here, ask `ewr_detect_model` |
 | `ewr_dump` | yes | `{"model", "answered", "total", "values"}`; minutes, not seconds |
@@ -174,3 +174,13 @@ ctypes frees a thunk that nothing holds, and EWR will call it.
 
 `ewr_reset` returns the same JSON whether it worked or not: `phase` says how
 far it got, and the status code says what to tell the user.
+
+## What the callbacks are asked
+
+| Callback | `json` |
+| --- | --- |
+| blocker | `{"error", "error_code", "explanation"}`: `error` names the objection (`INK OUT`, `PRINTER BUSY`, `DATABASE CONFLICT`, ...), `error_code` is the printer's error code and `null` when the objection is not a printer error, `explanation` is English for a dialog |
+| confirm | what `ewr_read_status` answers for the preflight, plus `"target"`: `waste` or `ink` |
+
+The same rules hold as for answers: keys may be added, and `null` is never a
+stand-in for zero.

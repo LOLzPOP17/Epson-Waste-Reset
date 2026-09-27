@@ -242,11 +242,12 @@ it is sent.
 **list**
 
 ```json
-{"interfaces": [{"index": 1, "class": "USBPRINT", "interface_number": -1, "path": "\\\\?\\usb#...",
+{"interfaces": [{"index": 1, "class": "USBPRINT", "interface_number": null, "path": "\\\\?\\usb#...",
                  "device_id": "MFG:EPSON;...", "model_match": "R220"}]}
 ```
 
-`index` is what `--interface <n>` takes.
+`index` is what `--interface <n>` takes. `interface_number` is the USB
+interface (`mi_02` is `2`), `null` when the device is not composite.
 
 **reset**
 

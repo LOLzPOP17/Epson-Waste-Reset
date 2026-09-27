@@ -1,6 +1,7 @@
 #pragma once
 #include "ewr/log.h"
 #include "ewr/session.h"
+#include "ewr/usb.h"
 
 #include <chrono>
 #include <ostream>
@@ -87,6 +88,13 @@ namespace ewr {
 
     // The '@BDC ST2' report, or null when nothing parsed.
     nlohmann::json JsonPrinterStatus(const PrinterStatus& status);
+
+    // One --list / ewr_list_interfaces entry. `modelMatch` is the database
+    // entry the device ID names, empty when none does.
+    nlohmann::json JsonInterface(const InterfaceInfo& info, const std::string& modelMatch);
+
+    // What a blocker callback is asked: {"error", "error_code", "explanation"}.
+    nlohmann::json JsonBlocker(const Blocker& blocker);
 
     // model / printer / counters / pads, as `status` and `dry-run` carry them.
     nlohmann::json JsonStateData(const DbPrinterModel& model, const StateSnapshot& state);

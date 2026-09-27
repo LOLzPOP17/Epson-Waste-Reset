@@ -103,9 +103,11 @@ namespace ewr {
             inks.push_back(std::move(one));
         }
 
+        // A report is valid once any field decodes, so the state field itself
+        // may be the one that never came.
         nlohmann::json out;
-        out["state"] = status.stateName;
-        out["state_code"] = status.stateCode;
+        out["state"] = status.stateName.empty() ? nlohmann::json(nullptr) : nlohmann::json(status.stateName);
+        out["state_code"] = status.stateCode >= 0 ? nlohmann::json(status.stateCode) : nlohmann::json(nullptr);
         out["error"] = status.hasError ? nlohmann::json(status.errorName) : nlohmann::json(nullptr);
         out["error_code"] = status.hasError ? nlohmann::json(status.errorCode) : nlohmann::json(nullptr);
         out["truncated"] = status.truncated;
@@ -117,6 +119,31 @@ namespace ewr {
         out["maintenance_box_status"] = status.maintenanceBoxText.empty()
             ? nlohmann::json(nullptr) : nlohmann::json(status.maintenanceBoxText);
         out["inks"] = std::move(inks);
+        return out;
+    }
+
+    nlohmann::json JsonInterface(const InterfaceInfo& info, const std::string& modelMatch)
+    {
+        nlohmann::json out;
+        out["index"] = info.index;
+        out["class"] = info.className;
+        // -1 in the struct means "not a composite interface".
+        out["interface_number"] = info.interfaceNumber >= 0 ? nlohmann::json(info.interfaceNumber)
+                                                            : nlohmann::json(nullptr);
+        out["path"] = info.path;
+        out["device_id"] = info.deviceId.empty() ? nlohmann::json(nullptr) : nlohmann::json(info.deviceId);
+        out["model_match"] = modelMatch.empty() ? nlohmann::json(nullptr) : nlohmann::json(modelMatch);
+        return out;
+    }
+
+    nlohmann::json JsonBlocker(const Blocker& blocker)
+    {
+        nlohmann::json out;
+        out["error"] = blocker.errorName;
+        // -1 means the objection is not a printer error (busy, a cut-short
+        // report, a database conflict), which has no printer code to give.
+        out["error_code"] = blocker.errorCode >= 0 ? nlohmann::json(blocker.errorCode) : nlohmann::json(nullptr);
+        out["explanation"] = blocker.explanation;
         return out;
     }
 

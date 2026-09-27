@@ -348,15 +348,16 @@ int ewr_list_interfaces(ewr_session* session, char** out_json)
     {
         nlohmann::json interfaces = nlohmann::json::array();
 
+        std::vector<ewr::ModelNameEntry> entries;
+        for (const auto& model : session->database.GetAvailableModels())
+            entries.push_back({ model.name, model.aliases });
+
         for (const ewr::InterfaceInfo& info : session->gateway.ListInterfaces())
         {
-            nlohmann::json entry;
-            entry["index"] = info.index;
-            entry["class"] = info.className;
-            entry["interface_number"] = info.interfaceNumber;
-            entry["path"] = info.path;
-            entry["device_id"] = info.deviceId.empty() ? nlohmann::json(nullptr) : nlohmann::json(info.deviceId);
-            interfaces.push_back(std::move(entry));
+            const ewr::DeviceIdInfo reported = ewr::ParseIeee1284DeviceId(info.deviceId);
+            const std::vector<std::string> matches = reported.model.empty()
+                ? std::vector<std::string>{} : ewr::MatchModelEntries(reported.model, entries);
+            interfaces.push_back(ewr::JsonInterface(info, matches.empty() ? std::string() : matches[0]));
         }
 
         if (interfaces.empty())
@@ -591,11 +592,7 @@ int ewr_reset(ewr_session* session, const char* model, int ink, char** out_json)
             if (!session->blockerCallback)
                 return false; // no host to ask: never assume consent
 
-            nlohmann::json ask;
-            ask["error"] = blocker.errorName;
-            ask["error_code"] = blocker.errorCode;
-            ask["explanation"] = blocker.explanation;
-            return session->blockerCallback(ask.dump().c_str(), session->blockerUser) != 0;
+            return session->blockerCallback(ewr::JsonBlocker(blocker).dump().c_str(), session->blockerUser) != 0;
         };
 
         handlers.confirmWrite = [session, &target, ink](const ewr::StateSnapshot& state) -> bool

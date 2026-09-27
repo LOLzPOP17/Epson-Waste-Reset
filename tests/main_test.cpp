@@ -6485,6 +6485,54 @@ void test_log_carries_fields()
     CHECK(seen.empty());
 }
 
+// "null means not reported" is a promise, so a struct's -1 never reaches a
+// caller as a number it might compare against.
+void test_json_never_leaks_minus_one()
+{
+    std::cout << "[TEST] test_json_never_leaks_minus_one" << std::endl;
+
+    ewr::Blocker ink;
+    ink.errorName = "INK OUT";
+    ink.errorCode = 5;
+    ink.explanation = "Clear it first.";
+    const nlohmann::json inkJson = ewr::JsonBlocker(ink);
+    CHECK(inkJson["error"] == "INK OUT");
+    CHECK(inkJson["error_code"] == 5);
+    CHECK(inkJson["explanation"] == "Clear it first.");
+
+    ewr::Blocker busy;
+    busy.errorName = "PRINTER BUSY";
+    const nlohmann::json busyJson = ewr::JsonBlocker(busy);
+    CHECK(busyJson.contains("error_code") && busyJson["error_code"].is_null());
+
+    ewr::InterfaceInfo usbprint;
+    usbprint.index = 1;
+    usbprint.className = "USBPRINT";
+    usbprint.path = "\\\\?\\usb#vid_04b8";
+    const nlohmann::json plain = ewr::JsonInterface(usbprint, "");
+    CHECK(plain.contains("interface_number") && plain["interface_number"].is_null());
+    CHECK(plain["device_id"].is_null());
+    CHECK(plain["model_match"].is_null());
+    CHECK(plain["index"] == 1 && plain["class"] == "USBPRINT");
+
+    ewr::InterfaceInfo vendor = usbprint;
+    vendor.index = 2;
+    vendor.interfaceNumber = 2;
+    vendor.deviceId = "MFG:EPSON;MDL:ET-2800 Series;";
+    const nlohmann::json composite = ewr::JsonInterface(vendor, "ET-2800");
+    CHECK(composite["interface_number"] == 2);
+    CHECK(composite["device_id"] == "MFG:EPSON;MDL:ET-2800 Series;");
+    CHECK(composite["model_match"] == "ET-2800");
+
+    // Valid as soon as any field decodes, so the state may be missing.
+    ewr::PrinterStatus inksOnly;
+    inksOnly.valid = true;
+    const nlohmann::json st = ewr::JsonPrinterStatus(inksOnly);
+    CHECK(st["state"].is_null());
+    CHECK(st["state_code"].is_null());
+    CHECK(st["error_code"].is_null());
+}
+
 int main()
 {
     std::cout << "========================================" << std::endl;
@@ -6608,6 +6656,7 @@ int main()
     test_printer_condition_names_an_error_once();
     test_json_reset_data_lists_overrides();
     test_log_carries_fields();
+    test_json_never_leaks_minus_one();
     test_json_status_separates_unknown_from_zero();
     test_json_state_data_reports_detection_as_unknown();
     test_json_state_data_counts_pads_it_could_not_read();
