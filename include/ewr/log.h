@@ -128,13 +128,15 @@ namespace ewr::log
                 sink(event);
         }
 
-        void Log(Level level, Stage stage, std::string code, std::string message) const
+        void Log(Level level, Stage stage, std::string code, std::string message,
+                 std::map<std::string, std::string> fields = {}) const
         {
             Event event;
             event.level = level;
             event.stage = stage;
             event.code = std::move(code);
             event.message = std::move(message);
+            event.fields = std::move(fields);
             Emit(event);
         }
 
@@ -152,9 +154,10 @@ namespace ewr::log
         return reporter;
     }
 
-    inline void Log(Level level, Stage stage, std::string code, std::string message)
+    inline void Log(Level level, Stage stage, std::string code, std::string message,
+                    std::map<std::string, std::string> fields = {})
     {
-        Default().Log(level, stage, std::move(code), std::move(message));
+        Default().Log(level, stage, std::move(code), std::move(message), std::move(fields));
     }
 
     inline const char* ToString(Level level)

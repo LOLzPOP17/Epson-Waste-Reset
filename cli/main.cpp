@@ -1149,15 +1149,17 @@ int main(int argc, char* argv[])
             std::cout << "\n[i] --model: using " << selected.displayName << "." << std::endl;
     }
 
-    // --yes with no --model: the printer named itself, so take that entry
-    // instead of opening a menu nobody is there to answer. It is also why
-    // --yes cannot write to the wrong model on its own - the selection and
+    // --yes or --json with no --model: the printer named itself, so take that
+    // entry instead of opening a menu nobody is there to answer. It is also
+    // why neither can write to the wrong model on its own - the selection and
     // the detection are then the same answer.
-    if (!hasSelected && cli.assumeYes)
+    if (!hasSelected && (cli.assumeYes || cli.json))
     {
+        const char* flag = cli.assumeYes ? "--yes" : "--json";
+
         if (detectedMatch.empty())
         {
-            std::cerr << "\n[!] --yes needs a model and the printer did not supply one." << std::endl;
+            std::cerr << "\n[!] " << flag << " needs a model and the printer did not supply one." << std::endl;
             if (!detectedMdl.empty())
                 std::cerr << "    It reports \"" << detectedMdl
                           << "\", which matches no database entry." << std::endl;
@@ -1175,7 +1177,7 @@ int main(int argc, char* argv[])
             {
                 selected = opt;
                 hasSelected = true;
-                std::cout << "\n[i] --yes: using the detected model " << opt.smartModel.name << "."
+                std::cout << "\n[i] " << flag << ": using the detected model " << opt.smartModel.name << "."
                           << std::endl;
                 break;
             }
@@ -1183,7 +1185,8 @@ int main(int argc, char* argv[])
     }
 
     // --json never prompts: there is nobody to ask, and a menu on a silenced
-    // stdout would look like a hang.
+    // stdout would look like a hang. Reached only when the detected entry is
+    // not one this run can use.
     if (!hasSelected && cli.json)
     {
         std::cerr << "[!] --json needs the model on the command line: pass --model <name>." << std::endl;
@@ -1281,8 +1284,24 @@ int main(int argc, char* argv[])
 
     // The top cause of wrong-model writes, so it needs an explicit yes.
     // The read-only modes are exempt: they send no writes to misplace.
-    if (!statusOnly && !cli.dryRun && !cli.dump && !cli.findAddresses && !selected.isReplay
-        && !detectedMatch.empty() && selected.smartModel.name != detectedMatch)
+    const bool readOnly = statusOnly || cli.dryRun || cli.dump || cli.findAddresses;
+    const bool modelMismatch = !selected.isReplay && !detectedMatch.empty()
+                               && selected.smartModel.name != detectedMatch;
+
+    // Set once the gate below is passed, for the result's `overrides`.
+    std::string mismatchPassed;
+
+    // No gate, but a person would otherwise read another model's counters off
+    // this printer with nothing saying so. --json has detected_model.
+    if (readOnly && modelMismatch)
+    {
+        std::cout << "\n[!] The connected printer reports \"" << detectedMdl << "\" (database entry: "
+                  << detectedMatch << "), not " << selected.smartModel.name << "." << std::endl;
+        std::cout << "    Nothing is written in this mode, but what follows is read with "
+                  << selected.smartModel.name << "'s addresses." << std::endl;
+    }
+
+    if (!readOnly && modelMismatch)
     {
         std::cout << "\n[!] WARNING: the connected printer reports \"" << detectedMdl << "\""
                   << " (database entry: " << detectedMatch << ")," << std::endl;
@@ -1333,6 +1352,8 @@ int main(int argc, char* argv[])
                 return FinishRun(1);
             }
         }
+
+        mismatchPassed = detectedMatch;
     }
 
     // Fail before any device I/O: the session would only reach the same
@@ -2154,8 +2175,11 @@ int main(int argc, char* argv[])
             PrintCounterSummary(selected.smartModel, after.values);
     };
 
-    const ewr::ResetOutcome outcome = resetInk ? session.ResetInk(handlers)
-                                               : session.Reset(handlers);
+    ewr::ResetOutcome outcome = resetInk ? session.ResetInk(handlers)
+                                         : session.Reset(handlers);
+
+    if (!mismatchPassed.empty())
+        outcome.overrides.insert(outcome.overrides.begin(), { "model_mismatch", mismatchPassed, -1 });
 
     // A read-back that disagrees is what a bug report needs, byte for byte.
     if (outcome.verificationRan && (outcome.verifyMismatches > 0 || outcome.verifyUnread > 0))
@@ -2165,32 +2189,11 @@ int main(int argc, char* argv[])
         PrintCounterValues(outcome.after.values, (std::string(noun) + " EEPROM values AFTER reset:").c_str());
     }
 
-    const char* phaseName = "not_started";
-    switch (outcome.phase)
-    {
-        case ewr::ResetPhase::Aborted:        phaseName = "aborted"; break;
-        case ewr::ResetPhase::DeviceNotFound: phaseName = "device_not_found"; break;
-        case ewr::ResetPhase::WriteFailed:    phaseName = "write_failed"; break;
-        case ewr::ResetPhase::Done:           phaseName = "done"; break;
-        default: break;
-    }
-
-    g_jsonData["model"] = selected.smartModel.name;
-    g_jsonData["target"] = resetInk ? "ink" : "waste";
-    g_jsonData["phase"] = phaseName;
-    g_jsonData["writes"] = {
-        { "verified", outcome.writesVerified },
-        { "total", outcome.writesTotal },
-    };
-    g_jsonData["alternate_key_used"] = outcome.alternateKeyUsed;
-    g_jsonData["committed"] = outcome.committed;
-    g_jsonData["verification"] = {
-        { "ran", outcome.verificationRan },
-        { "mismatches", outcome.verifyMismatches },
-        { "unread", outcome.verifyUnread },
-    };
-    g_jsonData["before"] = ewr::JsonCounterValues(outcome.before.values);
-    g_jsonData["after"] = ewr::JsonCounterValues(outcome.after.values);
+    // Built where ewr_reset builds it, so the two answers cannot drift. Named:
+    // items() on the temporary would outlive it.
+    const nlohmann::json resetData = ewr::JsonResetData(selected.smartModel, resetInk, outcome);
+    for (const auto& item : resetData.items())
+        g_jsonData[item.key()] = item.value();
 
     if (!outcome.success && !outcome.error.empty())
     {

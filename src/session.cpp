@@ -531,6 +531,8 @@ namespace ewr {
                     out.error = "Aborted on an active " + blocker->errorName + " error.";
                     return out;
                 }
+
+                out.overrides.push_back({ "blocker", blocker->errorName, blocker->errorCode });
             }
             else if (out.before.status.valid && out.before.status.hasError)
             {
@@ -581,6 +583,8 @@ namespace ewr {
                 out.error = "Aborted on a database conflict: sources disagree about this model's write path.";
                 return out;
             }
+
+            out.overrides.push_back({ "db_conflict", "", -1 });
         }
 
         // ---- Ask once, after every conditional gate has had its say. Those

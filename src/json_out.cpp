@@ -174,6 +174,22 @@ namespace ewr {
         };
         out["before"] = JsonCounterValues(outcome.before.values);
         out["after"] = JsonCounterValues(outcome.after.values);
+
+        // One shape for every gate, null where a key does not apply.
+        nlohmann::json overrides = nlohmann::json::array();
+        for (const auto& passed : outcome.overrides)
+        {
+            const bool mismatch = passed.gate == "model_mismatch";
+            const bool blocker = passed.gate == "blocker";
+            overrides.push_back({
+                { "gate", passed.gate },
+                { "detected_model", mismatch ? nlohmann::json(passed.detail) : nlohmann::json(nullptr) },
+                { "error", blocker ? nlohmann::json(passed.detail) : nlohmann::json(nullptr) },
+                { "error_code", blocker && passed.errorCode >= 0 ? nlohmann::json(passed.errorCode)
+                                                                 : nlohmann::json(nullptr) },
+            });
+        }
+        out["overrides"] = overrides;
         return out;
     }
 

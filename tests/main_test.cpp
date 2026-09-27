@@ -1913,6 +1913,15 @@ void test_session_reset_lifecycle()
         CHECK(gw.resetCalls == 1);
         CHECK(!gw.lastSequence.empty());
         CHECK(gw.lastResetOptions.writeKey == "McLaren");
+
+        // Written past an objection, so the result says which one.
+        CHECK(out.overrides.size() == 1);
+        if (out.overrides.size() == 1)
+        {
+            CHECK(out.overrides[0].gate == "blocker");
+            CHECK(out.overrides[0].detail == "INK OUT");
+            CHECK(out.overrides[0].errorCode >= 0);
+        }
         CHECK(gw.lastResetOptions.verifyWrites);
         CHECK(gw.lastResetOptions.validateHandshake);
         CHECK(gw.lastResetOptions.useSessionLayer);
@@ -2022,6 +2031,12 @@ void test_session_conflict_gate()
         CHECK(out.phase == ewr::ResetPhase::Done);
         CHECK(out.success);
         CHECK(gw.resetCalls == 1);
+        CHECK(out.overrides.size() == 2);
+        if (out.overrides.size() == 2)
+        {
+            CHECK(out.overrides[0].gate == "blocker");
+            CHECK(out.overrides[1].gate == "db_conflict");
+        }
     }
 
     // 3) No handler and no preflight either: the conflict alone still gates
@@ -6403,6 +6418,73 @@ void test_printer_condition_names_an_error_once()
     CHECK(ewr::DescribePrinterCondition(st) == "IDLE");
 }
 
+// A run that wrote past an objection has to say so in the result a caller
+// reads, not only in events it may not keep. One shape for every gate.
+void test_json_reset_data_lists_overrides()
+{
+    std::cout << "[TEST] test_json_reset_data_lists_overrides" << std::endl;
+
+    ewr::DbPrinterModel model = MakeSessionModel();
+
+    ewr::ResetOutcome clean;
+    clean.phase = ewr::ResetPhase::Done;
+    const nlohmann::json none = ewr::JsonResetData(model, false, clean);
+    CHECK(none.contains("overrides") && none["overrides"].is_array() && none["overrides"].empty());
+
+    ewr::ResetOutcome forced;
+    forced.phase = ewr::ResetPhase::Done;
+    forced.overrides.push_back({ "model_mismatch", "R220", -1 });
+    forced.overrides.push_back({ "blocker", "INK OUT", 5 });
+    forced.overrides.push_back({ "blocker", "PRINTER BUSY", -1 });
+    forced.overrides.push_back({ "db_conflict", "", -1 });
+
+    const nlohmann::json out = ewr::JsonResetData(model, false, forced);
+    const nlohmann::json& list = out["overrides"];
+    CHECK(list.size() == 4);
+    if (list.size() != 4)
+        return;
+
+    for (const auto& entry : list)
+    {
+        CHECK(entry.size() == 4);
+        CHECK(entry.contains("gate") && entry.contains("detected_model")
+              && entry.contains("error") && entry.contains("error_code"));
+    }
+
+    CHECK(list[0]["gate"] == "model_mismatch");
+    CHECK(list[0]["detected_model"] == "R220");
+    CHECK(list[0]["error"].is_null() && list[0]["error_code"].is_null());
+
+    CHECK(list[1]["gate"] == "blocker");
+    CHECK(list[1]["error"] == "INK OUT");
+    CHECK(list[1]["error_code"] == 5);
+    CHECK(list[1]["detected_model"].is_null());
+
+    // Not a printer error: no code, and null rather than -1.
+    CHECK(list[2]["error"] == "PRINTER BUSY");
+    CHECK(list[2]["error_code"].is_null());
+
+    CHECK(list[3]["gate"] == "db_conflict");
+    CHECK(list[3]["detected_model"].is_null() && list[3]["error"].is_null() && list[3]["error_code"].is_null());
+}
+
+// Numbers a host may act on travel in `fields`, never only in `message`.
+void test_log_carries_fields()
+{
+    std::cout << "[TEST] test_log_carries_fields" << std::endl;
+
+    ewr::log::Reporter reporter;
+    std::map<std::string, std::string> seen;
+    reporter.AddSink([&](const ewr::log::Event& e) { seen = e.fields; });
+
+    reporter.Log(ewr::log::Level::Info, ewr::log::Stage::Detect, "usb.soft_reset_settled", "settled",
+                 { { "elapsed_ms", "41250" } });
+    CHECK(seen.size() == 1 && seen["elapsed_ms"] == "41250");
+
+    reporter.Log(ewr::log::Level::Info, ewr::log::Stage::Detect, "usb.trace_log", "no fields");
+    CHECK(seen.empty());
+}
+
 int main()
 {
     std::cout << "========================================" << std::endl;
@@ -6524,6 +6606,8 @@ int main()
     test_c_abi_plan_reports_reset_coverage();
     test_console_hides_the_machinery();
     test_printer_condition_names_an_error_once();
+    test_json_reset_data_lists_overrides();
+    test_log_carries_fields();
     test_json_status_separates_unknown_from_zero();
     test_json_state_data_reports_detection_as_unknown();
     test_json_state_data_counts_pads_it_could_not_read();

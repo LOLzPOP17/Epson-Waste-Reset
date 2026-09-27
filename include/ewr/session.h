@@ -68,6 +68,16 @@ namespace ewr {
         Done,           // the reset writes were acknowledged
     };
 
+    // A gate that objected and was told to go ahead: by --force-yes, a typed
+    // yes or a host callback. A caller reading only the result has to be able
+    // to see that the run wrote past an objection.
+    struct GateOverride
+    {
+        std::string gate;   // "model_mismatch", "blocker" or "db_conflict"
+        std::string detail; // the model the printer reported, or the blocker's name
+        int errorCode = -1; // the printer's ST2 error code, for a printer error
+    };
+
     struct ResetOutcome
     {
         ResetPhase phase = ResetPhase::NotStarted;
@@ -89,6 +99,10 @@ namespace ewr {
 
         StateSnapshot before; // preflight snapshot
         StateSnapshot after;  // read-back snapshot
+
+        // In the order they were passed. The model check lives in the host,
+        // so the host puts its own entry first.
+        std::vector<GateOverride> overrides;
 
         std::string error; // failure detail when the run did not complete
     };

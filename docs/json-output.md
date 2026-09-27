@@ -76,6 +76,14 @@ Every line carries these:
 Codes are namespaced by layer (`db.`, `usb.`, `exec.`, `d4.`, `end4.`,
 `update.`). A release can add codes; it will not repurpose one.
 
+Events that carry `fields` so far (values are decimal strings, like every field):
+
+| Code | Fields |
+| --- | --- |
+| `usb.soft_reset_wait` | `limit_ms`: how long EWR will wait for the printer to finish re-initializing |
+| `usb.soft_reset_settled` | `elapsed_ms`: how long it took |
+| `usb.soft_reset_settle_timeout` | `limit_ms`, `elapsed_ms` |
+
 ## `result`
 
 | Key | Type | Meaning |
@@ -246,11 +254,25 @@ it is sent.
 {"model": "R220", "target": "waste", "phase": "done",
  "writes": {"verified": 5, "total": 5}, "alternate_key_used": false, "committed": true,
  "verification": {"ran": true, "mismatches": 0, "unread": 0},
- "before": [{"address": 12, "value": 0}], "after": [{"address": 12, "value": 0}]}
+ "before": [{"address": 12, "value": 0}], "after": [{"address": 12, "value": 0}],
+ "overrides": [{"gate": "blocker", "detected_model": null, "error": "INK OUT", "error_code": 5}]}
 ```
 
 `target` is `waste` or `ink`. `phase` is `not_started`, `aborted`,
 `device_not_found`, `write_failed` or `done`.
+
+`overrides` lists every gate that objected and was told to go ahead anyway -
+by `--force-yes`, a typed yes, or a host callback - in the order they were
+passed, and is `[]` when nothing objected. A run that wrote past an objection
+says so here, not only in the events:
+
+- `"gate": "model_mismatch"` - the printer reported `detected_model`, not `model`.
+- `"gate": "blocker"` - the printer's own state: `error` is its name (`INK OUT`,
+  `PRINTER BUSY`, ...) and `error_code` the printer's error code, `null` when the
+  objection was not a printer error.
+- `"gate": "db_conflict"` - the database's sources disagree about this model.
+
+Every entry has all four keys, `null` where one does not apply.
 
 **find-addresses**
 
@@ -265,6 +287,8 @@ it is sent.
 `--json` never prompts: there is no one to ask. A run that would need an answer
 stops with `error_code: "blocked"` and writes nothing. Give the answers on the
 command line instead - `--yes` for the reset confirmation, `--force-yes` to
-overrule a printer error or a database conflict as well, `--model` when the
-menu would otherwise open. `--force-yes` is the one that can write to a printer
-in a state EWR would rather not touch; see the README before reaching for it.
+overrule a printer error or a database conflict as well. Without `--model`,
+`--json` uses the model the printer reports, as `--yes` does, and stops with
+`model_required` when it reports none the database knows. `--force-yes` is the
+one that can write to a printer in a state EWR would rather not touch; see the
+README before reaching for it.

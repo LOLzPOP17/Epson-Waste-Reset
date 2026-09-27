@@ -387,7 +387,8 @@ namespace ewr {
             const int limitMs = usb_timing::kSoftResetSettleTimeoutMs;
             log::Log(log::Level::Info, log::Stage::Detect, "usb.soft_reset_wait",
                      "[i] USB soft reset sent. Waiting for the printer to finish initializing (up to "
-                         + std::to_string(limitMs / 1000) + " s)...");
+                         + std::to_string(limitMs / 1000) + " s)...",
+                     { { "limit_ms", std::to_string(limitMs) } });
 
             // Trace only: finding the printer mid-initialization is the
             // expected answer here, not something to show the user.
@@ -425,7 +426,8 @@ namespace ewr {
                 if (IsRestingState(status))
                 {
                     log::Log(log::Level::Info, log::Stage::Detect, "usb.soft_reset_settled",
-                             "[i] Printer finished initializing after " + std::to_string(elapsedMs / 1000) + " s.");
+                             "[i] Printer finished initializing after " + std::to_string(elapsedMs / 1000) + " s.",
+                             { { "elapsed_ms", std::to_string(elapsedMs) } });
                     return;
                 }
 
@@ -433,7 +435,8 @@ namespace ewr {
                 {
                     log::Log(log::Level::Warning, log::Stage::Detect, "usb.soft_reset_settle_timeout",
                              "[!] The printer was still initializing after " + std::to_string(limitMs / 1000)
-                                 + " s. Continuing, but its status report may not show an active error yet.");
+                                 + " s. Continuing, but its status report may not show an active error yet.",
+                             { { "limit_ms", std::to_string(limitMs) }, { "elapsed_ms", std::to_string(elapsedMs) } });
                     return;
                 }
 

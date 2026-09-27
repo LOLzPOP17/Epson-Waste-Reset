@@ -170,7 +170,7 @@ ctypes frees a thunk that nothing holds, and EWR will call it.
 | `ewr_detect_model` | yes | `{"device_id", "reported_model", "model"}` |
 | `ewr_read_status` | yes | `{"model", "detected_model", "printer", "counters", "pads", "pads_total", "reset_covers"}`; `detected_model` stays null here, ask `ewr_detect_model` |
 | `ewr_dump` | yes | `{"model", "answered", "total", "values"}`; minutes, not seconds |
-| `ewr_reset` | yes | `{"model", "phase", "writes", "verification", "before", "after", ...}` |
+| `ewr_reset` | yes | `{"model", "phase", "writes", "verification", "before", "after", "overrides", ...}`; `overrides` names each gate your callbacks, or `ewr_session_set_allow_model_mismatch`, let it past |
 
 `ewr_reset` returns the same JSON whether it worked or not: `phase` says how
 far it got, and the status code says what to tell the user.

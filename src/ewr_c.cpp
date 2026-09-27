@@ -555,8 +555,8 @@ int ewr_reset(ewr_session* session, const char* model, int ink, char** out_json)
         // The CLI refuses a wrong-model write at its own gate; an embedder
         // has no such gate, so the check lives here. Only a printer that
         // names a database entry can contradict the caller: an unlisted one
-        // says nothing either way.
-        if (!session->allowModelMismatch)
+        // says nothing either way. Allowed, the mismatch still goes on record.
+        std::string mismatchPassed;
         {
             const ewr::DeviceIdQueryResult query = session->gateway.QueryDeviceId();
             if (query.found)
@@ -571,9 +571,14 @@ int ewr_reset(ewr_session* session, const char* model, int ink, char** out_json)
                     const std::vector<std::string> matches = ewr::MatchModelEntries(reported.model, entries);
                     if (!matches.empty() && matches[0] != target.name)
                     {
-                        session->Fail("The printer reports \"" + reported.model + "\" (" + matches[0]
-                                      + "), not " + target.name + ".");
-                        return EWR_ERR_MODEL_MISMATCH;
+                        if (!session->allowModelMismatch)
+                        {
+                            session->Fail("The printer reports \"" + reported.model + "\" (" + matches[0]
+                                          + "), not " + target.name + ".");
+                            return EWR_ERR_MODEL_MISMATCH;
+                        }
+
+                        mismatchPassed = matches[0];
                     }
                 }
             }
@@ -604,7 +609,10 @@ int ewr_reset(ewr_session* session, const char* model, int ink, char** out_json)
         };
 
         ewr::Session lifecycle(target, session->gateway, ewr::log::Default(), session->options);
-        const ewr::ResetOutcome outcome = ink ? lifecycle.ResetInk(handlers) : lifecycle.Reset(handlers);
+        ewr::ResetOutcome outcome = ink ? lifecycle.ResetInk(handlers) : lifecycle.Reset(handlers);
+
+        if (!mismatchPassed.empty())
+            outcome.overrides.insert(outcome.overrides.begin(), { "model_mismatch", mismatchPassed, -1 });
 
         const int delivered = Deliver(session, ewr::JsonResetData(target, ink != 0, outcome), out_json);
         if (delivered != EWR_OK)
