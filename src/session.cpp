@@ -80,9 +80,9 @@ namespace ewr {
         Blocker blocker;
         blocker.errorName = status.errorName;
         blocker.errorCode = status.errorCode;
-        blocker.explanation = "Printers locked by an active " + status.errorName +
-                              " error usually refuse factory EEPROM writes (reply ':42:NA;'). "
-                              "Clear the error first, then run the reset again.";
+        blocker.explanation = "Printers with an active " + status.errorName +
+                              " error usually refuse the reset.\n"
+                              "    Clear the error first, then run EWR again.";
         return blocker;
     }
 

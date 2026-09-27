@@ -15,6 +15,7 @@
 #include "ewr/version.h"
 #include "ewr/log.h"
 #include "ewr/json_out.h"
+#include "console.h"
 #include <cstdint>
 #include <cstdio>
 #include <memory>
@@ -399,6 +400,15 @@ static bool StdinIsInteractive()
 #endif
 }
 
+static bool StdoutIsTerminal()
+{
+#ifdef _WIN32
+    return _isatty(_fileno(stdout)) != 0;
+#else
+    return isatty(fileno(stdout)) != 0;
+#endif
+}
+
 // Every exit path funnels through here so a staged update always applies -
 // and, in --json mode, so the stream always ends with exactly one result.
 static int FinishRun(int exitCode)
@@ -563,7 +573,7 @@ int main(int argc, char* argv[])
 
     // The core never prints on its own. Warnings and errors go to stderr so
     // they survive a redirected stdout.
-    ewr::log::Default().AddSink(ewr::log::ConsoleSink(std::cout, std::cerr));
+    ewr::log::Default().AddSink(ewr::cli::ConsoleFor(std::cout, std::cerr, StdoutIsTerminal()));
 
     CliOptions cli;
 
@@ -877,28 +887,17 @@ int main(int argc, char* argv[])
     }
 
     std::vector<MenuOption> options;
-    size_t hiddenModels = 0;
 
     for (const auto& sm : smartModels)
     {
         // No addresses yet, but the read key is enough to dump the EEPROM and
         // go looking for them, so the entry is offered rather than hidden.
         const bool resettable = sm.HasResettableCounters() || sm.HasInkReset();
-        if (!resettable)
-            hiddenModels++;
 
         options.push_back({ sm.name + (resettable ? " (Smart Protocol - Recommended)"
                                                   : " (no reset addresses yet - read-only)"),
                             false, {}, sm });
     }
-
-    std::cout << "[i] Loaded " << smartModels.size() << " Smart Protocol payloads." << std::endl;
-
-    if (hiddenModels > 0)
-        std::cout << "[i] " << hiddenModels << " of them have no reset addresses yet: readable, but"
-                  << " not resettable until the counters are found (--find-addresses)." << std::endl;
-
-    std::cout << "[i] Loaded " << replayModels.size() << " Custom payloads." << std::endl;
 
     for (const auto& lm : replayModels)
         options.push_back({ lm.name + " (Replay)", true, lm, {} });
@@ -1978,7 +1977,13 @@ int main(int argc, char* argv[])
         {
             std::cout << "\nSelect [1-2] (Enter = 1): ";
             std::string choice;
-            std::getline(std::cin, choice);
+            if (!std::getline(std::cin, choice))
+            {
+                // Enter picks 1, and so would a closed stdin read as empty.
+                std::cerr << "\n[!] No input available; stopping. Nothing was written." << std::endl;
+                JsonFail("blocked", "The reset-target menu needs someone at the keyboard.");
+                return FinishRun(1);
+            }
 
             if (choice.empty() || choice == "1")
                 break;
@@ -2031,17 +2036,17 @@ int main(int argc, char* argv[])
 
     ewr::ResetHandlers handlers;
 
+    // Raw bytes stay off this screen unless the read-back disagrees (below):
+    // the gauges say the same thing in words, and --status shows the bytes.
     handlers.onPreflight = [&](const ewr::StateSnapshot& before)
     {
         PrintPrinterStatus(before.status);
         if (resetInk)
         {
-            PrintCounterValues(before.values, "Cartridge ink counter EEPROM values BEFORE reset:");
             PrintInkSummary(selected.smartModel, before.values);
         }
         else
         {
-            PrintCounterValues(before.values, "Waste counter EEPROM values BEFORE reset:");
             PrintCounterSummary(selected.smartModel, before.values);
             PrintResetCoverage(selected.smartModel);
         }
@@ -2129,19 +2134,21 @@ int main(int argc, char* argv[])
     handlers.onVerify = [&](const ewr::StateSnapshot& after)
     {
         if (resetInk)
-        {
-            PrintCounterValues(after.values, "Cartridge ink counter EEPROM values AFTER reset:");
             PrintInkSummary(selected.smartModel, after.values);
-        }
         else
-        {
-            PrintCounterValues(after.values, "Waste counter EEPROM values AFTER reset:");
             PrintCounterSummary(selected.smartModel, after.values);
-        }
     };
 
     const ewr::ResetOutcome outcome = resetInk ? session.ResetInk(handlers)
                                                : session.Reset(handlers);
+
+    // A read-back that disagrees is what a bug report needs, byte for byte.
+    if (outcome.verificationRan && (outcome.verifyMismatches > 0 || outcome.verifyUnread > 0))
+    {
+        const char* noun = resetInk ? "Cartridge ink counter" : "Waste counter";
+        PrintCounterValues(outcome.before.values, (std::string(noun) + " EEPROM values BEFORE reset:").c_str());
+        PrintCounterValues(outcome.after.values, (std::string(noun) + " EEPROM values AFTER reset:").c_str());
+    }
 
     const char* phaseName = "not_started";
     switch (outcome.phase)

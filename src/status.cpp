@@ -330,13 +330,22 @@ namespace ewr {
             return "status unavailable";
 
         std::ostringstream oss;
-        oss << (status.stateName.empty() ? "UNKNOWN STATE" : status.stateName);
+        const std::string state = status.stateName.empty() ? "UNKNOWN STATE" : status.stateName;
 
         if (status.hasError)
         {
+            // "ERROR | ERROR: INK OUT" said it twice; a BUSY printer with an
+            // error still names both.
+            if (state != "ERROR")
+                oss << state << " | ";
+
             char buf[16];
             snprintf(buf, sizeof(buf), "0x%02X", status.errorCode);
-            oss << " | ERROR: " << status.errorName << " (" << buf << ")";
+            oss << "ERROR: " << status.errorName << " (" << buf << ")";
+        }
+        else
+        {
+            oss << state;
         }
 
         return oss.str();
