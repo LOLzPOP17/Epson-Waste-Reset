@@ -48,7 +48,7 @@ Download EWR only from the [Releases page](https://github.com/RxNaison/Epson-Was
 gh attestation verify EWR-v1.4.1-win.zip -R RxNaison/Epson-Waste-Reset
 ```
 
-`✓ Verification succeeded!` means the file is byte for byte what this repository's release workflow built. If an archive from v1.4.1 or later fails the check, don't run it. Releases before v1.4.1 have no attestation and fail with `HTTP 404: Not Found` - that is expected. This is not code signing: Windows may still warn that the app is unrecognized.
+`✓ Verification succeeded!` means the file is byte for byte what this repository's release workflow built, and its `Build workflow` line ends in the tag it was built from (`@refs/tags/v1.4.1`) - check that it is the version you meant to download. A modified file fails with `HTTP 404: Not Found`: no attestation exists for its contents. If an archive from v1.4.1 or later fails, don't run it. Releases before v1.4.1 have no attestation and fail the same way, so the check cannot vouch for them. This is not code signing: Windows may still warn that the app is unrecognized.
 
 ### Command-line options
 
