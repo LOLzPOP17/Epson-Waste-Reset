@@ -1056,4 +1056,23 @@ namespace ewr {
         return result;
     }
 
+    std::string DescribeTraceContext(const ExecutorOptions::TraceContext& context)
+    {
+        std::string selected = context.selectedEntry.empty() ? "(unknown)" : context.selectedEntry;
+        if (!context.selectedEntry.empty() && !context.selectedBy.empty())
+            selected += " (" + context.selectedBy + ")";
+
+        std::string out;
+        out += "Printer reports: " + (context.printerReports.empty() ? std::string("(unknown)") : context.printerReports) + "\n";
+        out += "Detected entry:  " + (context.detectedEntry.empty() ? std::string("(none)") : context.detectedEntry) + "\n";
+        out += "Selected entry:  " + selected + "\n";
+
+        // The first thing to check in a report of a write gone wrong.
+        if (!context.detectedEntry.empty() && !context.selectedEntry.empty()
+            && context.detectedEntry != context.selectedEntry)
+            out += "[!] The selected entry is not the one the printer matches.\n";
+
+        return out;
+    }
+
 } // namespace ewr

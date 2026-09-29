@@ -1140,6 +1140,9 @@ int main(int argc, char* argv[])
     MenuOption selected;
     bool hasSelected = false;
 
+    // How `selected` was chosen, for the trace banner.
+    std::string selectedBy;
+
     // Same matcher detection uses, so names, aliases and families all work.
     if (!cli.modelOverride.empty())
     {
@@ -1245,7 +1248,10 @@ int main(int argc, char* argv[])
         }
 
         if (hasSelected)
+        {
+            selectedBy = "--model \"" + cli.modelOverride + "\"";
             std::cout << "\n[i] --model: using " << selected.displayName << "." << std::endl;
+        }
     }
 
     // --yes or --json with no --model: the printer named itself, so take that
@@ -1276,6 +1282,7 @@ int main(int argc, char* argv[])
             {
                 selected = opt;
                 hasSelected = true;
+                selectedBy = std::string(flag) + ": the detected model";
                 std::cout << "\n[i] " << flag << ": using the detected model " << opt.smartModel.name << "."
                           << std::endl;
                 break;
@@ -1324,6 +1331,7 @@ int main(int argc, char* argv[])
                 {
                     selected = opt;
                     hasSelected = true;
+                    selectedBy = "the detected model, confirmed at the prompt";
                     break;
                 }
             }
@@ -1369,6 +1377,7 @@ int main(int argc, char* argv[])
             {
                 selected = filteredOptions[choice - 1];
                 hasSelected = true;
+                selectedBy = "picked from the menu, search \"" + searchQuery + "\"";
             }
             else
             {
@@ -1486,6 +1495,10 @@ int main(int argc, char* argv[])
     ewr::ExecutorOptions sessionOptions = ewr::DefaultQueryOptions();
     sessionOptions.interfaceCandidate = cli.interfaceCandidate;
     sessionOptions.usbSoftReset = cli.usbSoftReset;
+    sessionOptions.trace.printerReports = detectedMdl;
+    sessionOptions.trace.detectedEntry = detectedMatch;
+    sessionOptions.trace.selectedEntry = selected.isReplay ? selected.replayModel.name : selected.smartModel.name;
+    sessionOptions.trace.selectedBy = selected.isReplay ? selectedBy + ", replay dump" : selectedBy;
 
     if (statusOnly)
     {
@@ -1986,6 +1999,7 @@ int main(int argc, char* argv[])
         replayOptions.useSessionLayer = false;
         replayOptions.interfaceCandidate = cli.interfaceCandidate;
         replayOptions.usbSoftReset = cli.usbSoftReset;
+        replayOptions.trace = sessionOptions.trace;
 
         const ewr::ResetRunResult run = gateway.RunReset(executionSequence, replayOptions);
 

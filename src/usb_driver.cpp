@@ -139,11 +139,16 @@ namespace ewr {
             bool closed_ = false;
         };
 
-        void WriteTraceBanner(std::ostream& trace, const std::string& title)
+        // The interface survey runs before any model is chosen, so only the
+        // device sessions carry a context.
+        void WriteTraceBanner(std::ostream& trace, const std::string& title,
+                              const ExecutorOptions::TraceContext* context = nullptr)
         {
             trace << "==================================================\n";
             trace << title << "\n";
             trace << "EWR Version: " << EWR_VERSION << "\n";
+            if (context)
+                trace << DescribeTraceContext(*context);
             trace << "==================================================\n\n";
         }
 
@@ -456,7 +461,7 @@ namespace ewr {
         std::ostream& trace = traceLog.stream;
         std::unique_ptr<UsbBackend> backend = CreateUsbBackend(trace);
 
-        WriteTraceBanner(trace, std::string("EWR HARDWARE TRACE LOG (") + backend->PlatformName() + ")");
+        WriteTraceBanner(trace, std::string("EWR HARDWARE TRACE LOG (") + backend->PlatformName() + ")", &options.trace);
 
         std::vector<UsbCandidate> candidates;
         if (!PrepareCandidates(*backend, trace, options, candidates, run.deviceFound, run.exec.error))
@@ -626,7 +631,7 @@ namespace ewr {
         std::ostream& trace = traceLog.stream;
         std::unique_ptr<UsbBackend> backend = CreateUsbBackend(trace);
 
-        WriteTraceBanner(trace, std::string("EWR STATUS/READ QUERY SESSION (") + backend->PlatformName() + ")");
+        WriteTraceBanner(trace, std::string("EWR STATUS/READ QUERY SESSION (") + backend->PlatformName() + ")", &options.trace);
 
         std::vector<UsbCandidate> candidates;
         if (!PrepareCandidates(*backend, trace, options, candidates, run.deviceFound, run.query.error))

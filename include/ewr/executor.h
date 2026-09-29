@@ -75,7 +75,25 @@ namespace ewr {
         // when the keywords differ in length.
         std::string writeKey;
         std::string alternateWriteKey;
+
+        // Which printer and database entry this run is about, printed in the
+        // banner of every ewr_trace.log session. A trace sent in by email
+        // arrives without the console output, and the raw device ID alone
+        // does not say which entry was written. Trace text only: nothing here
+        // reaches the printer.
+        struct TraceContext
+        {
+            std::string printerReports; // MDL from the IEEE 1284 device ID
+            std::string detectedEntry;  // database entry that name matches
+            std::string selectedEntry;  // entry the run actually uses
+            std::string selectedBy;     // how it was chosen, e.g. "--model \"L565\""
+        };
+        TraceContext trace;
     };
+
+    // The banner lines for `context`, one per line, each ending in '\n'.
+    // Unknown fields are named as unknown rather than left out.
+    std::string DescribeTraceContext(const ExecutorOptions::TraceContext& context);
 
     struct ExecutionResult
     {

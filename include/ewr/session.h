@@ -169,8 +169,14 @@ namespace ewr {
         // the very state the run just read or wrote.
         ExecutorOptions SoftResetOnce(ExecutorOptions options);
 
+        // Fills the trace's "Printer reports" from the last device ID this
+        // gateway read, for a host that did not name the printer itself.
+        void RememberPrinterName(const std::string& deviceId);
+        ExecutorOptions WithPrinterName(ExecutorOptions options) const;
+
         bool m_traceStarted = false;
         bool m_softResetSent = false;
+        std::string m_printerName;
         std::unique_ptr<RunLock> m_runLock;
     };
 

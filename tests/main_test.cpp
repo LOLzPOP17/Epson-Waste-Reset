@@ -1781,12 +1781,14 @@ struct FakeGateway : ewr::IDeviceGateway
     int resetCalls = 0;
     std::vector<std::vector<unsigned char>> lastSequence;
     ewr::ExecutorOptions lastResetOptions;
+    ewr::ExecutorOptions lastQueryOptions;
 
     ewr::QueryRunResult RunQuery(const std::vector<std::vector<unsigned char>>&,
                                  const std::vector<std::vector<unsigned char>>&,
-                                 const ewr::ExecutorOptions&) override
+                                 const ewr::ExecutorOptions& options) override
     {
         queryCalls++;
+        lastQueryOptions = options;
         return queryResult;
     }
 
@@ -3739,6 +3741,76 @@ void test_interface_pin_option_threading()
     CHECK(gw.lastResetOptions.validateHandshake);
     CHECK(gw.lastResetOptions.verifyWrites);
     CHECK(gw.lastResetOptions.useSessionLayer);
+}
+
+// A trace sent in by email arrives without the console output, so the banner
+// has to name the printer and the entry written - and say so when they differ.
+void test_trace_context_description()
+{
+    std::cout << "[TEST] test_trace_context_description" << std::endl;
+
+    ewr::ExecutorOptions::TraceContext context;
+    context.printerReports = "L565 Series";
+    context.detectedEntry = "L565";
+    context.selectedEntry = "L565";
+    context.selectedBy = "--yes: the detected model";
+
+    const std::string same = ewr::DescribeTraceContext(context);
+    CHECK(same.find("Printer reports: L565 Series\n") != std::string::npos);
+    CHECK(same.find("Detected entry:  L565\n") != std::string::npos);
+    CHECK(same.find("Selected entry:  L565 (--yes: the detected model)\n") != std::string::npos);
+    CHECK(same.find("[!]") == std::string::npos);
+
+    context.selectedEntry = "L3110";
+    context.selectedBy = "--model \"L3110\"";
+    CHECK(ewr::DescribeTraceContext(context).find("[!] The selected entry is not the one the printer matches.")
+          != std::string::npos);
+
+    // Nothing known: every line still printed, none claiming a mismatch.
+    const std::string empty = ewr::DescribeTraceContext({});
+    CHECK(empty.find("Printer reports: (unknown)\n") != std::string::npos);
+    CHECK(empty.find("Detected entry:  (none)\n") != std::string::npos);
+    CHECK(empty.find("Selected entry:  (unknown)\n") != std::string::npos);
+    CHECK(empty.find("[!]") == std::string::npos);
+
+    // A printer that matches nothing is not a mismatch either.
+    ewr::ExecutorOptions::TraceContext unmatched;
+    unmatched.printerReports = "EPSON Mystery 9000";
+    unmatched.selectedEntry = "L3110";
+    CHECK(ewr::DescribeTraceContext(unmatched).find("[!]") == std::string::npos);
+}
+
+// Every host gets the entry into the trace, the C API included, without
+// having to say it: the Session names the model it runs.
+void test_session_names_its_model_in_the_trace_context()
+{
+    std::cout << "[TEST] test_session_names_its_model_in_the_trace_context" << std::endl;
+
+    const ewr::DbPrinterModel model = MakeSessionModel();
+
+    ewr::ResetHandlers handlers;
+    handlers.onBlocker = [](const ewr::Blocker&) { return true; }; // past INK OUT
+
+    FakeGateway quiet = MakeSessionGateway();
+    ewr::Session unnamed(model, quiet, ewr::log::Default(), ewr::DefaultQueryOptions());
+    CHECK(unnamed.Reset(handlers).phase == ewr::ResetPhase::Done);
+    CHECK(quiet.queryCalls > 0);
+    CHECK(quiet.lastQueryOptions.trace.selectedEntry == model.name);
+    CHECK(quiet.lastResetOptions.trace.selectedEntry == model.name);
+
+    // What a host says is kept, not overwritten.
+    ewr::ExecutorOptions named = ewr::DefaultQueryOptions();
+    named.trace.printerReports = "TestJet 100 Series";
+    named.trace.detectedEntry = "TestJet 100";
+    named.trace.selectedEntry = "TestJet 100";
+    named.trace.selectedBy = "--model \"testjet\"";
+
+    FakeGateway told = MakeSessionGateway();
+    ewr::Session session(model, told, ewr::log::Default(), named);
+    CHECK(session.Reset(handlers).phase == ewr::ResetPhase::Done);
+    CHECK(told.lastResetOptions.trace.printerReports == "TestJet 100 Series");
+    CHECK(told.lastResetOptions.trace.detectedEntry == "TestJet 100");
+    CHECK(told.lastResetOptions.trace.selectedBy == "--model \"testjet\"");
 }
 
 void test_evaluate_ink_blocker()
@@ -6466,6 +6538,8 @@ int main()
     test_ink_reset_requires_preflight();
     test_session_conflict_gate();
     test_interface_pin_option_threading();
+    test_trace_context_description();
+    test_session_names_its_model_in_the_trace_context();
     test_query_session_failfast_on_silence();
     test_query_session_happy_path();
     test_d4_framer_length_framing();

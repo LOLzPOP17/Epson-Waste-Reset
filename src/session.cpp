@@ -1,4 +1,5 @@
 #include "ewr/session.h"
+#include "ewr/deviceid.h"
 
 #include <cstdio>
 
@@ -137,7 +138,9 @@ namespace ewr {
         if (!ClaimPrinter())
             return {};
 
-        return QueryPrinterDeviceId(NextCallAppends());
+        DeviceIdQueryResult result = QueryPrinterDeviceId(NextCallAppends());
+        RememberPrinterName(result.deviceId);
+        return result;
     }
 
     std::vector<InterfaceInfo> UsbDeviceGateway::ListInterfaces()
@@ -145,7 +148,30 @@ namespace ewr {
         if (!ClaimPrinter())
             return {};
 
-        return ListPrinterInterfaces(NextCallAppends());
+        std::vector<InterfaceInfo> interfaces = ListPrinterInterfaces(NextCallAppends());
+        for (const InterfaceInfo& info : interfaces)
+        {
+            if (!info.deviceId.empty())
+            {
+                RememberPrinterName(info.deviceId);
+                break;
+            }
+        }
+        return interfaces;
+    }
+
+    void UsbDeviceGateway::RememberPrinterName(const std::string& deviceId)
+    {
+        const std::string name = ParseIeee1284DeviceId(deviceId).model;
+        if (!name.empty())
+            m_printerName = name;
+    }
+
+    ExecutorOptions UsbDeviceGateway::WithPrinterName(ExecutorOptions options) const
+    {
+        if (options.trace.printerReports.empty())
+            options.trace.printerReports = m_printerName;
+        return options;
     }
 
     ExecutorOptions UsbDeviceGateway::SoftResetOnce(ExecutorOptions options)
@@ -169,7 +195,8 @@ namespace ewr {
             return busy;
         }
 
-        return ExecuteQuerySessionWithFallback(handshake, queries, SoftResetOnce(options), NextCallAppends());
+        return ExecuteQuerySessionWithFallback(handshake, queries, WithPrinterName(SoftResetOnce(options)),
+                                               NextCallAppends());
     }
 
     ResetRunResult UsbDeviceGateway::RunReset(
@@ -183,7 +210,7 @@ namespace ewr {
             return busy;
         }
 
-        return ExecutePayloadSequenceWithFallback(sequence, SoftResetOnce(options), NextCallAppends());
+        return ExecutePayloadSequenceWithFallback(sequence, WithPrinterName(SoftResetOnce(options)), NextCallAppends());
     }
 
     // ------------------------------------------------------------------
@@ -219,6 +246,9 @@ namespace ewr {
         , m_reporter(reporter)
         , m_queryOptions(std::move(queryOptions))
     {
+        // A host may say more (how the entry was chosen); none may say less.
+        if (m_queryOptions.trace.selectedEntry.empty())
+            m_queryOptions.trace.selectedEntry = m_model.name;
     }
 
     StateSnapshot Session::ReadState() const
