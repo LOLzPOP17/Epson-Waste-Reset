@@ -23,7 +23,12 @@
 #include <utility>
 #include <vector>
 #include <fstream>
+#include <functional>
+#include <future>
 #include <sstream>
+#include <chrono>
+#include <csignal>
+#include <thread>
 #include <ctime>
 
 #ifdef _WIN32
@@ -220,8 +225,8 @@ static void PrintUsage()
               << "                   pad counters, on models that carry a per-color ink map.\n"
               << "                   Chooses the target only - it confirms nothing, and it\n"
               << "                   cannot refill ink: an empty cartridge will report full.\n"
-              << "  --no-update      Fully offline run: no update check, no download, no\n"
-              << "                   staged swap on exit. For testing local database edits\n"
+              << "  --no-update      Fully offline run: no update check, no download,\n"
+              << "                   database.json left as it is. For testing local edits\n"
               << "                   (custom addresses, new models) before a pull request.\n"
               << "  --usb-soft-reset Reset the USB channel once, before the run's first\n"
               << "                   session, then wait (up to 90 s) for the printer to\n"
@@ -415,8 +420,112 @@ static bool StdoutIsTerminal()
 #endif
 }
 
-// Every exit path funnels through here so a staged update always applies -
-// and, in --json mode, so the stream always ends with exactly one result.
+#ifdef _WIN32
+static BOOL WINAPI ShowCursorOnInterrupt(DWORD)
+{
+    const HANDLE out = GetStdHandle(STD_OUTPUT_HANDLE);
+    CONSOLE_CURSOR_INFO info{};
+    if (GetConsoleCursorInfo(out, &info))
+    {
+        info.bVisible = TRUE;
+        SetConsoleCursorInfo(out, &info);
+    }
+    return FALSE; // the default handler still ends the process
+}
+#else
+static void ShowCursorOnInterrupt(int sig)
+{
+    static const char kShow[] = "\033[?25h";
+    (void)!write(STDOUT_FILENO, kShow, sizeof(kShow) - 1);
+    std::signal(sig, SIG_DFL);
+    std::raise(sig);
+}
+#endif
+
+// Ctrl+C mid-spin skips the destructor and would leave the person's terminal
+// without a cursor, so an interrupt handler shows it again on the way out.
+class HiddenCursor
+{
+public:
+    HiddenCursor()
+    {
+#ifdef _WIN32
+        SetConsoleCtrlHandler(ShowCursorOnInterrupt, TRUE);
+        m_out = GetStdHandle(STD_OUTPUT_HANDLE);
+        m_saved = GetConsoleCursorInfo(m_out, &m_info) != 0;
+        if (m_saved)
+        {
+            CONSOLE_CURSOR_INFO hidden = m_info;
+            hidden.bVisible = FALSE;
+            SetConsoleCursorInfo(m_out, &hidden);
+        }
+#else
+        m_previous = std::signal(SIGINT, ShowCursorOnInterrupt);
+        std::cout << "\033[?25l" << std::flush;
+#endif
+    }
+
+    ~HiddenCursor()
+    {
+#ifdef _WIN32
+        if (m_saved)
+            SetConsoleCursorInfo(m_out, &m_info);
+        SetConsoleCtrlHandler(ShowCursorOnInterrupt, FALSE);
+#else
+        std::cout << "\033[?25h" << std::flush;
+        std::signal(SIGINT, m_previous);
+#endif
+    }
+
+    HiddenCursor(const HiddenCursor&) = delete;
+    HiddenCursor& operator=(const HiddenCursor&) = delete;
+
+private:
+#ifdef _WIN32
+    HANDLE m_out{ nullptr };
+    CONSOLE_CURSOR_INFO m_info{};
+    bool m_saved{ false };
+#else
+    void (*m_previous)(int){ SIG_DFL };
+#endif
+};
+
+// Turns | / - \ in place after text already on the line until `done`. Only on a
+// terminal: on a pipe the redraws would pile up in the log, and under --json
+// stdout is not the person's.
+static void SpinUntil(const std::function<bool()>& done)
+{
+    static const char kFrames[] = { '|', '/', '-', '\\' };
+
+    std::cout << std::flush;
+    if (g_json || !StdoutIsTerminal())
+    {
+        while (!done())
+            std::this_thread::sleep_for(std::chrono::milliseconds(100));
+        return;
+    }
+
+    HiddenCursor hidden;
+    for (size_t frame = 0; !done(); ++frame)
+    {
+        std::cout << kFrames[frame % 4] << '\b' << std::flush;
+        std::this_thread::sleep_for(std::chrono::milliseconds(100));
+    }
+}
+
+// Releases ship as archives, so EWR announces a new one instead of installing it.
+static void PrintNewVersionBanner(const std::string& latestVersion)
+{
+    std::cout << "\n  ************************************************************\n"
+              << "    A NEW VERSION OF EWR IS AVAILABLE: " << latestVersion
+              << " (you have " << kEwrCurrentVersion << ")\n"
+              << "    Download it here:\n"
+              << "    " << kReleasesPageUrl << "\n"
+              << "  ************************************************************" << std::endl;
+}
+
+// Every exit path funnels through here so, in --json mode, the stream always
+// ends with exactly one result.
 static int FinishRun(int exitCode)
 {
     if (g_json)
@@ -439,8 +548,6 @@ static int FinishRun(int exitCode)
         std::cout << "\nPress Enter to exit..." << std::endl;
         std::cin.get();
     }
-
-    ewr::BackgroundUpdater::Instance().ApplyStagedUpdatesOnExit();
 
     return exitCode;
 }
@@ -835,39 +942,38 @@ int main(int argc, char* argv[])
         return FinishRun(0);
     }
 
-    // Only the first run blocks: without a database there is nothing to show,
-    // and nothing loaded that a swap could race against.
-    if (!cli.noUpdate && !fs::exists("database.json"))
-    {
-        std::cout << "[i] Downloading printer payload database... ";
-        std::cout.flush();
-        if (ewr::Updater::SyncDatabaseNow("database.json"))
-            std::cout << "SUCCESS.\n" << std::endl;
-        else
-            std::cout << "FAILED.\n" << std::endl;
-    }
-
     if (cli.noUpdate)
     {
-        // Fully offline run: no release check, no download, no staged swap.
+        // Fully offline run: no release check, no download.
         std::cout << "[i] --no-update: offline run, database.json will not be modified." << std::endl;
     }
     else
     {
-        // Releases ship as archives, so EWR announces them instead of self-installing.
-        std::cout << "[i] Checking for updates... " << std::flush;
-        const ewr::UpdateMetadata update = ewr::Updater::CheckLatestRelease(kEwrCurrentVersion);
-        if (update.updateAvailable)
-            std::cout << "version " << update.latestVersion << " is available!\n"
-                      << "    Download it at " << kReleasesPageUrl << std::endl;
-        else if (update.latestVersion.empty())
-            std::cout << "could not reach GitHub." << std::endl;
-        else
-            std::cout << "you are up to date." << std::endl;
+        // The database is refreshed before it is loaded, so this run already
+        // writes with it. The release check runs alongside: offline, the two
+        // wait out one connect timeout instead of one each.
+        auto database = std::async(std::launch::async, [] { return ewr::Updater::UpdateDatabaseNow("database.json"); });
+        auto release = std::async(std::launch::async, ewr::Updater::CheckLatestRelease, kEwrCurrentVersion);
 
-        // Staged, not applied: the swap happens on exit, so the database
-        // loaded below stays stable for the whole run.
-        ewr::BackgroundUpdater::Instance().StartAsync(ewr::kMaxSupportedDatabaseSchema);
+        auto ready = [](const auto& task) { return task.wait_for(std::chrono::seconds(0)) == std::future_status::ready; };
+
+        std::cout << "[i] Checking for database update... ";
+        SpinUntil([&] { return ready(database) && ready(release); });
+
+        switch (database.get())
+        {
+            case ewr::DatabaseUpdate::Updated:  std::cout << "updated." << std::endl; break;
+            case ewr::DatabaseUpdate::UpToDate: std::cout << "up to date." << std::endl; break;
+            case ewr::DatabaseUpdate::Failed:   std::cout << "failed - using the copy on disk." << std::endl; break;
+        }
+
+        const ewr::UpdateMetadata update = release.get();
+        if (update.updateAvailable)
+            PrintNewVersionBanner(update.latestVersion);
+        else if (update.latestVersion.empty())
+            std::cout << "[i] Could not reach GitHub to check for a newer EWR release." << std::endl;
+        else
+            std::cout << "[i] EWR " << kEwrCurrentVersion << " is the latest version." << std::endl;
     }
 
     ewr::UniversalGenerator generator;

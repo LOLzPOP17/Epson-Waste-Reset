@@ -110,10 +110,9 @@ namespace ewr::log
             return !m_sinks.empty();
         }
 
-        // Safe to call from any thread: the background updater emits from its
-        // own thread while a reset runs on the main one. Sinks are copied out
-        // under the lock and invoked outside it, so a sink may log, install
-        // another sink, or block without deadlocking the emitter.
+        // Safe to call from any thread. Sinks are copied out under the lock
+        // and invoked outside it, so a sink may log, install another sink, or
+        // block without deadlocking the emitter.
         void Emit(const Event& event) const
         {
             std::vector<Sink> sinks;

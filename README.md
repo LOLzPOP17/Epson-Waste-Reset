@@ -18,7 +18,7 @@ EWR bypasses the need to pay for sketchy third-party reset keys (like WIC Reset)
 * **Reads before it writes, and verifies after.** Every reset runs the same lifecycle: read the current counters, refuse to continue if the printer reports a state that makes the reset pointless or unsafe, ask you once, write, then read the counters back and compare. You see the numbers move instead of trusting an acknowledgement.
 * **Smart Protocol Engine:** Constructs exact EEPROM write packets (`|B`) on the fly for your specific model. It manages the IEEE 1284.4 (D4) credit system properly, so nothing overflows a buffer or locks the printer up.
 * **~1450 printers**, from Stylus Photo R-series to the current ET / L / XP / WF lines. Cartridge ink levels can be reset too on models that expose a per-colour map.
-* **OTA Database Sync:** The printer database refreshes itself in the background and swaps in on exit, so the database in use never changes underneath a running reset. The full database also ships in the download - EWR works offline out of the box.
+* **OTA Database Sync:** The printer database refreshes itself at startup, before anything is read from or written to the printer, so a database fix applies to the run that fetched it and the database in use never changes underneath a reset. The full database also ships in the download - EWR works offline out of the box.
 * **Cross-Platform Core:**
   * **Windows:** Native Win32 `SetupAPI` with asynchronous `OVERLAPPED` I/O to safely drain the Windows Print Spooler buffers, plus a statically linked `libusb` for the vendor-specific interfaces `usbprint.sys` cannot reach - on ET-2xxx units the maintenance engine lives on one of those. Both transports run in one pass, `usbprint.sys` first. Zero custom drivers required.
   * **Linux & macOS:** Uses `libusb` to automatically detach the kernel driver (CUPS) for exclusive, raw hardware access.
@@ -38,7 +38,7 @@ EWR bypasses the need to pay for sketchy third-party reset keys (like WIC Reset)
 6. It writes, then reads the counters back and tells you whether every one now holds its reset value.
 7. **Turn the printer off and back on with its physical power button** to commit the change.
 
-No internet connection is needed - the database ships in the download. When EWR can reach GitHub it quietly picks up new models in the background.
+No internet connection is needed - the database ships in the download. When EWR can reach GitHub it picks up database updates at startup.
 
 ### Command-line options
 
@@ -56,7 +56,7 @@ Running with no options is the supported path. These exist for diagnosis and for
 | `--yes`, `-y` | Answer the reset confirmation with yes, for callers driving EWR non-interactively. See below. |
 | `--force-yes` | `--yes`, and overrule the gates that would stop it: a model mismatch, a printer error, a database conflict. Last resort. |
 | `--cartridge`, `-c` | Reset the cartridge ink levels instead of the waste ink pads, on models that carry a per-color ink map. |
-| `--no-update` | Fully offline: no update check, no download, no staged swap on exit. Use it while editing `database.json`. |
+| `--no-update` | Fully offline: no update check, no download, `database.json` left as it is. Use it while editing `database.json`. |
 | `--usb-soft-reset` | Diagnostic only, Windows. Resets the USB channel once at the start of the run, then waits (up to 90 s) for the printer to finish the re-initialization the reset starts. |
 | `--json` | Machine-readable output: one JSON object per line on stdout, for callers driving EWR from another language. See [docs/json-output.md](docs/json-output.md). |
 | `--help`, `-h` | The same list, from the binary. |

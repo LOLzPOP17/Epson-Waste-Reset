@@ -1,9 +1,6 @@
 #pragma once
 #include <string>
 #include <vector>
-#include <atomic>
-#include <thread>
-#include <mutex>
 
 namespace ewr {
 
@@ -72,55 +69,25 @@ namespace ewr {
 
     } // namespace platform
 
+    enum class DatabaseUpdate
+    {
+        Updated,    // a newer database replaced the file
+        UpToDate,   // the file already matches upstream
+        Failed,     // unreachable, invalid or not replaceable; the file is untouched
+    };
+
     class Updater
     {
     public:
-        // Blocking. Only for the first run, when no database exists yet and
-        // there is nothing a swap could race against.
-        static bool SyncDatabaseNow(const std::string& dbPath = "database.json",
-                                    int maxSupportedSchema = kMaxSupportedDatabaseSchema);
-
-        // Validates into `<dbPath>.staged` without touching the live file, so
-        // the in-memory database can never change underneath a running reset.
-        static bool StageDatabaseUpdate(const std::string& dbPath, std::string& outStagedPath,
-                                        int maxSupportedSchema = kMaxSupportedDatabaseSchema);
+        // Blocking. Call it before loading the database: the run then uses
+        // what was fetched, and the in-memory copy cannot change under a
+        // reset. Swapping on exit instead meant a database fix reached a
+        // printer only on the run after the one that downloaded it.
+        static DatabaseUpdate UpdateDatabaseNow(const std::string& dbPath = "database.json",
+                                                int maxSupportedSchema = kMaxSupportedDatabaseSchema);
 
         // Asks GitHub for the latest release and compares it to currentVersion.
         static UpdateMetadata CheckLatestRelease(const std::string& currentVersion);
-    };
-
-    // Off the main thread so startup stays responsive. Nothing is applied
-    // while the program runs; the staged file is swapped in on exit.
-    class BackgroundUpdater
-    {
-    public:
-        static BackgroundUpdater& Instance();
-
-        void StartAsync(int maxSupportedSchema = kMaxSupportedDatabaseSchema);
-
-        void Stop();
-
-        bool IsRunning() const;
-
-        // Joins the worker, then applies any staged update. Call last.
-        void ApplyStagedUpdatesOnExit();
-
-    private:
-        BackgroundUpdater() = default;
-        ~BackgroundUpdater();
-
-        BackgroundUpdater(const BackgroundUpdater&) = delete;
-        BackgroundUpdater& operator=(const BackgroundUpdater&) = delete;
-
-        void WorkerRoutine(int maxSupportedSchema);
-
-        std::thread m_worker;
-        std::atomic<bool> m_running{false};
-        std::atomic<bool> m_stopRequested{false};
-
-        mutable std::mutex m_mutex;
-        std::string m_stagedDatabasePath;
-        std::string m_databasePath;
     };
 
 } // namespace ewr

@@ -296,57 +296,38 @@ namespace ewr {
 
     // ------------------------------------------------------------------ Updater
 
-    bool Updater::SyncDatabaseNow(const std::string& dbPath, int maxSupportedSchema)
-    {
-        platform::InitNetworking();
-
-        const fs::path target(dbPath);
-        const fs::path temp = fs::path(dbPath + ".tmp");
-
-        if (!platform::HttpDownloadToFile(kDatabaseUrl, temp.string()))
-        {
-            RemoveQuietly(temp);
-            return false;
-        }
-
-        if (!ValidateDatabasePayload(temp.string(), maxSupportedSchema))
-        {
-            RemoveQuietly(temp);
-            return false;
-        }
-
-        return platform::ReplaceFileAtomic(temp.string(), target.string());
-    }
-
-    bool Updater::StageDatabaseUpdate(const std::string& dbPath, std::string& outStagedPath,
-                                      int maxSupportedSchema)
+    DatabaseUpdate Updater::UpdateDatabaseNow(const std::string& dbPath, int maxSupportedSchema)
     {
         platform::InitNetworking();
 
         const fs::path staged = fs::path(dbPath + kStagedDatabaseSuffix);
-        outStagedPath.clear();
 
-        if (!platform::HttpDownloadToFile(kDatabaseUrl, staged.string()))
+        if (!platform::HttpDownloadToFile(kDatabaseUrl, staged.string())
+            || !ValidateDatabasePayload(staged.string(), maxSupportedSchema))
         {
             RemoveQuietly(staged);
-            return false;
+            ewr::log::Log(ewr::log::Level::Info, ewr::log::Stage::Update, "update.database_failed",
+                          "[i] Could not download the latest printer database - using the one on disk.");
+            return DatabaseUpdate::Failed;
         }
 
-        if (!ValidateDatabasePayload(staged.string(), maxSupportedSchema))
-        {
-            RemoveQuietly(staged);
-            return false;
-        }
-
-        // Nothing changed upstream: skip the swap entirely.
         if (FilesAreIdentical(staged, fs::path(dbPath)))
         {
             RemoveQuietly(staged);
-            return false;
+            return DatabaseUpdate::UpToDate;
         }
 
-        outStagedPath = staged.string();
-        return true;
+        if (!platform::ReplaceFileAtomic(staged.string(), dbPath))
+        {
+            RemoveQuietly(staged);
+            ewr::log::Log(ewr::log::Level::Info, ewr::log::Stage::Update, "update.database_failed",
+                          "[i] Could not replace " + dbPath + " - using the one on disk.");
+            return DatabaseUpdate::Failed;
+        }
+
+        ewr::log::Log(ewr::log::Level::Info, ewr::log::Stage::Update,
+                      "update.database_applied", "[+] Printer database updated.");
+        return DatabaseUpdate::Updated;
     }
 
     UpdateMetadata Updater::CheckLatestRelease(const std::string& currentVersion)
@@ -358,105 +339,6 @@ namespace ewr {
             return UpdateMetadata{};
 
         return ParseReleaseResponse(body, currentVersion);
-    }
-
-    // -------------------------------------------------------- BackgroundUpdater
-
-    BackgroundUpdater& BackgroundUpdater::Instance()
-    {
-        static BackgroundUpdater instance;
-        return instance;
-    }
-
-    BackgroundUpdater::~BackgroundUpdater()
-    {
-        Stop();
-    }
-
-    void BackgroundUpdater::StartAsync(int maxSupportedSchema)
-    {
-        if (m_running.exchange(true))
-            return;
-
-        // A previous worker may have finished but not been joined yet; assigning
-        // over a joinable thread would call std::terminate.
-        if (m_worker.joinable())
-            m_worker.join();
-
-        m_stopRequested = false;
-
-        {
-            std::lock_guard<std::mutex> lock(m_mutex);
-            m_databasePath = "database.json";
-            m_stagedDatabasePath.clear();
-        }
-
-        platform::InitNetworking();
-
-        m_worker = std::thread(&BackgroundUpdater::WorkerRoutine, this, maxSupportedSchema);
-    }
-
-    void BackgroundUpdater::WorkerRoutine(int maxSupportedSchema)
-    {
-        std::string databasePath;
-        {
-            std::lock_guard<std::mutex> lock(m_mutex);
-            databasePath = m_databasePath;
-        }
-
-        if (!m_stopRequested)
-        {
-            std::string stagedDatabase;
-            if (Updater::StageDatabaseUpdate(databasePath, stagedDatabase, maxSupportedSchema))
-            {
-                std::lock_guard<std::mutex> lock(m_mutex);
-                m_stagedDatabasePath = stagedDatabase;
-            }
-        }
-
-        m_running = false;
-    }
-
-    void BackgroundUpdater::Stop()
-    {
-        m_stopRequested = true;
-
-        if (m_worker.joinable())
-            m_worker.join();
-
-        m_running = false;
-    }
-
-    bool BackgroundUpdater::IsRunning() const
-    {
-        return m_running;
-    }
-
-    void BackgroundUpdater::ApplyStagedUpdatesOnExit()
-    {
-        // Join first: a download still in flight would otherwise be discarded,
-        // and the staged path must not be read while the worker writes it.
-        Stop();
-
-        std::string stagedDatabase;
-        std::string databasePath;
-        {
-            std::lock_guard<std::mutex> lock(m_mutex);
-            stagedDatabase = m_stagedDatabasePath;
-            databasePath = m_databasePath;
-            m_stagedDatabasePath.clear();
-        }
-
-        if (stagedDatabase.empty())
-            return;
-
-        // The in-memory database is no longer used at this point, so replacing
-        // the file here cannot affect the reset that just ran.
-        if (platform::ReplaceFileAtomic(stagedDatabase, databasePath))
-            ewr::log::Log(ewr::log::Level::Info, ewr::log::Stage::Update,
-                          "update.database_applied", "[+] Printer database updated.");
-        else
-            RemoveQuietly(fs::path(stagedDatabase));
     }
 
 } // namespace ewr

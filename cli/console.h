@@ -39,6 +39,9 @@ namespace ewr::cli
             "exec.write_retry", "exec.write_key_retry", "exec.write_rejected", "exec.write_refused",
             "escr.success", "end4.success",
             "session.commit", "session.commit_noop", "session.committed",
+            // Logged from the update worker while the CLI's own update line is
+            // still spinning; the CLI prints the outcome there instead.
+            "update.database_applied", "update.database_failed",
         };
 
         static const char* const kProgress[] = {

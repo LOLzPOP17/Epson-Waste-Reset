@@ -44,10 +44,10 @@ summary, so nothing gets flattened silently.
 
 ### Testing an edited database locally
 
-Run EWR with `--no-update` while iterating: nothing is downloaded and the
-staged swap on exit is skipped, so `database.json` stays exactly as you wrote
-it. Without the flag, a run that reaches the update server replaces a
-hand-edited `database.json` with the upstream one on exit - so keep passing
+Run EWR with `--no-update` while iterating: nothing is downloaded, so
+`database.json` stays exactly as you wrote it. Without the flag, a run that
+reaches the update server replaces a hand-edited `database.json` with the
+upstream one at startup, before your edit is ever used - so keep passing
 `--no-update` until your pull request is merged.
 
 ### Adding a model
