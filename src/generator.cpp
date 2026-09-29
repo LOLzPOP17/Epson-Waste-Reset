@@ -239,32 +239,6 @@ namespace ewr {
                         }
                     }
 
-                    // Byte arrays are stored verbatim. An entry missing the
-                    // service or enter command is ignored, never fatal.
-                    if (val.contains("recovery") && val["recovery"].is_object())
-                    {
-                        const auto& rec = val["recovery"];
-
-                        auto readBytes = [](const json& node, std::vector<unsigned char>& outBytes) {
-                            if (!node.is_array())
-                                return;
-                            for (auto& b : node)
-                            {
-                                if (b.is_number_unsigned())
-                                    outBytes.push_back(static_cast<unsigned char>(b.get<unsigned>() & 0xFF));
-                            }
-                        };
-
-                        RecoveryChannel channel;
-                        channel.service = rec.value("service", "");
-                        if (rec.contains("enter")) readBytes(rec["enter"], channel.enter);
-                        if (rec.contains("close")) readBytes(rec["close"], channel.close);
-                        if (rec.contains("reply")) readBytes(rec["reply"], channel.reply);
-
-                        if (channel.Valid())
-                            model.recovery = std::move(channel);
-                    }
-
                     // Independent of pad_groups. A group with no addresses is
                     // skipped, never fatal.
                     if (val.contains("ink_groups") && val["ink_groups"].is_array())

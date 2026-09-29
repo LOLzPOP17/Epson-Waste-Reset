@@ -35,7 +35,7 @@ namespace ewr::cli
             "usb.kernel_driver_detach", "usb.claim_failed",
             // One interface or attempt failing is the fallback working. If they
             // all fail, usb.reset_not_confirmed carries the reason.
-            "exec.handshake_failed", "exec.recovery_unavailable", "exec.recovery_no_ack",
+            "exec.handshake_failed",
             "exec.write_retry", "exec.write_key_retry", "exec.write_rejected", "exec.write_refused",
             "escr.success", "end4.success",
             "session.commit", "session.commit_noop", "session.committed",

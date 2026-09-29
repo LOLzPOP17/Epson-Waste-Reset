@@ -776,8 +776,7 @@ namespace ewr {
                 {
                     result.writesRejected++;
                     result.error = "ESC/P Remote: printer refused EEPROM write " + std::to_string(i + 1)
-                        + " (||:42:NA;). It is locked by another error, or needs a recovery mode"
-                          " this path cannot enter.";
+                        + " (||:42:NA;). It is likely locked by another error state.";
                     EmitTrace(reporter, "escr.fatal", "[ESC/P] " + result.error);
                     return result;
                 }
@@ -1002,8 +1001,7 @@ namespace ewr {
                 {
                     result.writesRejected++;
                     result.error = "END4: printer refused EEPROM write " + std::to_string(i + 1)
-                        + " (||:42:NA;). It is locked by another error, or needs firmware-recovery mode"
-                          " that only the (currently silent) D4 channel can enter.";
+                        + " (||:42:NA;). It is likely locked by another error state.";
                     EmitTrace(reporter, "end4.fatal", "[END4] " + result.error);
                     return result;
                 }

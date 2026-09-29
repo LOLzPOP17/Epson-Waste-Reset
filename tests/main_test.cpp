@@ -4,6 +4,7 @@
 #include <filesystem>
 #include <functional>
 #include <algorithm>
+#include <iterator>
 #include <map>
 #include "ewr/parser.h"
 #include "ewr/generator.h"
@@ -689,6 +690,22 @@ void test_updater_database_payload_validation()
 
     fs::remove(path);
     CHECK(!ewr::ValidateDatabasePayload("no_such_file.json", ewr::kMaxSupportedDatabaseSchema));
+}
+
+// v1.3.0-v1.4.0 read database.json from main and, for any model carrying a
+// "recovery" key, send its enter command before writing: ez-reset's firmware-
+// updater data, which left an L565 on "Preparing to update". Current builds
+// ignore the key, so only this check protects the installs that still read it.
+void test_database_carries_no_recovery_channel()
+{
+    std::cout << "[TEST] test_database_carries_no_recovery_channel" << std::endl;
+
+    std::ifstream in("database.json", std::ios::binary);
+    CHECK(in.good());
+
+    const std::string text((std::istreambuf_iterator<char>(in)), std::istreambuf_iterator<char>());
+    CHECK(!text.empty());
+    CHECK(text.find("\"recovery\"") == std::string::npos);
 }
 
 void test_generator_local_db()
@@ -2845,86 +2862,14 @@ void test_d4_sequence_na_fails_fast()
     CHECK(result.error.find(":42:NA;") != std::string::npos);
 }
 
-void test_d4_recovery_channel_wraps_writes()
-{
-    std::cout << "[TEST] test_d4_recovery_channel_wraps_writes" << std::endl;
-
-    // The fake answers the D4 choreography for every session (the recovery
-    // enter, the EEPROM writes, and the recovery leave all share one
-    // transport). A data packet starting with the RCMODE opcode (0x67 0x6D)
-    // gets an 'OK'; any other data packet is an EEPROM write and gets ':42:OK;'.
-    FakeTransport t;
-    t.replyFor = D4SessionReplier(0x02, [](const std::vector<unsigned char>& sent) -> std::vector<unsigned char> {
-        if (sent.size() > 7 && sent[6] == 0x67 && sent[7] == 0x6D)
-            return D4Frame(0x02, 0x02, { 'O', 'K' }, 0x00, 0x01);
-        return OkAck();
-    });
-
-    ewr::ExecutorOptions options = FastOptions();
-    options.useSessionLayer = true;
-    options.recoveryService = "fwu:ctrl";
-    options.recoveryEnter = { 0x67, 0x6D, 0x01, 0x00, 0x01 };
-    options.recoveryClose = { 0x67, 0x6D, 0x01, 0x00, 0x03 };
-    options.recoveryReply = { 0x4F, 0x4B }; // "OK"
-
-    std::ofstream log = NullLog();
-    std::ostringstream out;
-    auto result = ewr::ExecuteSequence(t, legacy::GenerateSequence(MakeTestModel()), out, log, options);
-
-    // The writes still succeed exactly as they would without recovery.
-    CHECK(result.success);
-    CHECK(result.writesTotal == 2);
-    CHECK(result.writesVerified == 2);
-
-    // Counts the data packets whose payload begins with `cmd`.
-    auto countCommand = [&](const std::vector<unsigned char>& cmd) {
-        int n = 0;
-        for (const auto& s : t.sent)
-        {
-            if (s.size() >= 6 + cmd.size()
-                && std::equal(cmd.begin(), cmd.end(), s.begin() + 6))
-                n++;
-        }
-        return n;
-    };
-
-    // Recovery entered exactly once before the writes and left exactly once.
-    CHECK(countCommand({ 0x67, 0x6D, 0x01, 0x00, 0x01 }) == 1);
-    CHECK(countCommand({ 0x67, 0x6D, 0x01, 0x00, 0x03 }) == 1);
-
-    // The enter was sent before the first EEPROM write; the leave after the
-    // last one.
-    size_t enterAt = 0, leaveAt = 0, firstWriteAt = 0, lastWriteAt = 0;
-    for (size_t i = 0; i < t.sent.size(); ++i)
-    {
-        const auto& s = t.sent[i];
-        if (s.size() > 10 && s[6] == 0x67 && s[7] == 0x6D && s[10] == 0x01)
-            enterAt = i;
-        else if (s.size() > 10 && s[6] == 0x67 && s[7] == 0x6D && s[10] == 0x03)
-            leaveAt = i;
-        else if (s.size() > 7 && s[6] == 0x7C && s[7] == 0x7C)
-        {
-            if (firstWriteAt == 0)
-                firstWriteAt = i;
-            lastWriteAt = i;
-        }
-    }
-    CHECK(enterAt < firstWriteAt);
-    CHECK(leaveAt > lastWriteAt);
-}
-
-// A model with no recovery channel must not emit any RCMODE traffic.
 // Every other exit from the write loop closed the channel; the transport-
-// failure return did not. The RCMODE leave then opened a second D4 session on
-// the same transport while the first channel was still open on the same
-// socket - the printer answers CMD_ERROR 0x04 or stays silent, the leave never
-// lands, and the unit is left in firmware recovery mode after a failed run.
-void test_d4_transport_failure_closes_before_recovery_leave()
+// failure return did not, leaving it open on the printer after a failed run.
+void test_d4_transport_failure_closes_channel()
 {
-    std::cout << "[TEST] test_d4_transport_failure_closes_before_recovery_leave" << std::endl;
+    std::cout << "[TEST] test_d4_transport_failure_closes_channel" << std::endl;
 
     // One EEPROM write fails to send; everything after it works again, so the
-    // close and the RCMODE leave are both observable.
+    // close is observable.
     bool failedOnce = false;
 
     FakeTransport t;
@@ -2936,18 +2881,10 @@ void test_d4_transport_failure_closes_before_recovery_leave()
         }
         return false;
     };
-    t.replyFor = D4SessionReplier(0x02, [](const std::vector<unsigned char>& sent) -> std::vector<unsigned char> {
-        if (sent.size() > 7 && sent[6] == 0x67 && sent[7] == 0x6D)
-            return D4Frame(0x02, 0x02, { 'O', 'K' }, 0x00, 0x01);
-        return OkAck();
-    });
+    t.replyFor = D4SessionReplier(0x02, [](const std::vector<unsigned char>&) { return OkAck(); });
 
     ewr::ExecutorOptions options = FastOptions();
     options.useSessionLayer = true;
-    options.recoveryService = "fwu:ctrl";
-    options.recoveryEnter = { 0x67, 0x6D, 0x01, 0x00, 0x01 };
-    options.recoveryClose = { 0x67, 0x6D, 0x01, 0x00, 0x03 };
-    options.recoveryReply = { 0x4F, 0x4B };
 
     std::ofstream log = NullLog();
     std::ostringstream out;
@@ -2957,13 +2894,8 @@ void test_d4_transport_failure_closes_before_recovery_leave()
     CHECK(result.error.find("Transport failure") != std::string::npos);
     CHECK(failedOnce);
 
-    auto isEjlEnter = [](const std::vector<unsigned char>& s) {
-        static const unsigned char magic[] = { '@', 'E', 'J', 'L' };
-        return std::search(s.begin(), s.end(), magic, magic + 4) != s.end();
-    };
-
     const size_t none = t.sent.size();
-    size_t writeAt = none, closeAfterWrite = none, leaveSessionAt = none;
+    size_t writeAt = none, closeAfterWrite = none;
 
     for (size_t i = 0; i < t.sent.size(); ++i)
     {
@@ -2974,14 +2906,10 @@ void test_d4_transport_failure_closes_before_recovery_leave()
             writeAt = i;
         else if (writeAt != none && closeAfterWrite == none && isTxn && s[6] == 0x02)
             closeAfterWrite = i; // CloseChannel
-        else if (closeAfterWrite != none && leaveSessionAt == none && isEjlEnter(s))
-            leaveSessionAt = i;  // the RCMODE leave opening its own session
     }
 
     CHECK(writeAt != none);
-    CHECK(closeAfterWrite != none);  // the channel is closed at all
-    CHECK(leaveSessionAt != none);   // and the leave still runs
-    CHECK(closeAfterWrite < leaveSessionAt);
+    CHECK(closeAfterWrite != none);
 }
 
 // One credit buys one packet, so a reply longer than the channel's payload
@@ -3066,25 +2994,6 @@ void test_d4_short_reply_costs_no_extra_round_trip()
 
         session.Close();
     }
-}
-
-void test_d4_recovery_absent_is_silent()
-{
-    std::cout << "[TEST] test_d4_recovery_absent_is_silent" << std::endl;
-
-    FakeTransport t;
-    t.replyFor = D4SessionReplier(0x02, [](const std::vector<unsigned char>&) { return OkAck(); });
-
-    ewr::ExecutorOptions options = FastOptions();
-    options.useSessionLayer = true; // no recovery* fields set
-
-    std::ofstream log = NullLog();
-    std::ostringstream out;
-    auto result = ewr::ExecuteSequence(t, legacy::GenerateSequence(MakeTestModel()), out, log, options);
-
-    CHECK(result.success);
-    for (const auto& s : t.sent)
-        CHECK(!(s.size() > 7 && s[6] == 0x67 && s[7] == 0x6D));
 }
 
 // L3260-style reply: models with rlen == 2 echo a 2-byte address.
@@ -3830,44 +3739,6 @@ void test_interface_pin_option_threading()
     CHECK(gw.lastResetOptions.validateHandshake);
     CHECK(gw.lastResetOptions.verifyWrites);
     CHECK(gw.lastResetOptions.useSessionLayer);
-}
-
-void test_session_recovery_option_threading()
-{
-    std::cout << "[TEST] test_session_recovery_option_threading" << std::endl;
-
-    // A model that carries an RCMODE recovery channel...
-    ewr::DbPrinterModel model = MakeSessionModel();
-    model.recovery.service = "fwu:ctrl";
-    model.recovery.enter = { 0x67, 0x6D, 0x01, 0x00, 0x01 };
-    model.recovery.close = { 0x67, 0x6D, 0x01, 0x00, 0x03 };
-    model.recovery.reply = { 0x4F, 0x4B };
-    CHECK(model.HasRecoveryChannel());
-
-    FakeGateway gw = MakeSessionGateway();
-    ewr::Session session(model, gw, ewr::log::Default(), ewr::DefaultQueryOptions());
-
-    ewr::ResetHandlers handlers;
-    handlers.onBlocker = [](const ewr::Blocker&) { return true; }; // past INK OUT
-
-    const ewr::ResetOutcome outcome = session.Reset(handlers);
-    CHECK(outcome.phase == ewr::ResetPhase::Done);
-    CHECK(gw.resetCalls == 1);
-
-    // ...has that channel threaded into the write options the gateway sees.
-    CHECK(gw.lastResetOptions.recoveryService == "fwu:ctrl");
-    CHECK(gw.lastResetOptions.recoveryEnter == std::vector<unsigned char>({ 0x67, 0x6D, 0x01, 0x00, 0x01 }));
-    CHECK(gw.lastResetOptions.recoveryClose == std::vector<unsigned char>({ 0x67, 0x6D, 0x01, 0x00, 0x03 }));
-    CHECK(gw.lastResetOptions.recoveryReply == std::vector<unsigned char>({ 0x4F, 0x4B }));
-
-    // A model with no recovery channel leaves the write options empty.
-    ewr::DbPrinterModel plain = MakeSessionModel();
-    CHECK(!plain.HasRecoveryChannel());
-    FakeGateway gw2 = MakeSessionGateway();
-    ewr::Session plainSession(plain, gw2, ewr::log::Default(), ewr::DefaultQueryOptions());
-    plainSession.Reset(handlers);
-    CHECK(gw2.lastResetOptions.recoveryEnter.empty());
-    CHECK(gw2.lastResetOptions.recoveryService.empty());
 }
 
 void test_evaluate_ink_blocker()
@@ -6554,6 +6425,7 @@ int main()
     test_updater_prerelease_ordering();
     test_updater_release_response_parsing();
     test_updater_database_payload_validation();
+    test_database_carries_no_recovery_channel();
     test_generator_local_db();
     test_database_integrity();
     test_packet_structure_integrity();
@@ -6594,7 +6466,6 @@ int main()
     test_ink_reset_requires_preflight();
     test_session_conflict_gate();
     test_interface_pin_option_threading();
-    test_session_recovery_option_threading();
     test_query_session_failfast_on_silence();
     test_query_session_happy_path();
     test_d4_framer_length_framing();
@@ -6612,9 +6483,7 @@ int main()
     test_d4_session_restart_gives_up_after_its_attempts();
     test_d4_sequence_survives_a_lost_write_ack();
     test_d4_sequence_na_fails_fast();
-    test_d4_recovery_channel_wraps_writes();
-    test_d4_recovery_absent_is_silent();
-    test_d4_transport_failure_closes_before_recovery_leave();
+    test_d4_transport_failure_closes_channel();
     test_d4_reassembles_a_fragmented_reply();
     test_d4_short_reply_costs_no_extra_round_trip();
     test_address_length_framing();

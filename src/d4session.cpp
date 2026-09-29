@@ -687,69 +687,6 @@ namespace ewr {
 
     namespace {
 
-        bool ContainsBytes(const std::vector<unsigned char>& haystack,
-                           const std::vector<unsigned char>& needle)
-        {
-            if (needle.empty())
-                return true;
-            if (haystack.size() < needle.size())
-                return false;
-            return std::search(haystack.begin(), haystack.end(),
-                               needle.begin(), needle.end()) != haystack.end();
-        }
-
-        // One RCMODE command on its own short-lived D4 session over the
-        // recovery service, sharing the write transport. Best-effort: failures
-        // are logged and swallowed so the caller still attempts the writes.
-        bool RunRecoveryCommand(ITransport& transport, log::Reporter& reporter,
-                                const D4SessionOptions& baseOptions,
-                                const ExecutorOptions& options, bool entering)
-        {
-            const std::vector<unsigned char>& command =
-                entering ? options.recoveryEnter : options.recoveryClose;
-
-            if (command.empty() || options.recoveryService.empty())
-                return false;
-
-            const char* phase = entering ? "enter" : "leave";
-
-            D4SessionOptions recoveryOptions = baseOptions;
-            recoveryOptions.serviceName = options.recoveryService;
-
-            reporter.Log(entering ? log::Level::Info : log::Level::Trace,
-                         log::Stage::Handshake, "exec.recovery_begin",
-                         entering
-                             ? "\n[*] This model needs firmware recovery mode for its EEPROM writes - switching the printer into it..."
-                             : "[i] Leaving firmware recovery mode...");
-
-            D4Session recovery(transport, reporter, recoveryOptions);
-
-            if (!recovery.Start())
-            {
-                reporter.Log(log::Level::Info, log::Stage::Handshake, "exec.recovery_unavailable",
-                             std::string("[!] Could not open the '") + options.recoveryService
-                                 + "' recovery service (" + recovery.LastError()
-                                 + "). Continuing with the reset anyway.");
-                return false;
-            }
-
-            std::vector<unsigned char> reply;
-            const bool answered = recovery.Exchange(command, reply);
-            recovery.Close();
-
-            const bool acknowledged = answered && ContainsBytes(reply, options.recoveryReply);
-
-            if (acknowledged)
-                reporter.Log(log::Level::Trace, log::Stage::Handshake, "exec.recovery_ok",
-                             std::string("[RCMODE] Printer acknowledged the ") + phase + " command.");
-            else
-                reporter.Log(log::Level::Info, log::Stage::Handshake, "exec.recovery_no_ack",
-                             std::string("[!] Printer did not acknowledge the recovery ") + phase
-                                 + " command; continuing anyway.");
-
-            return acknowledged;
-        }
-
         // A fresh session is not always there for the asking: the printer that
         // lost the reply may still be busy. An L365 answered Exit, EJL and
         // Init throughout while ignoring GetSocketID and OpenChannel, and one
@@ -788,31 +725,12 @@ namespace ewr {
             return false;
         }
 
-        // Closes the D4 channel however the session ends. Declared after the
-        // recovery guard so it destructs first: the channel is closed before
-        // any RCMODE leave opens a second session on the same transport.
+        // Closes the D4 channel however the session ends.
         struct SessionCloseGuard
         {
             D4Session& session;
 
             ~SessionCloseGuard() { session.Close(); }
-        };
-
-        // Leaves RCMODE however the write session ends. Armed only when an
-        // enter was actually attempted.
-        struct RecoveryLeaveGuard
-        {
-            ITransport& transport;
-            log::Reporter& reporter;
-            const D4SessionOptions& baseOptions;
-            const ExecutorOptions& options;
-            bool armed;
-
-            ~RecoveryLeaveGuard()
-            {
-                if (armed && !options.recoveryClose.empty())
-                    RunRecoveryCommand(transport, reporter, baseOptions, options, /*entering=*/false);
-            }
         };
 
     } // namespace
@@ -828,15 +746,6 @@ namespace ewr {
         sessionOptions.replyTimeoutMs = options.handshakeDrainTimeoutMs;
         sessionOptions.dataTimeoutMs = options.writeAckTimeoutMs;
         sessionOptions.interPacketDelayMs = options.interPacketDelayMs;
-
-        // Recovery-mode models must be in RCMODE around the writes. The leave
-        // is a scope guard so every early return still restores the printer.
-        // Both steps are best-effort on the write transport.
-        const bool useRecovery =
-            !options.recoveryEnter.empty() && !options.recoveryService.empty();
-        if (useRecovery)
-            RunRecoveryCommand(transport, reporter, sessionOptions, options, /*entering=*/true);
-        RecoveryLeaveGuard recoveryLeaveGuard{ transport, reporter, sessionOptions, options, useRecovery };
 
         D4Session session(transport, reporter, sessionOptions);
         SessionCloseGuard sessionCloseGuard{ session };

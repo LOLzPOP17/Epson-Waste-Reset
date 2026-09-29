@@ -124,20 +124,6 @@ namespace ewr {
         }
     };
 
-    // Firmware recovery ('RCMODE') channel. A few families refuse factory
-    // EEPROM writes unless the printer is first switched into recovery mode
-    // over a separate D4 service ('fwu:ctrl'). Absent for every model that
-    // writes fine without it - the common case.
-    struct RecoveryChannel
-    {
-        std::string service;              // D4 service / group name
-        std::vector<unsigned char> enter; // command that enters recovery mode
-        std::vector<unsigned char> close; // command that leaves recovery mode
-        std::vector<unsigned char> reply; // expected acknowledgement token ("OK")
-
-        bool Valid() const { return !service.empty() && !enter.empty(); }
-    };
-
     // One pad a waste-pad reset covers. `readable` is whether EWR has a
     // counter to report how full it is - not whether this read worked. 809 of
     // the 1337 resettable models reset a pad they cannot read (an L6490's only
@@ -177,9 +163,6 @@ namespace ewr {
         // Independent of pad_groups: a model can reset waste ink, cartridge
         // ink, both, or neither.
         std::vector<InkGroup> ink_groups;
-
-        // Firmware recovery mode: empty for the vast majority of models.
-        RecoveryChannel recovery;
 
         // Marketing and family names ("ET-2800 Series", "L3260") that resolve
         // to this entry. Matching and display only, never the write path.
@@ -283,10 +266,6 @@ namespace ewr {
         }
 
         bool HasCloseOps() const { return !close_ops.empty(); }
-
-        // True when this model must be switched into firmware recovery mode
-        // before its EEPROM writes are accepted.
-        bool HasRecoveryChannel() const { return recovery.Valid(); }
 
         std::vector<CounterSpec> GetAllCounters() const
         {

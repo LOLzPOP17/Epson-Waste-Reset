@@ -75,15 +75,6 @@ namespace ewr {
         // when the keywords differ in length.
         std::string writeKey;
         std::string alternateWriteKey;
-
-        // The ET-28xx, L3xxx and several WF/XP families silently ignore
-        // factory EEPROM writes unless first switched into firmware recovery
-        // mode ('RCMODE') over a separate D4 service. Data-driven from the
-        // database entry; empty means the model needs no such step.
-        std::string recoveryService;              // D4 service, e.g. "fwu:ctrl"
-        std::vector<unsigned char> recoveryEnter; // enter command, e.g. 67 6D 01 00 01
-        std::vector<unsigned char> recoveryClose; // leave command, e.g. 67 6D 01 00 03
-        std::vector<unsigned char> recoveryReply; // expected token, e.g. 4F 4B ("OK")
     };
 
     struct ExecutionResult

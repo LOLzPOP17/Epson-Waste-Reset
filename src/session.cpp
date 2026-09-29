@@ -292,16 +292,6 @@ namespace ewr {
         options.writeKey = m_model.wkey;
         options.alternateWriteKey = m_model.wkey1;
 
-        // Carry the model's RCMODE channel into the write session. Empty and
-        // inert for models that need no recovery step.
-        if (m_model.HasRecoveryChannel())
-        {
-            options.recoveryService = m_model.recovery.service;
-            options.recoveryEnter = m_model.recovery.enter;
-            options.recoveryClose = m_model.recovery.close;
-            options.recoveryReply = m_model.recovery.reply;
-        }
-
         return options;
     }
 
