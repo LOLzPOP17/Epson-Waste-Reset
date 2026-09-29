@@ -91,6 +91,13 @@ jobs:
     needs: [verify-version, build-and-test]
     if: startsWith(github.ref, 'refs/tags/')
     runs-on: ${{ matrix.os }}
+    # Replaces the workflow-level set for this job, so contents: write is
+    # restated. Only the job that ships archives may sign claims about them.
+    permissions:
+      contents: write
+      id-token: write           # OIDC token for the Sigstore signing certificate
+      attestations: write       # persist the attestation
+      artifact-metadata: write  # storage record (actions/attest lists it as required)
     strategy:
       fail-fast: false
       matrix:
@@ -175,6 +182,15 @@ jobs:
             ;;
         esac
         ls -l dist
+
+    # A signed SLSA build-provenance claim per archive, binding its digest to
+    # this commit and run; `gh attestation verify` checks it (README). Before
+    # the upload, so no archive reaches the draft without one. It covers these
+    # exact bytes: a hand re-upload of an archive will not verify.
+    - name: Attest release artifacts
+      uses: actions/attest@v4
+      with:
+        subject-path: 'dist/*'
 
     - name: Upload artifacts to draft release
       uses: softprops/action-gh-release@v2

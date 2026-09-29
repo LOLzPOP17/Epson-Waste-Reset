@@ -40,6 +40,16 @@ EWR bypasses the need to pay for sketchy third-party reset keys (like WIC Reset)
 
 No internet connection is needed - the database ships in the download. When EWR can reach GitHub it picks up database updates at startup.
 
+### Verifying your download
+
+Download EWR only from the [Releases page](https://github.com/RxNaison/Epson-Waste-Reset/releases/latest). Copies passed around elsewhere - in video descriptions, on forums - may not be what they claim to be. From v1.4.1 on, every release archive, including the `EWR-SDK-*` ones, carries a signed build-provenance attestation tying it to this repository and to the exact build that produced it. You can check it with the [GitHub CLI](https://cli.github.com/), signed in (`gh auth login`):
+
+```bash
+gh attestation verify EWR-v1.4.1-win.zip -R RxNaison/Epson-Waste-Reset
+```
+
+`✓ Verification succeeded!` means the file is byte for byte what this repository's release workflow built. If an archive from v1.4.1 or later fails the check, don't run it. Releases before v1.4.1 have no attestation and fail with `HTTP 404: Not Found` - that is expected. This is not code signing: Windows may still warn that the app is unrecognized.
+
 ### Command-line options
 
 Running with no options is the supported path. These exist for diagnosis and for people packaging EWR into something larger.
