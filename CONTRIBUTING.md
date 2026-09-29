@@ -64,7 +64,7 @@ into the `pad_groups` the current format uses, and EWR reads it either way.
 R220-class models, 2 for modern ones. `wkey` may need trailing `\u0000`
 padding on older models. If an upstream source knows the model too, the
 build fills in anything you left out: counter maps, service limits,
-detection aliases, the commit step, the firmware-recovery channel.
+detection aliases, the commit step.
 
 ### Un-pinning a value
 

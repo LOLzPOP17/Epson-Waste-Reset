@@ -4735,27 +4735,6 @@
                     ]
                 }
             ],
-            "recovery": {
-                "close": [
-                    102,
-                    108,
-                    1,
-                    0,
-                    3
-                ],
-                "enter": [
-                    102,
-                    108,
-                    1,
-                    0,
-                    1
-                ],
-                "reply": [
-                    79,
-                    75
-                ],
-                "service": "fwu:ctrl"
-            },
             "rkey": 2344,
             "rlen": 2,
             "wkey": "Jsjthbsn",
@@ -5113,27 +5092,6 @@
                     ]
                 }
             ],
-            "recovery": {
-                "close": [
-                    102,
-                    108,
-                    1,
-                    0,
-                    3
-                ],
-                "enter": [
-                    102,
-                    108,
-                    1,
-                    0,
-                    1
-                ],
-                "reply": [
-                    79,
-                    75
-                ],
-                "service": "fwu:ctrl"
-            },
             "rkey": 1367,
             "rlen": 2,
             "wkey": "Bmuibfb/",
@@ -5215,27 +5173,6 @@
                     ]
                 }
             ],
-            "recovery": {
-                "close": [
-                    102,
-                    108,
-                    1,
-                    0,
-                    3
-                ],
-                "enter": [
-                    102,
-                    108,
-                    1,
-                    0,
-                    1
-                ],
-                "reply": [
-                    79,
-                    75
-                ],
-                "service": "fwu:ctrl"
-            },
             "rkey": 2344,
             "rlen": 2,
             "wkey": "Jsjthbsn",
@@ -5315,27 +5252,6 @@
                     ]
                 }
             ],
-            "recovery": {
-                "close": [
-                    103,
-                    109,
-                    1,
-                    0,
-                    3
-                ],
-                "enter": [
-                    103,
-                    109,
-                    1,
-                    0,
-                    1
-                ],
-                "reply": [
-                    79,
-                    75
-                ],
-                "service": "fwu:ctrl"
-            },
             "rkey": 1044,
             "rlen": 2,
             "wkey": "Gjsnjbob",
@@ -5401,27 +5317,6 @@
                     ]
                 }
             ],
-            "recovery": {
-                "close": [
-                    102,
-                    108,
-                    1,
-                    0,
-                    3
-                ],
-                "enter": [
-                    102,
-                    108,
-                    1,
-                    0,
-                    1
-                ],
-                "reply": [
-                    79,
-                    75
-                ],
-                "service": "fwu:ctrl"
-            },
             "rkey": 40,
             "rlen": 2,
             "wkey": "Ijcjtdvt",
@@ -5566,27 +5461,6 @@
                     ]
                 }
             ],
-            "recovery": {
-                "close": [
-                    102,
-                    108,
-                    1,
-                    0,
-                    3
-                ],
-                "enter": [
-                    102,
-                    108,
-                    1,
-                    0,
-                    1
-                ],
-                "reply": [
-                    79,
-                    75
-                ],
-                "service": "fwu:ctrl"
-            },
             "rkey": 1367,
             "rlen": 2,
             "wkey": "Bmuibfb/",
@@ -5689,27 +5563,6 @@
                     ]
                 }
             ],
-            "recovery": {
-                "close": [
-                    102,
-                    108,
-                    1,
-                    0,
-                    3
-                ],
-                "enter": [
-                    102,
-                    108,
-                    1,
-                    0,
-                    1
-                ],
-                "reply": [
-                    79,
-                    75
-                ],
-                "service": "fwu:ctrl"
-            },
             "rkey": 2344,
             "rlen": 2,
             "wkey": "Jsjthbsn",
@@ -5837,27 +5690,6 @@
                     ]
                 }
             ],
-            "recovery": {
-                "close": [
-                    102,
-                    108,
-                    1,
-                    0,
-                    3
-                ],
-                "enter": [
-                    102,
-                    108,
-                    1,
-                    0,
-                    1
-                ],
-                "reply": [
-                    79,
-                    75
-                ],
-                "service": "fwu:ctrl"
-            },
             "rkey": 1367,
             "rlen": 2,
             "wkey": "Bmuibfb/",
@@ -5940,27 +5772,6 @@
                     ]
                 }
             ],
-            "recovery": {
-                "close": [
-                    103,
-                    109,
-                    1,
-                    0,
-                    3
-                ],
-                "enter": [
-                    103,
-                    109,
-                    1,
-                    0,
-                    1
-                ],
-                "reply": [
-                    79,
-                    75
-                ],
-                "service": "fwu:ctrl"
-            },
             "rkey": 1044,
             "rlen": 2,
             "wkey": "Gjsnjbob",
@@ -6046,27 +5857,6 @@
                     ]
                 }
             ],
-            "recovery": {
-                "close": [
-                    103,
-                    109,
-                    1,
-                    0,
-                    3
-                ],
-                "enter": [
-                    103,
-                    109,
-                    1,
-                    0,
-                    1
-                ],
-                "reply": [
-                    79,
-                    75
-                ],
-                "service": "fwu:ctrl"
-            },
             "rkey": 1943,
             "rlen": 2,
             "wkey": "Nbsjcbzb",
@@ -6149,27 +5939,6 @@
                     ]
                 }
             ],
-            "recovery": {
-                "close": [
-                    103,
-                    109,
-                    1,
-                    0,
-                    3
-                ],
-                "enter": [
-                    103,
-                    109,
-                    1,
-                    0,
-                    1
-                ],
-                "reply": [
-                    79,
-                    75
-                ],
-                "service": "fwu:ctrl"
-            },
             "rkey": 1943,
             "rlen": 2,
             "wkey": "Nbsjcbzb",
@@ -6313,27 +6082,6 @@
                     ]
                 }
             ],
-            "recovery": {
-                "close": [
-                    103,
-                    109,
-                    1,
-                    0,
-                    3
-                ],
-                "enter": [
-                    103,
-                    109,
-                    1,
-                    0,
-                    1
-                ],
-                "reply": [
-                    79,
-                    75
-                ],
-                "service": "fwu:ctrl"
-            },
             "rkey": 13898,
             "rlen": 2,
             "wkey": "Nbsjcbzb",
@@ -6447,27 +6195,6 @@
                     ]
                 }
             ],
-            "recovery": {
-                "close": [
-                    103,
-                    109,
-                    1,
-                    0,
-                    3
-                ],
-                "enter": [
-                    103,
-                    109,
-                    1,
-                    0,
-                    1
-                ],
-                "reply": [
-                    79,
-                    75
-                ],
-                "service": "fwu:ctrl"
-            },
             "rkey": 13898,
             "rlen": 2,
             "wkey": "Nbsjcbzb",
@@ -6590,27 +6317,6 @@
                     ]
                 }
             ],
-            "recovery": {
-                "close": [
-                    103,
-                    109,
-                    1,
-                    0,
-                    3
-                ],
-                "enter": [
-                    103,
-                    109,
-                    1,
-                    0,
-                    1
-                ],
-                "reply": [
-                    79,
-                    75
-                ],
-                "service": "fwu:ctrl"
-            },
             "rkey": 13898,
             "rlen": 2,
             "wkey": "Nbsjcbzb",
@@ -6721,27 +6427,6 @@
                     ]
                 }
             ],
-            "recovery": {
-                "close": [
-                    103,
-                    109,
-                    1,
-                    0,
-                    3
-                ],
-                "enter": [
-                    103,
-                    109,
-                    1,
-                    0,
-                    1
-                ],
-                "reply": [
-                    79,
-                    75
-                ],
-                "service": "fwu:ctrl"
-            },
             "rkey": 13898,
             "rlen": 2,
             "wkey": "Nbsjcbzb",
@@ -6776,7 +6461,7 @@
             "spec": "ET-2610-family"
         },
         "ET-2650": {
-            "spec": "ET-2650-family"
+            "spec": "ET-2600-family"
         },
         "ET-2700": {
             "aliases": [
@@ -6851,27 +6536,6 @@
                     ]
                 }
             ],
-            "recovery": {
-                "close": [
-                    102,
-                    108,
-                    1,
-                    0,
-                    3
-                ],
-                "enter": [
-                    102,
-                    108,
-                    1,
-                    0,
-                    1
-                ],
-                "reply": [
-                    79,
-                    75
-                ],
-                "service": "fwu:ctrl"
-            },
             "rkey": 2121,
             "rlen": 2,
             "wkey": "Bsboujgp",
@@ -6954,27 +6618,6 @@
                     ]
                 }
             ],
-            "recovery": {
-                "close": [
-                    102,
-                    108,
-                    1,
-                    0,
-                    3
-                ],
-                "enter": [
-                    102,
-                    108,
-                    1,
-                    0,
-                    1
-                ],
-                "reply": [
-                    79,
-                    75
-                ],
-                "service": "fwu:ctrl"
-            },
             "rkey": 2121,
             "rlen": 2,
             "wkey": "Bsboujgp",
@@ -7069,27 +6712,6 @@
                     ]
                 }
             ],
-            "recovery": {
-                "close": [
-                    103,
-                    109,
-                    1,
-                    0,
-                    3
-                ],
-                "enter": [
-                    103,
-                    109,
-                    1,
-                    0,
-                    1
-                ],
-                "reply": [
-                    79,
-                    75
-                ],
-                "service": "fwu:ctrl"
-            },
             "rkey": 1943,
             "rlen": 2,
             "wkey": "Nbsjcbzb",
@@ -7172,27 +6794,6 @@
                     ]
                 }
             ],
-            "recovery": {
-                "close": [
-                    103,
-                    109,
-                    1,
-                    0,
-                    3
-                ],
-                "enter": [
-                    103,
-                    109,
-                    1,
-                    0,
-                    1
-                ],
-                "reply": [
-                    79,
-                    75
-                ],
-                "service": "fwu:ctrl"
-            },
             "rkey": 1943,
             "rlen": 2,
             "wkey": "Nbsjcbzb",
@@ -7287,27 +6888,6 @@
                     ]
                 }
             ],
-            "recovery": {
-                "close": [
-                    103,
-                    109,
-                    1,
-                    0,
-                    3
-                ],
-                "enter": [
-                    103,
-                    109,
-                    1,
-                    0,
-                    1
-                ],
-                "reply": [
-                    79,
-                    75
-                ],
-                "service": "fwu:ctrl"
-            },
             "rkey": 1943,
             "rlen": 2,
             "wkey": "Nbsjcbzb",
@@ -7390,27 +6970,6 @@
                     ]
                 }
             ],
-            "recovery": {
-                "close": [
-                    103,
-                    109,
-                    1,
-                    0,
-                    3
-                ],
-                "enter": [
-                    103,
-                    109,
-                    1,
-                    0,
-                    1
-                ],
-                "reply": [
-                    79,
-                    75
-                ],
-                "service": "fwu:ctrl"
-            },
             "rkey": 1943,
             "rlen": 2,
             "wkey": "Nbsjcbzb",
@@ -7505,27 +7064,6 @@
                     ]
                 }
             ],
-            "recovery": {
-                "close": [
-                    102,
-                    108,
-                    1,
-                    0,
-                    3
-                ],
-                "enter": [
-                    102,
-                    108,
-                    1,
-                    0,
-                    1
-                ],
-                "reply": [
-                    79,
-                    75
-                ],
-                "service": "fwu:ctrl"
-            },
             "rkey": 2121,
             "rlen": 2,
             "wkey": "Bsboujgp",
@@ -7611,27 +7149,6 @@
                     ]
                 }
             ],
-            "recovery": {
-                "close": [
-                    102,
-                    108,
-                    1,
-                    0,
-                    3
-                ],
-                "enter": [
-                    102,
-                    108,
-                    1,
-                    0,
-                    1
-                ],
-                "reply": [
-                    79,
-                    75
-                ],
-                "service": "fwu:ctrl"
-            },
             "rkey": 2121,
             "rlen": 2,
             "wkey": "Bsboujgp",
@@ -7745,27 +7262,6 @@
                     ]
                 }
             ],
-            "recovery": {
-                "close": [
-                    103,
-                    109,
-                    1,
-                    0,
-                    3
-                ],
-                "enter": [
-                    103,
-                    109,
-                    1,
-                    0,
-                    1
-                ],
-                "reply": [
-                    79,
-                    75
-                ],
-                "service": "fwu:ctrl"
-            },
             "rkey": 13898,
             "rlen": 2,
             "wkey": "Nbsjcbzb",
@@ -7876,27 +7372,6 @@
                     ]
                 }
             ],
-            "recovery": {
-                "close": [
-                    103,
-                    109,
-                    1,
-                    0,
-                    3
-                ],
-                "enter": [
-                    103,
-                    109,
-                    1,
-                    0,
-                    1
-                ],
-                "reply": [
-                    79,
-                    75
-                ],
-                "service": "fwu:ctrl"
-            },
             "rkey": 13898,
             "rlen": 2,
             "wkey": "Nbsjcbzb",
@@ -8019,27 +7494,6 @@
                     ]
                 }
             ],
-            "recovery": {
-                "close": [
-                    103,
-                    109,
-                    1,
-                    0,
-                    3
-                ],
-                "enter": [
-                    103,
-                    109,
-                    1,
-                    0,
-                    1
-                ],
-                "reply": [
-                    79,
-                    75
-                ],
-                "service": "fwu:ctrl"
-            },
             "rkey": 13898,
             "rlen": 2,
             "wkey": "Nbsjcbzb",
@@ -8150,27 +7604,6 @@
                     ]
                 }
             ],
-            "recovery": {
-                "close": [
-                    103,
-                    109,
-                    1,
-                    0,
-                    3
-                ],
-                "enter": [
-                    103,
-                    109,
-                    1,
-                    0,
-                    1
-                ],
-                "reply": [
-                    79,
-                    75
-                ],
-                "service": "fwu:ctrl"
-            },
             "rkey": 13898,
             "rlen": 2,
             "wkey": "Nbsjcbzb",
@@ -8293,27 +7726,6 @@
                     ]
                 }
             ],
-            "recovery": {
-                "close": [
-                    103,
-                    109,
-                    1,
-                    0,
-                    3
-                ],
-                "enter": [
-                    103,
-                    109,
-                    1,
-                    0,
-                    1
-                ],
-                "reply": [
-                    79,
-                    75
-                ],
-                "service": "fwu:ctrl"
-            },
             "rkey": 13898,
             "rlen": 2,
             "wkey": "Nbsjcbzb",
@@ -8424,27 +7836,6 @@
                     ]
                 }
             ],
-            "recovery": {
-                "close": [
-                    103,
-                    109,
-                    1,
-                    0,
-                    3
-                ],
-                "enter": [
-                    103,
-                    109,
-                    1,
-                    0,
-                    1
-                ],
-                "reply": [
-                    79,
-                    75
-                ],
-                "service": "fwu:ctrl"
-            },
             "rkey": 13898,
             "rlen": 2,
             "wkey": "Nbsjcbzb",
@@ -8663,27 +8054,6 @@
                     ]
                 }
             ],
-            "recovery": {
-                "close": [
-                    103,
-                    109,
-                    1,
-                    0,
-                    3
-                ],
-                "enter": [
-                    103,
-                    109,
-                    1,
-                    0,
-                    1
-                ],
-                "reply": [
-                    79,
-                    75
-                ],
-                "service": "fwu:ctrl"
-            },
             "rkey": 13898,
             "rlen": 2,
             "wkey": "Bsboujgp",
@@ -8800,27 +8170,6 @@
                     ]
                 }
             ],
-            "recovery": {
-                "close": [
-                    103,
-                    109,
-                    1,
-                    0,
-                    3
-                ],
-                "enter": [
-                    103,
-                    109,
-                    1,
-                    0,
-                    1
-                ],
-                "reply": [
-                    79,
-                    75
-                ],
-                "service": "fwu:ctrl"
-            },
             "rkey": 13898,
             "rlen": 2,
             "wkey": "Nbsjcbzb",
@@ -8937,27 +8286,6 @@
                     ]
                 }
             ],
-            "recovery": {
-                "close": [
-                    103,
-                    109,
-                    1,
-                    0,
-                    3
-                ],
-                "enter": [
-                    103,
-                    109,
-                    1,
-                    0,
-                    1
-                ],
-                "reply": [
-                    79,
-                    75
-                ],
-                "service": "fwu:ctrl"
-            },
             "rkey": 13898,
             "rlen": 2,
             "wkey": "Nbsjcbzb",
@@ -9031,27 +8359,6 @@
                     ]
                 }
             ],
-            "recovery": {
-                "close": [
-                    102,
-                    108,
-                    1,
-                    0,
-                    3
-                ],
-                "enter": [
-                    102,
-                    108,
-                    1,
-                    0,
-                    1
-                ],
-                "reply": [
-                    79,
-                    75
-                ],
-                "service": "fwu:ctrl"
-            },
             "rkey": 1297,
             "rlen": 2,
             "wkey": "nbibnfsv",
@@ -9065,10 +8372,10 @@
             "spec": "ET-3700-family"
         },
         "ET-3750": {
-            "spec": "ET-3750-family"
+            "spec": "ET-3700-family"
         },
         "ET-3760": {
-            "spec": "ET-3750-family"
+            "spec": "ET-3700-family"
         },
         "ET-3800": {
             "spec": "ET-3800-family"
@@ -9172,27 +8479,6 @@
                     ]
                 }
             ],
-            "recovery": {
-                "close": [
-                    102,
-                    108,
-                    1,
-                    0,
-                    3
-                ],
-                "enter": [
-                    102,
-                    108,
-                    1,
-                    0,
-                    1
-                ],
-                "reply": [
-                    79,
-                    75
-                ],
-                "service": "fwu:ctrl"
-            },
             "rkey": 105,
             "rlen": 2,
             "wkey": "HbepHbep",
@@ -9203,10 +8489,10 @@
             "spec": "ET-4700-family"
         },
         "ET-4750": {
-            "spec": "ET-4750-family"
+            "spec": "ET-3700-family"
         },
         "ET-4760": {
-            "spec": "ET-4750-family"
+            "spec": "ET-3700-family"
         },
         "ET-4800": {
             "close": [
@@ -9306,27 +8592,6 @@
                     ]
                 }
             ],
-            "recovery": {
-                "close": [
-                    103,
-                    109,
-                    1,
-                    0,
-                    3
-                ],
-                "enter": [
-                    103,
-                    109,
-                    1,
-                    0,
-                    1
-                ],
-                "reply": [
-                    79,
-                    75
-                ],
-                "service": "fwu:ctrl"
-            },
             "rkey": 13898,
             "rlen": 2,
             "wkey": "Nbsjcbzb",
@@ -9581,27 +8846,6 @@
                     ]
                 }
             ],
-            "recovery": {
-                "close": [
-                    102,
-                    108,
-                    1,
-                    0,
-                    3
-                ],
-                "enter": [
-                    102,
-                    108,
-                    1,
-                    0,
-                    1
-                ],
-                "reply": [
-                    79,
-                    75
-                ],
-                "service": "fwu:ctrl"
-            },
             "rkey": 2384,
             "rlen": 2,
             "wkey": "Cjebebsj",
@@ -9618,7 +8862,7 @@
             "spec": "ET-16500-family"
         },
         "EW-M530F": {
-            "spec": "ET-4750-family"
+            "spec": "ET-3700-family"
         },
         "EW-M5610FT": {
             "spec": "ET-15000-family"
@@ -9627,7 +8871,7 @@
             "spec": "EW-M571T-family"
         },
         "EW-M630T": {
-            "spec": "ET-4750-family"
+            "spec": "ET-3700-family"
         },
         "EW-M634T": {
             "spec": "ET-3800-family"
@@ -9690,27 +8934,6 @@
                     ]
                 }
             ],
-            "recovery": {
-                "close": [
-                    102,
-                    108,
-                    1,
-                    0,
-                    3
-                ],
-                "enter": [
-                    102,
-                    108,
-                    1,
-                    0,
-                    1
-                ],
-                "reply": [
-                    79,
-                    75
-                ],
-                "service": "fwu:ctrl"
-            },
             "rkey": 105,
             "rlen": 2,
             "wkey": "HbepHbep",
@@ -9718,7 +8941,7 @@
             "wlen": 2
         },
         "EW-M670FT": {
-            "spec": "ET-4750-family"
+            "spec": "ET-3700-family"
         },
         "EW-M674FT": {
             "spec": "ET-3800-family"
@@ -9820,27 +9043,6 @@
                     ]
                 }
             ],
-            "recovery": {
-                "close": [
-                    102,
-                    108,
-                    1,
-                    0,
-                    3
-                ],
-                "enter": [
-                    102,
-                    108,
-                    1,
-                    0,
-                    1
-                ],
-                "reply": [
-                    79,
-                    75
-                ],
-                "service": "fwu:ctrl"
-            },
             "rkey": 2369,
             "rlen": 2,
             "wkey": "Xblbupcj",
@@ -9953,27 +9155,6 @@
                     ]
                 }
             ],
-            "recovery": {
-                "close": [
-                    103,
-                    109,
-                    1,
-                    0,
-                    3
-                ],
-                "enter": [
-                    103,
-                    109,
-                    1,
-                    0,
-                    1
-                ],
-                "reply": [
-                    79,
-                    75
-                ],
-                "service": "fwu:ctrl"
-            },
             "rkey": 1331,
             "rlen": 2,
             "wkey": "Qjohvjdv",
@@ -10151,27 +9332,6 @@
                     ]
                 }
             ],
-            "recovery": {
-                "close": [
-                    103,
-                    109,
-                    1,
-                    0,
-                    3
-                ],
-                "enter": [
-                    103,
-                    109,
-                    1,
-                    0,
-                    1
-                ],
-                "reply": [
-                    79,
-                    75
-                ],
-                "service": "fwu:ctrl"
-            },
             "rkey": 13898,
             "rlen": 2,
             "wkey": "Nbsjcbzb",
@@ -10288,27 +9448,6 @@
                     ]
                 }
             ],
-            "recovery": {
-                "close": [
-                    103,
-                    109,
-                    1,
-                    0,
-                    3
-                ],
-                "enter": [
-                    103,
-                    109,
-                    1,
-                    0,
-                    1
-                ],
-                "reply": [
-                    79,
-                    75
-                ],
-                "service": "fwu:ctrl"
-            },
             "rkey": 13898,
             "rlen": 2,
             "wkey": "Nbsjcbzb",
@@ -10425,27 +9564,6 @@
                     ]
                 }
             ],
-            "recovery": {
-                "close": [
-                    103,
-                    109,
-                    1,
-                    0,
-                    3
-                ],
-                "enter": [
-                    103,
-                    109,
-                    1,
-                    0,
-                    1
-                ],
-                "reply": [
-                    79,
-                    75
-                ],
-                "service": "fwu:ctrl"
-            },
             "rkey": 13898,
             "rlen": 2,
             "wkey": "Nbsjcbzb",
@@ -10562,27 +9680,6 @@
                     ]
                 }
             ],
-            "recovery": {
-                "close": [
-                    103,
-                    109,
-                    1,
-                    0,
-                    3
-                ],
-                "enter": [
-                    103,
-                    109,
-                    1,
-                    0,
-                    1
-                ],
-                "reply": [
-                    79,
-                    75
-                ],
-                "service": "fwu:ctrl"
-            },
             "rkey": 13898,
             "rlen": 2,
             "wkey": "Nbsjcbzb",
@@ -10669,27 +9766,6 @@
                     ]
                 }
             ],
-            "recovery": {
-                "close": [
-                    103,
-                    109,
-                    1,
-                    0,
-                    3
-                ],
-                "enter": [
-                    103,
-                    109,
-                    1,
-                    0,
-                    1
-                ],
-                "reply": [
-                    79,
-                    75
-                ],
-                "service": "fwu:ctrl"
-            },
             "rkey": 1331,
             "rlen": 2,
             "wkey": "Qjohvjdv",
@@ -10724,27 +9800,6 @@
                     ]
                 }
             ],
-            "recovery": {
-                "close": [
-                    103,
-                    109,
-                    1,
-                    0,
-                    3
-                ],
-                "enter": [
-                    103,
-                    109,
-                    1,
-                    0,
-                    1
-                ],
-                "reply": [
-                    79,
-                    75
-                ],
-                "service": "fwu:ctrl"
-            },
             "rkey": 1331,
             "rlen": 2,
             "wkey": "Qjohvjdv",
@@ -10779,27 +9834,6 @@
                     ]
                 }
             ],
-            "recovery": {
-                "close": [
-                    103,
-                    109,
-                    1,
-                    0,
-                    3
-                ],
-                "enter": [
-                    103,
-                    109,
-                    1,
-                    0,
-                    1
-                ],
-                "reply": [
-                    79,
-                    75
-                ],
-                "service": "fwu:ctrl"
-            },
             "rkey": 1331,
             "rlen": 2,
             "wkey": "Qjohvjdv",
@@ -11000,27 +10034,6 @@
                     ]
                 }
             ],
-            "recovery": {
-                "close": [
-                    102,
-                    108,
-                    1,
-                    0,
-                    3
-                ],
-                "enter": [
-                    102,
-                    108,
-                    1,
-                    0,
-                    1
-                ],
-                "reply": [
-                    79,
-                    75
-                ],
-                "service": "fwu:ctrl"
-            },
             "rkey": 2369,
             "rlen": 2,
             "wkey": "Xblbupcj",
@@ -11094,27 +10107,6 @@
                     ]
                 }
             ],
-            "recovery": {
-                "close": [
-                    102,
-                    108,
-                    1,
-                    0,
-                    3
-                ],
-                "enter": [
-                    102,
-                    108,
-                    1,
-                    0,
-                    1
-                ],
-                "reply": [
-                    79,
-                    75
-                ],
-                "service": "fwu:ctrl"
-            },
             "rkey": 2369,
             "rlen": 2,
             "wkey": "Xblbupcj",
@@ -11208,27 +10200,6 @@
                     ]
                 }
             ],
-            "recovery": {
-                "close": [
-                    103,
-                    109,
-                    1,
-                    0,
-                    3
-                ],
-                "enter": [
-                    103,
-                    109,
-                    1,
-                    0,
-                    1
-                ],
-                "reply": [
-                    79,
-                    75
-                ],
-                "service": "fwu:ctrl"
-            },
             "rkey": 2064,
             "rlen": 2,
             "wkey": "Tjobcvoh",
@@ -11320,27 +10291,6 @@
                     ]
                 }
             ],
-            "recovery": {
-                "close": [
-                    103,
-                    109,
-                    1,
-                    0,
-                    3
-                ],
-                "enter": [
-                    103,
-                    109,
-                    1,
-                    0,
-                    1
-                ],
-                "reply": [
-                    79,
-                    75
-                ],
-                "service": "fwu:ctrl"
-            },
             "rkey": 1943,
             "rlen": 2,
             "wkey": "Nbsjcbzb",
@@ -11423,27 +10373,6 @@
                     ]
                 }
             ],
-            "recovery": {
-                "close": [
-                    103,
-                    109,
-                    1,
-                    0,
-                    3
-                ],
-                "enter": [
-                    103,
-                    109,
-                    1,
-                    0,
-                    1
-                ],
-                "reply": [
-                    79,
-                    75
-                ],
-                "service": "fwu:ctrl"
-            },
             "rkey": 1943,
             "rlen": 2,
             "wkey": "Nbsjcbzb",
@@ -11526,27 +10455,6 @@
                     ]
                 }
             ],
-            "recovery": {
-                "close": [
-                    103,
-                    109,
-                    1,
-                    0,
-                    3
-                ],
-                "enter": [
-                    103,
-                    109,
-                    1,
-                    0,
-                    1
-                ],
-                "reply": [
-                    79,
-                    75
-                ],
-                "service": "fwu:ctrl"
-            },
             "rkey": 1943,
             "rlen": 2,
             "wkey": "Nbsjcbzb",
@@ -11629,27 +10537,6 @@
                     ]
                 }
             ],
-            "recovery": {
-                "close": [
-                    103,
-                    109,
-                    1,
-                    0,
-                    3
-                ],
-                "enter": [
-                    103,
-                    109,
-                    1,
-                    0,
-                    1
-                ],
-                "reply": [
-                    79,
-                    75
-                ],
-                "service": "fwu:ctrl"
-            },
             "rkey": 1943,
             "rlen": 2,
             "wkey": "Nbsjcbzb",
@@ -11732,27 +10619,6 @@
                     ]
                 }
             ],
-            "recovery": {
-                "close": [
-                    103,
-                    109,
-                    1,
-                    0,
-                    3
-                ],
-                "enter": [
-                    103,
-                    109,
-                    1,
-                    0,
-                    1
-                ],
-                "reply": [
-                    79,
-                    75
-                ],
-                "service": "fwu:ctrl"
-            },
             "rkey": 1943,
             "rlen": 2,
             "wkey": "Nbsjcbzb",
@@ -11835,27 +10701,6 @@
                     ]
                 }
             ],
-            "recovery": {
-                "close": [
-                    103,
-                    109,
-                    1,
-                    0,
-                    3
-                ],
-                "enter": [
-                    103,
-                    109,
-                    1,
-                    0,
-                    1
-                ],
-                "reply": [
-                    79,
-                    75
-                ],
-                "service": "fwu:ctrl"
-            },
             "rkey": 1943,
             "rlen": 2,
             "wkey": "Nbsjcbzb",
@@ -11938,27 +10783,6 @@
                     ]
                 }
             ],
-            "recovery": {
-                "close": [
-                    103,
-                    109,
-                    1,
-                    0,
-                    3
-                ],
-                "enter": [
-                    103,
-                    109,
-                    1,
-                    0,
-                    1
-                ],
-                "reply": [
-                    79,
-                    75
-                ],
-                "service": "fwu:ctrl"
-            },
             "rkey": 1943,
             "rlen": 2,
             "wkey": "Nbsjcbzb",
@@ -12041,27 +10865,6 @@
                     ]
                 }
             ],
-            "recovery": {
-                "close": [
-                    103,
-                    109,
-                    1,
-                    0,
-                    3
-                ],
-                "enter": [
-                    103,
-                    109,
-                    1,
-                    0,
-                    1
-                ],
-                "reply": [
-                    79,
-                    75
-                ],
-                "service": "fwu:ctrl"
-            },
             "rkey": 1943,
             "rlen": 2,
             "wkey": "Nbsjcbzb",
@@ -12147,27 +10950,6 @@
                     ]
                 }
             ],
-            "recovery": {
-                "close": [
-                    103,
-                    109,
-                    1,
-                    0,
-                    3
-                ],
-                "enter": [
-                    103,
-                    109,
-                    1,
-                    0,
-                    1
-                ],
-                "reply": [
-                    79,
-                    75
-                ],
-                "service": "fwu:ctrl"
-            },
             "rkey": 1943,
             "rlen": 2,
             "wkey": "Nbsjcbzb",
@@ -12250,27 +11032,6 @@
                     ]
                 }
             ],
-            "recovery": {
-                "close": [
-                    103,
-                    109,
-                    1,
-                    0,
-                    3
-                ],
-                "enter": [
-                    103,
-                    109,
-                    1,
-                    0,
-                    1
-                ],
-                "reply": [
-                    79,
-                    75
-                ],
-                "service": "fwu:ctrl"
-            },
             "rkey": 1943,
             "rlen": 2,
             "wkey": "Nbsjcbzb",
@@ -12353,27 +11114,6 @@
                     ]
                 }
             ],
-            "recovery": {
-                "close": [
-                    103,
-                    109,
-                    1,
-                    0,
-                    3
-                ],
-                "enter": [
-                    103,
-                    109,
-                    1,
-                    0,
-                    1
-                ],
-                "reply": [
-                    79,
-                    75
-                ],
-                "service": "fwu:ctrl"
-            },
             "rkey": 1943,
             "rlen": 2,
             "wkey": "Nbsjcbzb",
@@ -12456,27 +11196,6 @@
                     ]
                 }
             ],
-            "recovery": {
-                "close": [
-                    103,
-                    109,
-                    1,
-                    0,
-                    3
-                ],
-                "enter": [
-                    103,
-                    109,
-                    1,
-                    0,
-                    1
-                ],
-                "reply": [
-                    79,
-                    75
-                ],
-                "service": "fwu:ctrl"
-            },
             "rkey": 1943,
             "rlen": 2,
             "wkey": "Nbsjcbzb",
@@ -12556,27 +11275,6 @@
                     ]
                 }
             ],
-            "recovery": {
-                "close": [
-                    103,
-                    109,
-                    1,
-                    0,
-                    3
-                ],
-                "enter": [
-                    103,
-                    109,
-                    1,
-                    0,
-                    1
-                ],
-                "reply": [
-                    79,
-                    75
-                ],
-                "service": "fwu:ctrl"
-            },
             "rkey": 1943,
             "rlen": 2,
             "wkey": "Nbsjcbzb",
@@ -12696,27 +11394,6 @@
                     ]
                 }
             ],
-            "recovery": {
-                "close": [
-                    103,
-                    109,
-                    1,
-                    0,
-                    3
-                ],
-                "enter": [
-                    103,
-                    109,
-                    1,
-                    0,
-                    1
-                ],
-                "reply": [
-                    79,
-                    75
-                ],
-                "service": "fwu:ctrl"
-            },
             "rkey": 13898,
             "rlen": 2,
             "wkey": "Nbsjcbzb",
@@ -12839,27 +11516,6 @@
                     ]
                 }
             ],
-            "recovery": {
-                "close": [
-                    103,
-                    109,
-                    1,
-                    0,
-                    3
-                ],
-                "enter": [
-                    103,
-                    109,
-                    1,
-                    0,
-                    1
-                ],
-                "reply": [
-                    79,
-                    75
-                ],
-                "service": "fwu:ctrl"
-            },
             "rkey": 13898,
             "rlen": 2,
             "wkey": "Nbsjcbzb",
@@ -12970,27 +11626,6 @@
                     ]
                 }
             ],
-            "recovery": {
-                "close": [
-                    103,
-                    109,
-                    1,
-                    0,
-                    3
-                ],
-                "enter": [
-                    103,
-                    109,
-                    1,
-                    0,
-                    1
-                ],
-                "reply": [
-                    79,
-                    75
-                ],
-                "service": "fwu:ctrl"
-            },
             "rkey": 13898,
             "rlen": 2,
             "wkey": "Nbsjcbzb",
@@ -13113,27 +11748,6 @@
                     ]
                 }
             ],
-            "recovery": {
-                "close": [
-                    103,
-                    109,
-                    1,
-                    0,
-                    3
-                ],
-                "enter": [
-                    103,
-                    109,
-                    1,
-                    0,
-                    1
-                ],
-                "reply": [
-                    79,
-                    75
-                ],
-                "service": "fwu:ctrl"
-            },
             "rkey": 13898,
             "rlen": 2,
             "wkey": "Nbsjcbzb",
@@ -13244,27 +11858,6 @@
                     ]
                 }
             ],
-            "recovery": {
-                "close": [
-                    103,
-                    109,
-                    1,
-                    0,
-                    3
-                ],
-                "enter": [
-                    103,
-                    109,
-                    1,
-                    0,
-                    1
-                ],
-                "reply": [
-                    79,
-                    75
-                ],
-                "service": "fwu:ctrl"
-            },
             "rkey": 13898,
             "rlen": 2,
             "wkey": "Nbsjcbzb",
@@ -13387,27 +11980,6 @@
                     ]
                 }
             ],
-            "recovery": {
-                "close": [
-                    103,
-                    109,
-                    1,
-                    0,
-                    3
-                ],
-                "enter": [
-                    103,
-                    109,
-                    1,
-                    0,
-                    1
-                ],
-                "reply": [
-                    79,
-                    75
-                ],
-                "service": "fwu:ctrl"
-            },
             "rkey": 13898,
             "rlen": 2,
             "wkey": "Nbsjcbzb",
@@ -13518,27 +12090,6 @@
                     ]
                 }
             ],
-            "recovery": {
-                "close": [
-                    103,
-                    109,
-                    1,
-                    0,
-                    3
-                ],
-                "enter": [
-                    103,
-                    109,
-                    1,
-                    0,
-                    1
-                ],
-                "reply": [
-                    79,
-                    75
-                ],
-                "service": "fwu:ctrl"
-            },
             "rkey": 13898,
             "rlen": 2,
             "wkey": "Nbsjcbzb",
@@ -13661,27 +12212,6 @@
                     ]
                 }
             ],
-            "recovery": {
-                "close": [
-                    103,
-                    109,
-                    1,
-                    0,
-                    3
-                ],
-                "enter": [
-                    103,
-                    109,
-                    1,
-                    0,
-                    1
-                ],
-                "reply": [
-                    79,
-                    75
-                ],
-                "service": "fwu:ctrl"
-            },
             "rkey": 13898,
             "rlen": 2,
             "wkey": "Nbsjcbzb",
@@ -13792,27 +12322,6 @@
                     ]
                 }
             ],
-            "recovery": {
-                "close": [
-                    103,
-                    109,
-                    1,
-                    0,
-                    3
-                ],
-                "enter": [
-                    103,
-                    109,
-                    1,
-                    0,
-                    1
-                ],
-                "reply": [
-                    79,
-                    75
-                ],
-                "service": "fwu:ctrl"
-            },
             "rkey": 13898,
             "rlen": 2,
             "wkey": "Nbsjcbzb",
@@ -13935,27 +12444,6 @@
                     ]
                 }
             ],
-            "recovery": {
-                "close": [
-                    103,
-                    109,
-                    1,
-                    0,
-                    3
-                ],
-                "enter": [
-                    103,
-                    109,
-                    1,
-                    0,
-                    1
-                ],
-                "reply": [
-                    79,
-                    75
-                ],
-                "service": "fwu:ctrl"
-            },
             "rkey": 13898,
             "rlen": 2,
             "wkey": "Nbsjcbzb",
@@ -14066,27 +12554,6 @@
                     ]
                 }
             ],
-            "recovery": {
-                "close": [
-                    103,
-                    109,
-                    1,
-                    0,
-                    3
-                ],
-                "enter": [
-                    103,
-                    109,
-                    1,
-                    0,
-                    1
-                ],
-                "reply": [
-                    79,
-                    75
-                ],
-                "service": "fwu:ctrl"
-            },
             "rkey": 13898,
             "rlen": 2,
             "wkey": "Nbsjcbzb",
@@ -14209,27 +12676,6 @@
                     ]
                 }
             ],
-            "recovery": {
-                "close": [
-                    103,
-                    109,
-                    1,
-                    0,
-                    3
-                ],
-                "enter": [
-                    103,
-                    109,
-                    1,
-                    0,
-                    1
-                ],
-                "reply": [
-                    79,
-                    75
-                ],
-                "service": "fwu:ctrl"
-            },
             "rkey": 13898,
             "rlen": 2,
             "wkey": "Nbsjcbzb",
@@ -14340,27 +12786,6 @@
                     ]
                 }
             ],
-            "recovery": {
-                "close": [
-                    103,
-                    109,
-                    1,
-                    0,
-                    3
-                ],
-                "enter": [
-                    103,
-                    109,
-                    1,
-                    0,
-                    1
-                ],
-                "reply": [
-                    79,
-                    75
-                ],
-                "service": "fwu:ctrl"
-            },
             "rkey": 13898,
             "rlen": 2,
             "wkey": "Nbsjcbzb",
@@ -14483,27 +12908,6 @@
                     ]
                 }
             ],
-            "recovery": {
-                "close": [
-                    103,
-                    109,
-                    1,
-                    0,
-                    3
-                ],
-                "enter": [
-                    103,
-                    109,
-                    1,
-                    0,
-                    1
-                ],
-                "reply": [
-                    79,
-                    75
-                ],
-                "service": "fwu:ctrl"
-            },
             "rkey": 13898,
             "rlen": 2,
             "wkey": "Nbsjcbzb",
@@ -14571,27 +12975,6 @@
                     ]
                 }
             ],
-            "recovery": {
-                "close": [
-                    102,
-                    108,
-                    1,
-                    0,
-                    3
-                ],
-                "enter": [
-                    102,
-                    108,
-                    1,
-                    0,
-                    1
-                ],
-                "reply": [
-                    79,
-                    75
-                ],
-                "service": "fwu:ctrl"
-            },
             "rkey": 2369,
             "rlen": 2,
             "wkey": "Xblbupcj",
@@ -14747,27 +13130,6 @@
                     ]
                 }
             ],
-            "recovery": {
-                "close": [
-                    102,
-                    108,
-                    1,
-                    0,
-                    3
-                ],
-                "enter": [
-                    102,
-                    108,
-                    1,
-                    0,
-                    1
-                ],
-                "reply": [
-                    79,
-                    75
-                ],
-                "service": "fwu:ctrl"
-            },
             "rkey": 642,
             "rlen": 2,
             "wkey": "Hfscfsb+",
@@ -14778,71 +13140,13 @@
             "spec": "ET-2500-family"
         },
         "L380": {
-            "spec": "ET-2650-family"
+            "spec": "ET-2600-family"
         },
         "L382": {
             "spec": "EP-M570T-family"
         },
         "L385": {
-            "mem_high": 511,
-            "pad_groups": [
-                {
-                    "addresses": [
-                        24,
-                        25
-                    ],
-                    "counters": [
-                        {
-                            "bytes": [
-                                24,
-                                25,
-                                {
-                                    "addr": 30,
-                                    "mask": 255,
-                                    "weight": 250
-                                }
-                            ],
-                            "desc": "Main Pad Counter",
-                            "max": 6207
-                        }
-                    ],
-                    "desc": "Main Pad Counter",
-                    "kind": "main",
-                    "reset": [
-                        0,
-                        0
-                    ]
-                },
-                {
-                    "addresses": [
-                        28,
-                        29,
-                        46
-                    ],
-                    "desc": "Platen Pad Counter",
-                    "kind": "platen",
-                    "reset": [
-                        0,
-                        0,
-                        94
-                    ]
-                },
-                {
-                    "addresses": [
-                        30
-                    ],
-                    "desc": "Main Pad Counter",
-                    "kind": "main",
-                    "reset": [
-                        0
-                    ]
-                }
-            ],
-            "rkey": 2064,
-            "rlen": 2,
-            "wkey": "Tjobcvoh",
-            "wkey1": "Sinabung",
-            "wlen": 2
+            "spec": "ET-2600-family"
         },
         "L386": {
             "spec": "L386-family"
@@ -14987,27 +13291,6 @@
                     ]
                 }
             ],
-            "recovery": {
-                "close": [
-                    102,
-                    108,
-                    1,
-                    0,
-                    3
-                ],
-                "enter": [
-                    102,
-                    108,
-                    1,
-                    0,
-                    1
-                ],
-                "reply": [
-                    79,
-                    75
-                ],
-                "service": "fwu:ctrl"
-            },
             "rkey": 2121,
             "rlen": 2,
             "wkey": "Bsboujgp",
@@ -15087,27 +13370,6 @@
                     ]
                 }
             ],
-            "recovery": {
-                "close": [
-                    102,
-                    108,
-                    1,
-                    0,
-                    3
-                ],
-                "enter": [
-                    102,
-                    108,
-                    1,
-                    0,
-                    1
-                ],
-                "reply": [
-                    79,
-                    75
-                ],
-                "service": "fwu:ctrl"
-            },
             "rkey": 2121,
             "rlen": 2,
             "wkey": "Bsboujgp",
@@ -15211,27 +13473,6 @@
                     ]
                 }
             ],
-            "recovery": {
-                "close": [
-                    102,
-                    108,
-                    1,
-                    0,
-                    3
-                ],
-                "enter": [
-                    102,
-                    108,
-                    1,
-                    0,
-                    1
-                ],
-                "reply": [
-                    79,
-                    75
-                ],
-                "service": "fwu:ctrl"
-            },
             "rkey": 2121,
             "rlen": 2,
             "wkey": "Bsboujgp",
@@ -15311,27 +13552,6 @@
                     ]
                 }
             ],
-            "recovery": {
-                "close": [
-                    102,
-                    108,
-                    1,
-                    0,
-                    3
-                ],
-                "enter": [
-                    102,
-                    108,
-                    1,
-                    0,
-                    1
-                ],
-                "reply": [
-                    79,
-                    75
-                ],
-                "service": "fwu:ctrl"
-            },
             "rkey": 2121,
             "rlen": 2,
             "wkey": "Bsboujgp",
@@ -15463,27 +13683,6 @@
                     ]
                 }
             ],
-            "recovery": {
-                "close": [
-                    103,
-                    109,
-                    1,
-                    0,
-                    3
-                ],
-                "enter": [
-                    103,
-                    109,
-                    1,
-                    0,
-                    1
-                ],
-                "reply": [
-                    79,
-                    75
-                ],
-                "service": "fwu:ctrl"
-            },
             "rkey": 13898,
             "rlen": 2,
             "wkey": "Bsboujgp",
@@ -15606,27 +13805,6 @@
                     ]
                 }
             ],
-            "recovery": {
-                "close": [
-                    103,
-                    109,
-                    1,
-                    0,
-                    3
-                ],
-                "enter": [
-                    103,
-                    109,
-                    1,
-                    0,
-                    1
-                ],
-                "reply": [
-                    79,
-                    75
-                ],
-                "service": "fwu:ctrl"
-            },
             "rkey": 13898,
             "rlen": 2,
             "wkey": "Bsboujgp",
@@ -15787,13 +13965,13 @@
             "spec": "ET-2550-family"
         },
         "L485": {
-            "spec": "ET-2650-family"
+            "spec": "ET-2600-family"
         },
         "L486": {
             "spec": "L386-family"
         },
         "L495": {
-            "spec": "ET-2650-family"
+            "spec": "ET-2600-family"
         },
         "L5190": {
             "aliases": [
@@ -15868,27 +14046,6 @@
                     ]
                 }
             ],
-            "recovery": {
-                "close": [
-                    103,
-                    109,
-                    1,
-                    0,
-                    3
-                ],
-                "enter": [
-                    103,
-                    109,
-                    1,
-                    0,
-                    1
-                ],
-                "reply": [
-                    79,
-                    75
-                ],
-                "service": "fwu:ctrl"
-            },
             "rkey": 1943,
             "rlen": 2,
             "wkey": "Nbsjcbzb",
@@ -16002,27 +14159,6 @@
                     ]
                 }
             ],
-            "recovery": {
-                "close": [
-                    103,
-                    109,
-                    1,
-                    0,
-                    3
-                ],
-                "enter": [
-                    103,
-                    109,
-                    1,
-                    0,
-                    1
-                ],
-                "reply": [
-                    79,
-                    75
-                ],
-                "service": "fwu:ctrl"
-            },
             "rkey": 13898,
             "rlen": 2,
             "wkey": "Nbsjcbzb",
@@ -16137,27 +14273,6 @@
                     ]
                 }
             ],
-            "recovery": {
-                "close": [
-                    103,
-                    109,
-                    1,
-                    0,
-                    3
-                ],
-                "enter": [
-                    103,
-                    109,
-                    1,
-                    0,
-                    1
-                ],
-                "reply": [
-                    79,
-                    75
-                ],
-                "service": "fwu:ctrl"
-            },
             "rkey": 13898,
             "rlen": 2,
             "wkey": "Nbsjcbzb",
@@ -16228,27 +14343,6 @@
                     ]
                 }
             ],
-            "recovery": {
-                "close": [
-                    102,
-                    108,
-                    1,
-                    0,
-                    3
-                ],
-                "enter": [
-                    102,
-                    108,
-                    1,
-                    0,
-                    1
-                ],
-                "reply": [
-                    79,
-                    75
-                ],
-                "service": "fwu:ctrl"
-            },
             "rkey": 2369,
             "rlen": 2,
             "wkey": "Xblbupcj",
@@ -16325,27 +14419,6 @@
                     ]
                 }
             ],
-            "recovery": {
-                "close": [
-                    102,
-                    108,
-                    1,
-                    0,
-                    3
-                ],
-                "enter": [
-                    102,
-                    108,
-                    1,
-                    0,
-                    1
-                ],
-                "reply": [
-                    79,
-                    75
-                ],
-                "service": "fwu:ctrl"
-            },
             "rkey": 2369,
             "rlen": 2,
             "wkey": "Xblbupcj",
@@ -16464,27 +14537,6 @@
                     ]
                 }
             ],
-            "recovery": {
-                "close": [
-                    102,
-                    108,
-                    1,
-                    0,
-                    3
-                ],
-                "enter": [
-                    102,
-                    108,
-                    1,
-                    0,
-                    1
-                ],
-                "reply": [
-                    79,
-                    75
-                ],
-                "service": "fwu:ctrl"
-            },
             "rkey": 642,
             "rlen": 2,
             "wkey": "Hfscfsb+",
@@ -16571,27 +14623,6 @@
                     ]
                 }
             ],
-            "recovery": {
-                "close": [
-                    102,
-                    108,
-                    1,
-                    0,
-                    3
-                ],
-                "enter": [
-                    102,
-                    108,
-                    1,
-                    0,
-                    1
-                ],
-                "reply": [
-                    79,
-                    75
-                ],
-                "service": "fwu:ctrl"
-            },
             "rkey": 642,
             "rlen": 2,
             "wkey": "Hfscfsb+",
@@ -16659,27 +14690,6 @@
                     ]
                 }
             ],
-            "recovery": {
-                "close": [
-                    102,
-                    108,
-                    1,
-                    0,
-                    3
-                ],
-                "enter": [
-                    102,
-                    108,
-                    1,
-                    0,
-                    1
-                ],
-                "reply": [
-                    79,
-                    75
-                ],
-                "service": "fwu:ctrl"
-            },
             "rkey": 1297,
             "rlen": 2,
             "wkey": "nbibnfsv",
@@ -16726,27 +14736,6 @@
                     ]
                 }
             ],
-            "recovery": {
-                "close": [
-                    102,
-                    108,
-                    1,
-                    0,
-                    3
-                ],
-                "enter": [
-                    102,
-                    108,
-                    1,
-                    0,
-                    1
-                ],
-                "reply": [
-                    79,
-                    75
-                ],
-                "service": "fwu:ctrl"
-            },
             "rkey": 1297,
             "rlen": 2,
             "wkey": "nbibnfsv",
@@ -16778,27 +14767,6 @@
                     ]
                 }
             ],
-            "recovery": {
-                "close": [
-                    102,
-                    108,
-                    1,
-                    0,
-                    3
-                ],
-                "enter": [
-                    102,
-                    108,
-                    1,
-                    0,
-                    1
-                ],
-                "reply": [
-                    79,
-                    75
-                ],
-                "service": "fwu:ctrl"
-            },
             "rkey": 2121,
             "rlen": 2,
             "wkey": "Bsboujgp",
@@ -16806,13 +14774,13 @@
             "wlen": 2
         },
         "L6161": {
-            "spec": "ET-4750-family"
+            "spec": "ET-3700-family"
         },
         "L6166": {
-            "spec": "ET-4750-family"
+            "spec": "ET-3700-family"
         },
         "L6168": {
-            "spec": "ET-4750-family"
+            "spec": "ET-3700-family"
         },
         "L6170": {
             "aliases": [
@@ -16839,27 +14807,6 @@
                     ]
                 }
             ],
-            "recovery": {
-                "close": [
-                    103,
-                    109,
-                    1,
-                    0,
-                    3
-                ],
-                "enter": [
-                    103,
-                    109,
-                    1,
-                    0,
-                    1
-                ],
-                "reply": [
-                    79,
-                    75
-                ],
-                "service": "fwu:ctrl"
-            },
             "rkey": 2121,
             "rlen": 2,
             "wkey": "Bsboujgp",
@@ -16867,13 +14814,13 @@
             "wlen": 2
         },
         "L6171": {
-            "spec": "ET-4750-family"
+            "spec": "ET-3700-family"
         },
         "L6176": {
-            "spec": "ET-4750-family"
+            "spec": "ET-3700-family"
         },
         "L6178": {
-            "spec": "ET-4750-family"
+            "spec": "ET-3700-family"
         },
         "L6190": {
             "aliases": [
@@ -16907,13 +14854,13 @@
             "wlen": 2
         },
         "L6191": {
-            "spec": "ET-4750-family"
+            "spec": "ET-3700-family"
         },
         "L6196": {
-            "spec": "ET-4750-family"
+            "spec": "ET-3700-family"
         },
         "L6198": {
-            "spec": "ET-4750-family"
+            "spec": "ET-3700-family"
         },
         "L6260": {
             "aliases": [
@@ -17173,27 +15120,6 @@
                     ]
                 }
             ],
-            "recovery": {
-                "close": [
-                    102,
-                    108,
-                    1,
-                    0,
-                    3
-                ],
-                "enter": [
-                    102,
-                    108,
-                    1,
-                    0,
-                    1
-                ],
-                "reply": [
-                    79,
-                    75
-                ],
-                "service": "fwu:ctrl"
-            },
             "rkey": 105,
             "rlen": 2,
             "wkey": "HbepHbep",
@@ -17225,27 +15151,6 @@
                     ]
                 }
             ],
-            "recovery": {
-                "close": [
-                    103,
-                    109,
-                    1,
-                    0,
-                    3
-                ],
-                "enter": [
-                    103,
-                    109,
-                    1,
-                    0,
-                    1
-                ],
-                "reply": [
-                    79,
-                    75
-                ],
-                "service": "fwu:ctrl"
-            },
             "rkey": 1331,
             "rlen": 2,
             "wkey": "Qjohvjdv",
@@ -17298,27 +15203,6 @@
                     ]
                 }
             ],
-            "recovery": {
-                "close": [
-                    102,
-                    108,
-                    1,
-                    0,
-                    3
-                ],
-                "enter": [
-                    102,
-                    108,
-                    1,
-                    0,
-                    1
-                ],
-                "reply": [
-                    79,
-                    75
-                ],
-                "service": "fwu:ctrl"
-            },
             "rkey": 105,
             "rlen": 2,
             "wkey": "HbepHbep",
@@ -17350,27 +15234,6 @@
                     ]
                 }
             ],
-            "recovery": {
-                "close": [
-                    103,
-                    109,
-                    1,
-                    0,
-                    3
-                ],
-                "enter": [
-                    103,
-                    109,
-                    1,
-                    0,
-                    1
-                ],
-                "reply": [
-                    79,
-                    75
-                ],
-                "service": "fwu:ctrl"
-            },
             "rkey": 1331,
             "rlen": 2,
             "wkey": "Qjohvjdv",
@@ -17408,27 +15271,6 @@
                     ]
                 }
             ],
-            "recovery": {
-                "close": [
-                    103,
-                    109,
-                    1,
-                    0,
-                    3
-                ],
-                "enter": [
-                    103,
-                    109,
-                    1,
-                    0,
-                    1
-                ],
-                "reply": [
-                    79,
-                    75
-                ],
-                "service": "fwu:ctrl"
-            },
             "rkey": 1331,
             "rlen": 2,
             "wkey": "Qjohvjdv",
@@ -17731,27 +15573,6 @@
                     ]
                 }
             ],
-            "recovery": {
-                "close": [
-                    103,
-                    109,
-                    1,
-                    0,
-                    3
-                ],
-                "enter": [
-                    103,
-                    109,
-                    1,
-                    0,
-                    1
-                ],
-                "reply": [
-                    79,
-                    75
-                ],
-                "service": "fwu:ctrl"
-            },
             "rkey": 8266,
             "rlen": 2,
             "wkey": "Nbibnfsv",
@@ -17788,27 +15609,6 @@
                     ]
                 }
             ],
-            "recovery": {
-                "close": [
-                    103,
-                    109,
-                    1,
-                    0,
-                    3
-                ],
-                "enter": [
-                    103,
-                    109,
-                    1,
-                    0,
-                    1
-                ],
-                "reply": [
-                    79,
-                    75
-                ],
-                "service": "fwu:ctrl"
-            },
             "rkey": 8266,
             "rlen": 2,
             "wkey": "Nbibnfsv",
@@ -18312,27 +16112,6 @@
                     ]
                 }
             ],
-            "recovery": {
-                "close": [
-                    102,
-                    108,
-                    1,
-                    0,
-                    3
-                ],
-                "enter": [
-                    102,
-                    108,
-                    1,
-                    0,
-                    1
-                ],
-                "reply": [
-                    79,
-                    75
-                ],
-                "service": "fwu:ctrl"
-            },
             "rkey": 1817,
             "rlen": 2,
             "wkey": "Xblbupcj",
@@ -18481,27 +16260,6 @@
                     ]
                 }
             ],
-            "recovery": {
-                "close": [
-                    102,
-                    108,
-                    1,
-                    0,
-                    3
-                ],
-                "enter": [
-                    102,
-                    108,
-                    1,
-                    0,
-                    1
-                ],
-                "reply": [
-                    79,
-                    75
-                ],
-                "service": "fwu:ctrl"
-            },
             "rkey": 1817,
             "rlen": 2,
             "wkey": "Xblbupcj",
@@ -18594,27 +16352,6 @@
                     ]
                 }
             ],
-            "recovery": {
-                "close": [
-                    102,
-                    108,
-                    1,
-                    0,
-                    3
-                ],
-                "enter": [
-                    102,
-                    108,
-                    1,
-                    0,
-                    1
-                ],
-                "reply": [
-                    79,
-                    75
-                ],
-                "service": "fwu:ctrl"
-            },
             "rkey": 1817,
             "rlen": 2,
             "wkey": "Xblbupcj",
@@ -18704,27 +16441,6 @@
                     ]
                 }
             ],
-            "recovery": {
-                "close": [
-                    102,
-                    108,
-                    1,
-                    0,
-                    3
-                ],
-                "enter": [
-                    102,
-                    108,
-                    1,
-                    0,
-                    1
-                ],
-                "reply": [
-                    79,
-                    75
-                ],
-                "service": "fwu:ctrl"
-            },
             "rkey": 1817,
             "rlen": 2,
             "wkey": "Xblbupcj",
@@ -19120,27 +16836,6 @@
                     ]
                 }
             ],
-            "recovery": {
-                "close": [
-                    102,
-                    108,
-                    1,
-                    0,
-                    3
-                ],
-                "enter": [
-                    102,
-                    108,
-                    1,
-                    0,
-                    1
-                ],
-                "reply": [
-                    79,
-                    75
-                ],
-                "service": "fwu:ctrl"
-            },
             "rkey": 360,
             "rlen": 2,
             "wkey": "KJNCbsbo",
@@ -19307,27 +17002,6 @@
                     ]
                 }
             ],
-            "recovery": {
-                "close": [
-                    102,
-                    108,
-                    1,
-                    0,
-                    3
-                ],
-                "enter": [
-                    102,
-                    108,
-                    1,
-                    0,
-                    1
-                ],
-                "reply": [
-                    79,
-                    75
-                ],
-                "service": "fwu:ctrl"
-            },
             "rkey": 360,
             "rlen": 2,
             "wkey": "KJNCbsbo",
@@ -19716,27 +17390,6 @@
                     ]
                 }
             ],
-            "recovery": {
-                "close": [
-                    102,
-                    108,
-                    1,
-                    0,
-                    3
-                ],
-                "enter": [
-                    102,
-                    108,
-                    1,
-                    0,
-                    1
-                ],
-                "reply": [
-                    79,
-                    75
-                ],
-                "service": "fwu:ctrl"
-            },
             "rkey": 360,
             "rlen": 2,
             "wkey": "KJNCbsbo",
@@ -21399,27 +19052,6 @@
                     ]
                 }
             ],
-            "recovery": {
-                "close": [
-                    102,
-                    108,
-                    1,
-                    0,
-                    3
-                ],
-                "enter": [
-                    102,
-                    108,
-                    1,
-                    0,
-                    1
-                ],
-                "reply": [
-                    79,
-                    75
-                ],
-                "service": "fwu:ctrl"
-            },
             "rkey": 1413,
             "rlen": 2,
             "wkey": "Qpmzyfob",
@@ -21506,27 +19138,6 @@
                     ]
                 }
             ],
-            "recovery": {
-                "close": [
-                    103,
-                    109,
-                    1,
-                    0,
-                    3
-                ],
-                "enter": [
-                    103,
-                    109,
-                    1,
-                    0,
-                    1
-                ],
-                "reply": [
-                    79,
-                    75
-                ],
-                "service": "fwu:ctrl"
-            },
             "rkey": 1281,
             "rlen": 2,
             "wkey": "Tvsbnbev",
@@ -22340,27 +19951,6 @@
                     ]
                 }
             ],
-            "recovery": {
-                "close": [
-                    102,
-                    108,
-                    1,
-                    0,
-                    3
-                ],
-                "enter": [
-                    102,
-                    108,
-                    1,
-                    0,
-                    1
-                ],
-                "reply": [
-                    79,
-                    75
-                ],
-                "service": "fwu:ctrl"
-            },
             "rkey": 2084,
             "rlen": 2,
             "wkey": "Ejbouivt",
@@ -22429,27 +20019,6 @@
                     ]
                 }
             ],
-            "recovery": {
-                "close": [
-                    102,
-                    108,
-                    1,
-                    0,
-                    3
-                ],
-                "enter": [
-                    102,
-                    108,
-                    1,
-                    0,
-                    1
-                ],
-                "reply": [
-                    79,
-                    75
-                ],
-                "service": "fwu:ctrl"
-            },
             "rkey": 2084,
             "rlen": 2,
             "wkey": "Ejbouivt",
@@ -22532,27 +20101,6 @@
                     ]
                 }
             ],
-            "recovery": {
-                "close": [
-                    103,
-                    109,
-                    1,
-                    0,
-                    3
-                ],
-                "enter": [
-                    103,
-                    109,
-                    1,
-                    0,
-                    1
-                ],
-                "reply": [
-                    79,
-                    75
-                ],
-                "service": "fwu:ctrl"
-            },
             "rkey": 2374,
             "rlen": 2,
             "wkey": "dspobsjb",
@@ -23841,27 +21389,6 @@
                     ]
                 }
             ],
-            "recovery": {
-                "close": [
-                    102,
-                    108,
-                    1,
-                    0,
-                    3
-                ],
-                "enter": [
-                    102,
-                    108,
-                    1,
-                    0,
-                    1
-                ],
-                "reply": [
-                    79,
-                    75
-                ],
-                "service": "fwu:ctrl"
-            },
             "rkey": 12808,
             "rlen": 2,
             "wkey": "Uitrgb0v",
@@ -23961,27 +21488,6 @@
                     ]
                 }
             ],
-            "recovery": {
-                "close": [
-                    102,
-                    108,
-                    1,
-                    0,
-                    3
-                ],
-                "enter": [
-                    102,
-                    108,
-                    1,
-                    0,
-                    1
-                ],
-                "reply": [
-                    79,
-                    75
-                ],
-                "service": "fwu:ctrl"
-            },
             "rkey": 12808,
             "rlen": 2,
             "wkey": "Uitrgb0v",
@@ -26632,27 +24138,6 @@
                     ]
                 }
             ],
-            "recovery": {
-                "close": [
-                    103,
-                    109,
-                    1,
-                    0,
-                    3
-                ],
-                "enter": [
-                    103,
-                    109,
-                    1,
-                    0,
-                    1
-                ],
-                "reply": [
-                    79,
-                    75
-                ],
-                "service": "fwu:ctrl"
-            },
             "rkey": 1331,
             "rlen": 2,
             "wkey": "Qjohvjdv",
@@ -26684,27 +24169,6 @@
                     ]
                 }
             ],
-            "recovery": {
-                "close": [
-                    103,
-                    109,
-                    1,
-                    0,
-                    3
-                ],
-                "enter": [
-                    103,
-                    109,
-                    1,
-                    0,
-                    1
-                ],
-                "reply": [
-                    79,
-                    75
-                ],
-                "service": "fwu:ctrl"
-            },
             "rkey": 1331,
             "rlen": 2,
             "wkey": "Qjohvjdv",
@@ -27149,27 +24613,6 @@
                     ]
                 }
             ],
-            "recovery": {
-                "close": [
-                    102,
-                    108,
-                    1,
-                    0,
-                    3
-                ],
-                "enter": [
-                    102,
-                    108,
-                    1,
-                    0,
-                    1
-                ],
-                "reply": [
-                    79,
-                    75
-                ],
-                "service": "fwu:ctrl"
-            },
             "rkey": 360,
             "rlen": 2,
             "wkey": "KJNCbsbo",
@@ -27259,27 +24702,6 @@
                     ]
                 }
             ],
-            "recovery": {
-                "close": [
-                    102,
-                    108,
-                    1,
-                    0,
-                    3
-                ],
-                "enter": [
-                    102,
-                    108,
-                    1,
-                    0,
-                    1
-                ],
-                "reply": [
-                    79,
-                    75
-                ],
-                "service": "fwu:ctrl"
-            },
             "rkey": 360,
             "rlen": 2,
             "wkey": "KJNCbsbo",
@@ -27793,27 +25215,6 @@
                     ]
                 }
             ],
-            "recovery": {
-                "close": [
-                    102,
-                    108,
-                    1,
-                    0,
-                    3
-                ],
-                "enter": [
-                    102,
-                    108,
-                    1,
-                    0,
-                    1
-                ],
-                "reply": [
-                    79,
-                    75
-                ],
-                "service": "fwu:ctrl"
-            },
             "rkey": 360,
             "rlen": 2,
             "wkey": "KJNCbsbo",
@@ -27903,27 +25304,6 @@
                     ]
                 }
             ],
-            "recovery": {
-                "close": [
-                    102,
-                    108,
-                    1,
-                    0,
-                    3
-                ],
-                "enter": [
-                    102,
-                    108,
-                    1,
-                    0,
-                    1
-                ],
-                "reply": [
-                    79,
-                    75
-                ],
-                "service": "fwu:ctrl"
-            },
             "rkey": 360,
             "rlen": 2,
             "wkey": "KJNCbsbo",
@@ -28013,27 +25393,6 @@
                     ]
                 }
             ],
-            "recovery": {
-                "close": [
-                    102,
-                    108,
-                    1,
-                    0,
-                    3
-                ],
-                "enter": [
-                    102,
-                    108,
-                    1,
-                    0,
-                    1
-                ],
-                "reply": [
-                    79,
-                    75
-                ],
-                "service": "fwu:ctrl"
-            },
             "rkey": 360,
             "rlen": 2,
             "wkey": "KJNCbsbo",
@@ -30075,27 +27434,6 @@
                     ]
                 }
             ],
-            "recovery": {
-                "close": [
-                    102,
-                    108,
-                    1,
-                    0,
-                    3
-                ],
-                "enter": [
-                    102,
-                    108,
-                    1,
-                    0,
-                    1
-                ],
-                "reply": [
-                    79,
-                    75
-                ],
-                "service": "fwu:ctrl"
-            },
             "rkey": 360,
             "rlen": 2,
             "wkey": "KJNCbsbo",
@@ -30185,27 +27523,6 @@
                     ]
                 }
             ],
-            "recovery": {
-                "close": [
-                    102,
-                    108,
-                    1,
-                    0,
-                    3
-                ],
-                "enter": [
-                    102,
-                    108,
-                    1,
-                    0,
-                    1
-                ],
-                "reply": [
-                    79,
-                    75
-                ],
-                "service": "fwu:ctrl"
-            },
             "rkey": 360,
             "rlen": 2,
             "wkey": "KJNCbsbo",
@@ -30763,27 +28080,6 @@
                     ]
                 }
             ],
-            "recovery": {
-                "close": [
-                    102,
-                    108,
-                    1,
-                    0,
-                    3
-                ],
-                "enter": [
-                    102,
-                    108,
-                    1,
-                    0,
-                    1
-                ],
-                "reply": [
-                    79,
-                    75
-                ],
-                "service": "fwu:ctrl"
-            },
             "rkey": 360,
             "rlen": 2,
             "wkey": "KJNCbsbo",
@@ -30873,27 +28169,6 @@
                     ]
                 }
             ],
-            "recovery": {
-                "close": [
-                    102,
-                    108,
-                    1,
-                    0,
-                    3
-                ],
-                "enter": [
-                    102,
-                    108,
-                    1,
-                    0,
-                    1
-                ],
-                "reply": [
-                    79,
-                    75
-                ],
-                "service": "fwu:ctrl"
-            },
             "rkey": 360,
             "rlen": 2,
             "wkey": "KJNCbsbo",
@@ -32262,27 +29537,6 @@
                     ]
                 }
             ],
-            "recovery": {
-                "close": [
-                    102,
-                    108,
-                    1,
-                    0,
-                    3
-                ],
-                "enter": [
-                    102,
-                    108,
-                    1,
-                    0,
-                    1
-                ],
-                "reply": [
-                    79,
-                    75
-                ],
-                "service": "fwu:ctrl"
-            },
             "rkey": 102,
             "rlen": 2,
             "wkey": "Xblbupcj",
@@ -32367,27 +29621,6 @@
                     ]
                 }
             ],
-            "recovery": {
-                "close": [
-                    103,
-                    109,
-                    1,
-                    0,
-                    3
-                ],
-                "enter": [
-                    103,
-                    109,
-                    1,
-                    0,
-                    1
-                ],
-                "reply": [
-                    79,
-                    75
-                ],
-                "service": "fwu:ctrl"
-            },
             "rkey": 14667,
             "rlen": 2,
             "wkey": "Ubncpsb/",
@@ -32483,27 +29716,6 @@
                     ]
                 }
             ],
-            "recovery": {
-                "close": [
-                    102,
-                    108,
-                    1,
-                    0,
-                    3
-                ],
-                "enter": [
-                    102,
-                    108,
-                    1,
-                    0,
-                    1
-                ],
-                "reply": [
-                    79,
-                    75
-                ],
-                "service": "fwu:ctrl"
-            },
             "rkey": 102,
             "rlen": 2,
             "wkey": "Xblbupcj",
@@ -32600,27 +29812,6 @@
                     ]
                 }
             ],
-            "recovery": {
-                "close": [
-                    102,
-                    108,
-                    1,
-                    0,
-                    3
-                ],
-                "enter": [
-                    102,
-                    108,
-                    1,
-                    0,
-                    1
-                ],
-                "reply": [
-                    79,
-                    75
-                ],
-                "service": "fwu:ctrl"
-            },
             "rkey": 102,
             "rlen": 2,
             "wkey": "Xblbupcj",
@@ -32717,27 +29908,6 @@
                     ]
                 }
             ],
-            "recovery": {
-                "close": [
-                    102,
-                    108,
-                    1,
-                    0,
-                    3
-                ],
-                "enter": [
-                    102,
-                    108,
-                    1,
-                    0,
-                    1
-                ],
-                "reply": [
-                    79,
-                    75
-                ],
-                "service": "fwu:ctrl"
-            },
             "rkey": 102,
             "rlen": 2,
             "wkey": "Xblbupcj",
@@ -32833,27 +30003,6 @@
                     ]
                 }
             ],
-            "recovery": {
-                "close": [
-                    102,
-                    108,
-                    1,
-                    0,
-                    3
-                ],
-                "enter": [
-                    102,
-                    108,
-                    1,
-                    0,
-                    1
-                ],
-                "reply": [
-                    79,
-                    75
-                ],
-                "service": "fwu:ctrl"
-            },
             "rkey": 102,
             "rlen": 2,
             "wkey": "Xblbupcj",
@@ -32950,27 +30099,6 @@
                     ]
                 }
             ],
-            "recovery": {
-                "close": [
-                    102,
-                    108,
-                    1,
-                    0,
-                    3
-                ],
-                "enter": [
-                    102,
-                    108,
-                    1,
-                    0,
-                    1
-                ],
-                "reply": [
-                    79,
-                    75
-                ],
-                "service": "fwu:ctrl"
-            },
             "rkey": 2162,
             "rlen": 2,
             "wkey": "Tufmmbsj",
@@ -33049,27 +30177,6 @@
                     ]
                 }
             ],
-            "recovery": {
-                "close": [
-                    102,
-                    108,
-                    1,
-                    0,
-                    3
-                ],
-                "enter": [
-                    102,
-                    108,
-                    1,
-                    0,
-                    1
-                ],
-                "reply": [
-                    79,
-                    75
-                ],
-                "service": "fwu:ctrl"
-            },
             "rkey": 2084,
             "rlen": 2,
             "wkey": "Ejbouivt",
@@ -33147,27 +30254,6 @@
                     ]
                 }
             ],
-            "recovery": {
-                "close": [
-                    102,
-                    108,
-                    1,
-                    0,
-                    3
-                ],
-                "enter": [
-                    102,
-                    108,
-                    1,
-                    0,
-                    1
-                ],
-                "reply": [
-                    79,
-                    75
-                ],
-                "service": "fwu:ctrl"
-            },
             "rkey": 2084,
             "rlen": 2,
             "wkey": "Ejbouivt",
@@ -33246,27 +30332,6 @@
                     ]
                 }
             ],
-            "recovery": {
-                "close": [
-                    103,
-                    109,
-                    1,
-                    0,
-                    3
-                ],
-                "enter": [
-                    103,
-                    109,
-                    1,
-                    0,
-                    1
-                ],
-                "reply": [
-                    79,
-                    75
-                ],
-                "service": "fwu:ctrl"
-            },
             "rkey": 1591,
             "rlen": 2,
             "wkey": "Hzqtpqij",
@@ -33345,27 +30410,6 @@
                     ]
                 }
             ],
-            "recovery": {
-                "close": [
-                    103,
-                    109,
-                    1,
-                    0,
-                    3
-                ],
-                "enter": [
-                    103,
-                    109,
-                    1,
-                    0,
-                    1
-                ],
-                "reply": [
-                    79,
-                    75
-                ],
-                "service": "fwu:ctrl"
-            },
             "rkey": 1591,
             "rlen": 2,
             "wkey": "Hzqtpqij",
@@ -33551,27 +30595,6 @@
                     ]
                 }
             ],
-            "recovery": {
-                "close": [
-                    102,
-                    108,
-                    1,
-                    0,
-                    3
-                ],
-                "enter": [
-                    102,
-                    108,
-                    1,
-                    0,
-                    1
-                ],
-                "reply": [
-                    79,
-                    75
-                ],
-                "service": "fwu:ctrl"
-            },
             "rkey": 2384,
             "rlen": 2,
             "wkey": "Cjebebsj",
@@ -33579,10 +30602,10 @@
             "wlen": 2
         },
         "WF-2851": {
-            "spec": "WF-2851-family"
+            "spec": "EW-452A-family"
         },
         "WF-2855": {
-            "spec": "WF-2851-family"
+            "spec": "EW-452A-family"
         },
         "WF-2860": {
             "aliases": [
@@ -33609,27 +30632,6 @@
                     ]
                 }
             ],
-            "recovery": {
-                "close": [
-                    102,
-                    108,
-                    1,
-                    0,
-                    3
-                ],
-                "enter": [
-                    102,
-                    108,
-                    1,
-                    0,
-                    1
-                ],
-                "reply": [
-                    79,
-                    75
-                ],
-                "service": "fwu:ctrl"
-            },
             "rkey": 2121,
             "rlen": 2,
             "wkey": "Bsboujgp",
@@ -33711,10 +30713,10 @@
             "wlen": 2
         },
         "WF-2881": {
-            "spec": "ET-4750-family"
+            "spec": "ET-3700-family"
         },
         "WF-2885": {
-            "spec": "ET-4750-family"
+            "spec": "ET-3700-family"
         },
         "WF-2910": {
             "aliases": [
@@ -34075,27 +31077,6 @@
                     ]
                 }
             ],
-            "recovery": {
-                "close": [
-                    102,
-                    108,
-                    1,
-                    0,
-                    3
-                ],
-                "enter": [
-                    102,
-                    108,
-                    1,
-                    0,
-                    1
-                ],
-                "reply": [
-                    79,
-                    75
-                ],
-                "service": "fwu:ctrl"
-            },
             "rkey": 403,
             "rlen": 2,
             "wkey": "Izbdjoui",
@@ -34131,27 +31112,6 @@
                     ]
                 }
             ],
-            "recovery": {
-                "close": [
-                    102,
-                    108,
-                    1,
-                    0,
-                    3
-                ],
-                "enter": [
-                    102,
-                    108,
-                    1,
-                    0,
-                    1
-                ],
-                "reply": [
-                    79,
-                    75
-                ],
-                "service": "fwu:ctrl"
-            },
             "rkey": 403,
             "rlen": 2,
             "wkey": "Izbdjoui",
@@ -34237,27 +31197,6 @@
                     ]
                 }
             ],
-            "recovery": {
-                "close": [
-                    103,
-                    109,
-                    1,
-                    0,
-                    3
-                ],
-                "enter": [
-                    103,
-                    109,
-                    1,
-                    0,
-                    1
-                ],
-                "reply": [
-                    79,
-                    75
-                ],
-                "service": "fwu:ctrl"
-            },
             "rkey": 2374,
             "rlen": 2,
             "wkey": "dspobsjb",
@@ -34343,27 +31282,6 @@
                     ]
                 }
             ],
-            "recovery": {
-                "close": [
-                    103,
-                    109,
-                    1,
-                    0,
-                    3
-                ],
-                "enter": [
-                    103,
-                    109,
-                    1,
-                    0,
-                    1
-                ],
-                "reply": [
-                    79,
-                    75
-                ],
-                "service": "fwu:ctrl"
-            },
             "rkey": 2374,
             "rlen": 2,
             "wkey": "dspobsjb",
@@ -34402,27 +31320,6 @@
                     ]
                 }
             ],
-            "recovery": {
-                "close": [
-                    103,
-                    109,
-                    1,
-                    0,
-                    3
-                ],
-                "enter": [
-                    103,
-                    109,
-                    1,
-                    0,
-                    1
-                ],
-                "reply": [
-                    79,
-                    75
-                ],
-                "service": "fwu:ctrl"
-            },
             "rkey": 1354,
             "rlen": 2,
             "wkey": "Xblbupcj",
@@ -34619,27 +31516,6 @@
                     ]
                 }
             ],
-            "recovery": {
-                "close": [
-                    103,
-                    109,
-                    1,
-                    0,
-                    3
-                ],
-                "enter": [
-                    103,
-                    109,
-                    1,
-                    0,
-                    1
-                ],
-                "reply": [
-                    79,
-                    75
-                ],
-                "service": "fwu:ctrl"
-            },
             "rkey": 1354,
             "rlen": 2,
             "wkey": "Xblbupcj",
@@ -34680,27 +31556,6 @@
                     ]
                 }
             ],
-            "recovery": {
-                "close": [
-                    103,
-                    109,
-                    1,
-                    0,
-                    3
-                ],
-                "enter": [
-                    103,
-                    109,
-                    1,
-                    0,
-                    1
-                ],
-                "reply": [
-                    79,
-                    75
-                ],
-                "service": "fwu:ctrl"
-            },
             "rkey": 1354,
             "rlen": 2,
             "wkey": "Xblbupcj",
@@ -34898,27 +31753,6 @@
                     ]
                 }
             ],
-            "recovery": {
-                "close": [
-                    102,
-                    108,
-                    1,
-                    0,
-                    3
-                ],
-                "enter": [
-                    102,
-                    108,
-                    1,
-                    0,
-                    1
-                ],
-                "reply": [
-                    79,
-                    75
-                ],
-                "service": "fwu:ctrl"
-            },
             "rkey": 2169,
             "rlen": 2,
             "wkey": "Dbnfmmjb",
@@ -34956,27 +31790,6 @@
                     ]
                 }
             ],
-            "recovery": {
-                "close": [
-                    103,
-                    109,
-                    1,
-                    0,
-                    3
-                ],
-                "enter": [
-                    103,
-                    109,
-                    1,
-                    0,
-                    1
-                ],
-                "reply": [
-                    79,
-                    75
-                ],
-                "service": "fwu:ctrl"
-            },
             "rkey": 1363,
             "rlen": 2,
             "wkey": "lsblbubp",
@@ -35015,27 +31828,6 @@
                     ]
                 }
             ],
-            "recovery": {
-                "close": [
-                    103,
-                    109,
-                    1,
-                    0,
-                    3
-                ],
-                "enter": [
-                    103,
-                    109,
-                    1,
-                    0,
-                    1
-                ],
-                "reply": [
-                    79,
-                    75
-                ],
-                "service": "fwu:ctrl"
-            },
             "rkey": 1331,
             "rlen": 2,
             "wkey": "Qjohvjdv",
@@ -35121,27 +31913,6 @@
                     ]
                 }
             ],
-            "recovery": {
-                "close": [
-                    103,
-                    109,
-                    1,
-                    0,
-                    3
-                ],
-                "enter": [
-                    103,
-                    109,
-                    1,
-                    0,
-                    1
-                ],
-                "reply": [
-                    79,
-                    75
-                ],
-                "service": "fwu:ctrl"
-            },
             "rkey": 1331,
             "rlen": 2,
             "wkey": "Qjohvjdv",
@@ -35180,27 +31951,6 @@
                     ]
                 }
             ],
-            "recovery": {
-                "close": [
-                    103,
-                    109,
-                    1,
-                    0,
-                    3
-                ],
-                "enter": [
-                    103,
-                    109,
-                    1,
-                    0,
-                    1
-                ],
-                "reply": [
-                    79,
-                    75
-                ],
-                "service": "fwu:ctrl"
-            },
             "rkey": 1331,
             "rlen": 2,
             "wkey": "Qjohvjdv",
@@ -35238,27 +31988,6 @@
                     ]
                 }
             ],
-            "recovery": {
-                "close": [
-                    103,
-                    109,
-                    1,
-                    0,
-                    3
-                ],
-                "enter": [
-                    103,
-                    109,
-                    1,
-                    0,
-                    1
-                ],
-                "reply": [
-                    79,
-                    75
-                ],
-                "service": "fwu:ctrl"
-            },
             "rkey": 1331,
             "rlen": 2,
             "wkey": "Qjohvjdv",
@@ -36307,16 +33036,16 @@
             "spec": "EW-M571T-family"
         },
         "Workforce ST-3000": {
-            "spec": "ET-4750-family"
+            "spec": "ET-3700-family"
         },
         "Workforce ST-4000": {
-            "spec": "ET-4750-family"
+            "spec": "ET-3700-family"
         },
         "Workforce ST-5000": {
-            "spec": "ET-4750-family"
+            "spec": "ET-3700-family"
         },
         "Workforce ST-7000": {
-            "spec": "ET-4750-family"
+            "spec": "ET-3700-family"
         },
         "Workforce ST-C2100": {
             "close": [
@@ -36416,27 +33145,6 @@
                     ]
                 }
             ],
-            "recovery": {
-                "close": [
-                    103,
-                    109,
-                    1,
-                    0,
-                    3
-                ],
-                "enter": [
-                    103,
-                    109,
-                    1,
-                    0,
-                    1
-                ],
-                "reply": [
-                    79,
-                    75
-                ],
-                "service": "fwu:ctrl"
-            },
             "rkey": 13898,
             "rlen": 2,
             "wkey": "Bsboujgp",
@@ -36529,27 +33237,6 @@
                     ]
                 }
             ],
-            "recovery": {
-                "close": [
-                    102,
-                    108,
-                    1,
-                    0,
-                    3
-                ],
-                "enter": [
-                    102,
-                    108,
-                    1,
-                    0,
-                    1
-                ],
-                "reply": [
-                    79,
-                    75
-                ],
-                "service": "fwu:ctrl"
-            },
             "rkey": 1817,
             "rlen": 2,
             "wkey": "Xblbupcj",
@@ -36588,27 +33275,6 @@
                     ]
                 }
             ],
-            "recovery": {
-                "close": [
-                    103,
-                    109,
-                    1,
-                    0,
-                    3
-                ],
-                "enter": [
-                    103,
-                    109,
-                    1,
-                    0,
-                    1
-                ],
-                "reply": [
-                    79,
-                    75
-                ],
-                "service": "fwu:ctrl"
-            },
             "rkey": 21,
             "rlen": 2,
             "wkey": "Nbmwbdfb",
@@ -36637,27 +33303,6 @@
                     ]
                 }
             ],
-            "recovery": {
-                "close": [
-                    103,
-                    109,
-                    1,
-                    0,
-                    3
-                ],
-                "enter": [
-                    103,
-                    109,
-                    1,
-                    0,
-                    1
-                ],
-                "reply": [
-                    79,
-                    75
-                ],
-                "service": "fwu:ctrl"
-            },
             "rkey": 21,
             "rlen": 2,
             "wkey": "Nbmwbdfb",
@@ -36748,27 +33393,6 @@
                     ]
                 }
             ],
-            "recovery": {
-                "close": [
-                    102,
-                    108,
-                    1,
-                    0,
-                    3
-                ],
-                "enter": [
-                    102,
-                    108,
-                    1,
-                    0,
-                    1
-                ],
-                "reply": [
-                    79,
-                    75
-                ],
-                "service": "fwu:ctrl"
-            },
             "rkey": 1817,
             "rlen": 2,
             "wkey": "Xblbupcj",
@@ -36858,27 +33482,6 @@
                     ]
                 }
             ],
-            "recovery": {
-                "close": [
-                    102,
-                    108,
-                    1,
-                    0,
-                    3
-                ],
-                "enter": [
-                    102,
-                    108,
-                    1,
-                    0,
-                    1
-                ],
-                "reply": [
-                    79,
-                    75
-                ],
-                "service": "fwu:ctrl"
-            },
             "rkey": 1817,
             "rlen": 2,
             "wkey": "Xblbupcj",
@@ -36990,27 +33593,6 @@
                     ]
                 }
             ],
-            "recovery": {
-                "close": [
-                    102,
-                    108,
-                    1,
-                    0,
-                    3
-                ],
-                "enter": [
-                    102,
-                    108,
-                    1,
-                    0,
-                    1
-                ],
-                "reply": [
-                    79,
-                    75
-                ],
-                "service": "fwu:ctrl"
-            },
             "rkey": 2177,
             "rlen": 2,
             "wkey": "Xblbupcj",
@@ -37076,27 +33658,6 @@
                     ]
                 }
             ],
-            "recovery": {
-                "close": [
-                    102,
-                    108,
-                    1,
-                    0,
-                    3
-                ],
-                "enter": [
-                    102,
-                    108,
-                    1,
-                    0,
-                    1
-                ],
-                "reply": [
-                    79,
-                    75
-                ],
-                "service": "fwu:ctrl"
-            },
             "rkey": 2384,
             "rlen": 2,
             "wkey": "Cjebebsj",
@@ -37192,27 +33753,6 @@
                     ]
                 }
             ],
-            "recovery": {
-                "close": [
-                    102,
-                    108,
-                    1,
-                    0,
-                    3
-                ],
-                "enter": [
-                    102,
-                    108,
-                    1,
-                    0,
-                    1
-                ],
-                "reply": [
-                    79,
-                    75
-                ],
-                "service": "fwu:ctrl"
-            },
             "rkey": 2177,
             "rlen": 2,
             "wkey": "Xblbupcj",
@@ -37290,27 +33830,6 @@
                     ]
                 }
             ],
-            "recovery": {
-                "close": [
-                    102,
-                    108,
-                    1,
-                    0,
-                    3
-                ],
-                "enter": [
-                    102,
-                    108,
-                    1,
-                    0,
-                    1
-                ],
-                "reply": [
-                    79,
-                    75
-                ],
-                "service": "fwu:ctrl"
-            },
             "rkey": 2384,
             "rlen": 2,
             "wkey": "Cjebebsj",
@@ -37412,27 +33931,6 @@
                     ]
                 }
             ],
-            "recovery": {
-                "close": [
-                    102,
-                    108,
-                    1,
-                    0,
-                    3
-                ],
-                "enter": [
-                    102,
-                    108,
-                    1,
-                    0,
-                    1
-                ],
-                "reply": [
-                    79,
-                    75
-                ],
-                "service": "fwu:ctrl"
-            },
             "rkey": 1365,
             "rlen": 2,
             "wkey": "Nvtdbsj/",
@@ -37597,27 +34095,6 @@
                     ]
                 }
             ],
-            "recovery": {
-                "close": [
-                    102,
-                    108,
-                    1,
-                    0,
-                    3
-                ],
-                "enter": [
-                    102,
-                    108,
-                    1,
-                    0,
-                    1
-                ],
-                "reply": [
-                    79,
-                    75
-                ],
-                "service": "fwu:ctrl"
-            },
             "rkey": 1365,
             "rlen": 2,
             "wkey": "Nvtdbsj/",
@@ -37707,27 +34184,6 @@
                     ]
                 }
             ],
-            "recovery": {
-                "close": [
-                    102,
-                    108,
-                    1,
-                    0,
-                    3
-                ],
-                "enter": [
-                    102,
-                    108,
-                    1,
-                    0,
-                    1
-                ],
-                "reply": [
-                    79,
-                    75
-                ],
-                "service": "fwu:ctrl"
-            },
             "rkey": 1413,
             "rlen": 2,
             "wkey": "Qpmzyfob",
@@ -37820,27 +34276,6 @@
                     ]
                 }
             ],
-            "recovery": {
-                "close": [
-                    102,
-                    108,
-                    1,
-                    0,
-                    3
-                ],
-                "enter": [
-                    102,
-                    108,
-                    1,
-                    0,
-                    1
-                ],
-                "reply": [
-                    79,
-                    75
-                ],
-                "service": "fwu:ctrl"
-            },
             "rkey": 1413,
             "rlen": 2,
             "wkey": "Qpmzyfob",
@@ -37930,27 +34365,6 @@
                     ]
                 }
             ],
-            "recovery": {
-                "close": [
-                    103,
-                    109,
-                    1,
-                    0,
-                    3
-                ],
-                "enter": [
-                    103,
-                    109,
-                    1,
-                    0,
-                    1
-                ],
-                "reply": [
-                    79,
-                    75
-                ],
-                "service": "fwu:ctrl"
-            },
             "rkey": 1281,
             "rlen": 2,
             "wkey": "Tvsbnbev",
@@ -38050,27 +34464,6 @@
                     ]
                 }
             ],
-            "recovery": {
-                "close": [
-                    103,
-                    109,
-                    1,
-                    0,
-                    3
-                ],
-                "enter": [
-                    103,
-                    109,
-                    1,
-                    0,
-                    1
-                ],
-                "reply": [
-                    79,
-                    75
-                ],
-                "service": "fwu:ctrl"
-            },
             "rkey": 1281,
             "rlen": 2,
             "wkey": "Tvsbnbev",
@@ -38259,27 +34652,6 @@
                     ]
                 }
             ],
-            "recovery": {
-                "close": [
-                    102,
-                    108,
-                    1,
-                    0,
-                    3
-                ],
-                "enter": [
-                    102,
-                    108,
-                    1,
-                    0,
-                    1
-                ],
-                "reply": [
-                    79,
-                    75
-                ],
-                "service": "fwu:ctrl"
-            },
             "rkey": 1817,
             "rlen": 2,
             "wkey": "Xblbupcj",
@@ -38379,27 +34751,6 @@
                     ]
                 }
             ],
-            "recovery": {
-                "close": [
-                    102,
-                    108,
-                    1,
-                    0,
-                    3
-                ],
-                "enter": [
-                    102,
-                    108,
-                    1,
-                    0,
-                    1
-                ],
-                "reply": [
-                    79,
-                    75
-                ],
-                "service": "fwu:ctrl"
-            },
             "rkey": 1817,
             "rlen": 2,
             "wkey": "Xblbupcj",
@@ -38492,27 +34843,6 @@
                     ]
                 }
             ],
-            "recovery": {
-                "close": [
-                    102,
-                    108,
-                    1,
-                    0,
-                    3
-                ],
-                "enter": [
-                    102,
-                    108,
-                    1,
-                    0,
-                    1
-                ],
-                "reply": [
-                    79,
-                    75
-                ],
-                "service": "fwu:ctrl"
-            },
             "rkey": 2177,
             "rlen": 2,
             "wkey": "Xblbupcj",
@@ -38544,27 +34874,6 @@
                     ]
                 }
             ],
-            "recovery": {
-                "close": [
-                    103,
-                    109,
-                    1,
-                    0,
-                    3
-                ],
-                "enter": [
-                    103,
-                    109,
-                    1,
-                    0,
-                    1
-                ],
-                "reply": [
-                    79,
-                    75
-                ],
-                "service": "fwu:ctrl"
-            },
             "rkey": 2384,
             "rlen": 2,
             "wkey": "Cjebebsj",
@@ -38671,27 +34980,6 @@
                     ]
                 }
             ],
-            "recovery": {
-                "close": [
-                    102,
-                    108,
-                    1,
-                    0,
-                    3
-                ],
-                "enter": [
-                    102,
-                    108,
-                    1,
-                    0,
-                    1
-                ],
-                "reply": [
-                    79,
-                    75
-                ],
-                "service": "fwu:ctrl"
-            },
             "rkey": 2177,
             "rlen": 2,
             "wkey": "Xblbupcj",
@@ -38723,27 +35011,6 @@
                     ]
                 }
             ],
-            "recovery": {
-                "close": [
-                    103,
-                    109,
-                    1,
-                    0,
-                    3
-                ],
-                "enter": [
-                    103,
-                    109,
-                    1,
-                    0,
-                    1
-                ],
-                "reply": [
-                    79,
-                    75
-                ],
-                "service": "fwu:ctrl"
-            },
             "rkey": 2384,
             "rlen": 2,
             "wkey": "Cjebebsj",
@@ -38842,27 +35109,6 @@
                     ]
                 }
             ],
-            "recovery": {
-                "close": [
-                    102,
-                    108,
-                    1,
-                    0,
-                    3
-                ],
-                "enter": [
-                    102,
-                    108,
-                    1,
-                    0,
-                    1
-                ],
-                "reply": [
-                    79,
-                    75
-                ],
-                "service": "fwu:ctrl"
-            },
             "rkey": 1365,
             "rlen": 2,
             "wkey": "Nvtdbsj/",
@@ -38993,27 +35239,6 @@
                     ]
                 }
             ],
-            "recovery": {
-                "close": [
-                    102,
-                    108,
-                    1,
-                    0,
-                    3
-                ],
-                "enter": [
-                    102,
-                    108,
-                    1,
-                    0,
-                    1
-                ],
-                "reply": [
-                    79,
-                    75
-                ],
-                "service": "fwu:ctrl"
-            },
             "rkey": 1365,
             "rlen": 2,
             "wkey": "Nvtdbsj/",
@@ -39160,27 +35385,6 @@
                     ]
                 }
             ],
-            "recovery": {
-                "close": [
-                    102,
-                    108,
-                    1,
-                    0,
-                    3
-                ],
-                "enter": [
-                    102,
-                    108,
-                    1,
-                    0,
-                    1
-                ],
-                "reply": [
-                    79,
-                    75
-                ],
-                "service": "fwu:ctrl"
-            },
             "rkey": 1413,
             "rlen": 2,
             "wkey": "Qpmzyfob",
@@ -39281,27 +35485,6 @@
                     ]
                 }
             ],
-            "recovery": {
-                "close": [
-                    102,
-                    108,
-                    1,
-                    0,
-                    3
-                ],
-                "enter": [
-                    102,
-                    108,
-                    1,
-                    0,
-                    1
-                ],
-                "reply": [
-                    79,
-                    75
-                ],
-                "service": "fwu:ctrl"
-            },
             "rkey": 1413,
             "rlen": 2,
             "wkey": "Qpmzyfob",
@@ -39392,27 +35575,6 @@
                     ]
                 }
             ],
-            "recovery": {
-                "close": [
-                    103,
-                    109,
-                    1,
-                    0,
-                    3
-                ],
-                "enter": [
-                    103,
-                    109,
-                    1,
-                    0,
-                    1
-                ],
-                "reply": [
-                    79,
-                    75
-                ],
-                "service": "fwu:ctrl"
-            },
             "rkey": 1281,
             "rlen": 2,
             "wkey": "Tvsbnbev",
@@ -39512,27 +35674,6 @@
                     ]
                 }
             ],
-            "recovery": {
-                "close": [
-                    103,
-                    109,
-                    1,
-                    0,
-                    3
-                ],
-                "enter": [
-                    103,
-                    109,
-                    1,
-                    0,
-                    1
-                ],
-                "reply": [
-                    79,
-                    75
-                ],
-                "service": "fwu:ctrl"
-            },
             "rkey": 1281,
             "rlen": 2,
             "wkey": "Tvsbnbev",
@@ -39628,27 +35769,6 @@
                     ]
                 }
             ],
-            "recovery": {
-                "close": [
-                    102,
-                    108,
-                    1,
-                    0,
-                    3
-                ],
-                "enter": [
-                    102,
-                    108,
-                    1,
-                    0,
-                    1
-                ],
-                "reply": [
-                    79,
-                    75
-                ],
-                "service": "fwu:ctrl"
-            },
             "rkey": 1817,
             "rlen": 2,
             "wkey": "Xblbupcj",
@@ -39748,27 +35868,6 @@
                     ]
                 }
             ],
-            "recovery": {
-                "close": [
-                    102,
-                    108,
-                    1,
-                    0,
-                    3
-                ],
-                "enter": [
-                    102,
-                    108,
-                    1,
-                    0,
-                    1
-                ],
-                "reply": [
-                    79,
-                    75
-                ],
-                "service": "fwu:ctrl"
-            },
             "rkey": 1817,
             "rlen": 2,
             "wkey": "Xblbupcj",
@@ -39862,27 +35961,6 @@
                     ]
                 }
             ],
-            "recovery": {
-                "close": [
-                    102,
-                    108,
-                    1,
-                    0,
-                    3
-                ],
-                "enter": [
-                    102,
-                    108,
-                    1,
-                    0,
-                    1
-                ],
-                "reply": [
-                    79,
-                    75
-                ],
-                "service": "fwu:ctrl"
-            },
             "rkey": 2177,
             "rlen": 2,
             "wkey": "Xblbupcj",
@@ -39914,27 +35992,6 @@
                     ]
                 }
             ],
-            "recovery": {
-                "close": [
-                    103,
-                    109,
-                    1,
-                    0,
-                    3
-                ],
-                "enter": [
-                    103,
-                    109,
-                    1,
-                    0,
-                    1
-                ],
-                "reply": [
-                    79,
-                    75
-                ],
-                "service": "fwu:ctrl"
-            },
             "rkey": 2384,
             "rlen": 2,
             "wkey": "Cjebebsj",
@@ -40041,27 +36098,6 @@
                     ]
                 }
             ],
-            "recovery": {
-                "close": [
-                    102,
-                    108,
-                    1,
-                    0,
-                    3
-                ],
-                "enter": [
-                    102,
-                    108,
-                    1,
-                    0,
-                    1
-                ],
-                "reply": [
-                    79,
-                    75
-                ],
-                "service": "fwu:ctrl"
-            },
             "rkey": 2177,
             "rlen": 2,
             "wkey": "Xblbupcj",
@@ -40093,27 +36129,6 @@
                     ]
                 }
             ],
-            "recovery": {
-                "close": [
-                    103,
-                    109,
-                    1,
-                    0,
-                    3
-                ],
-                "enter": [
-                    103,
-                    109,
-                    1,
-                    0,
-                    1
-                ],
-                "reply": [
-                    79,
-                    75
-                ],
-                "service": "fwu:ctrl"
-            },
             "rkey": 2384,
             "rlen": 2,
             "wkey": "Cjebebsj",
@@ -40213,27 +36228,6 @@
                     ]
                 }
             ],
-            "recovery": {
-                "close": [
-                    102,
-                    108,
-                    1,
-                    0,
-                    3
-                ],
-                "enter": [
-                    102,
-                    108,
-                    1,
-                    0,
-                    1
-                ],
-                "reply": [
-                    79,
-                    75
-                ],
-                "service": "fwu:ctrl"
-            },
             "rkey": 1365,
             "rlen": 2,
             "wkey": "Nvtdbsj/",
@@ -40374,27 +36368,6 @@
                     ]
                 }
             ],
-            "recovery": {
-                "close": [
-                    102,
-                    108,
-                    1,
-                    0,
-                    3
-                ],
-                "enter": [
-                    102,
-                    108,
-                    1,
-                    0,
-                    1
-                ],
-                "reply": [
-                    79,
-                    75
-                ],
-                "service": "fwu:ctrl"
-            },
             "rkey": 1365,
             "rlen": 2,
             "wkey": "Nvtdbsj/",
@@ -40485,27 +36458,6 @@
                     ]
                 }
             ],
-            "recovery": {
-                "close": [
-                    102,
-                    108,
-                    1,
-                    0,
-                    3
-                ],
-                "enter": [
-                    102,
-                    108,
-                    1,
-                    0,
-                    1
-                ],
-                "reply": [
-                    79,
-                    75
-                ],
-                "service": "fwu:ctrl"
-            },
             "rkey": 1413,
             "rlen": 2,
             "wkey": "Qpmzyfob",
@@ -40609,27 +36561,6 @@
                     ]
                 }
             ],
-            "recovery": {
-                "close": [
-                    102,
-                    108,
-                    1,
-                    0,
-                    3
-                ],
-                "enter": [
-                    102,
-                    108,
-                    1,
-                    0,
-                    1
-                ],
-                "reply": [
-                    79,
-                    75
-                ],
-                "service": "fwu:ctrl"
-            },
             "rkey": 1413,
             "rlen": 2,
             "wkey": "Qpmzyfob",
@@ -40720,27 +36651,6 @@
                     ]
                 }
             ],
-            "recovery": {
-                "close": [
-                    103,
-                    109,
-                    1,
-                    0,
-                    3
-                ],
-                "enter": [
-                    103,
-                    109,
-                    1,
-                    0,
-                    1
-                ],
-                "reply": [
-                    79,
-                    75
-                ],
-                "service": "fwu:ctrl"
-            },
             "rkey": 1281,
             "rlen": 2,
             "wkey": "Tvsbnbev",
@@ -40841,27 +36751,6 @@
                     ]
                 }
             ],
-            "recovery": {
-                "close": [
-                    103,
-                    109,
-                    1,
-                    0,
-                    3
-                ],
-                "enter": [
-                    103,
-                    109,
-                    1,
-                    0,
-                    1
-                ],
-                "reply": [
-                    79,
-                    75
-                ],
-                "service": "fwu:ctrl"
-            },
             "rkey": 1281,
             "rlen": 2,
             "wkey": "Tvsbnbev",
@@ -40967,27 +36856,6 @@
                     ]
                 }
             ],
-            "recovery": {
-                "close": [
-                    102,
-                    108,
-                    1,
-                    0,
-                    3
-                ],
-                "enter": [
-                    102,
-                    108,
-                    1,
-                    0,
-                    1
-                ],
-                "reply": [
-                    79,
-                    75
-                ],
-                "service": "fwu:ctrl"
-            },
             "rkey": 2121,
             "rlen": 2,
             "wkey": "Bsboujgp",
@@ -40995,10 +36863,10 @@
             "wlen": 2
         },
         "XP-5101": {
-            "spec": "ET-4750-family"
+            "spec": "ET-3700-family"
         },
         "XP-5105": {
-            "spec": "ET-4750-family"
+            "spec": "ET-3700-family"
         },
         "XP-5150": {
             "aliases": [
@@ -41025,27 +36893,6 @@
                     ]
                 }
             ],
-            "recovery": {
-                "close": [
-                    102,
-                    108,
-                    1,
-                    0,
-                    3
-                ],
-                "enter": [
-                    102,
-                    108,
-                    1,
-                    0,
-                    1
-                ],
-                "reply": [
-                    79,
-                    75
-                ],
-                "service": "fwu:ctrl"
-            },
             "rkey": 2121,
             "rlen": 2,
             "wkey": "Bsboujgp",
@@ -41053,10 +36900,10 @@
             "wlen": 2
         },
         "XP-5151": {
-            "spec": "ET-4750-family"
+            "spec": "ET-3700-family"
         },
         "XP-5155": {
-            "spec": "ET-4750-family"
+            "spec": "ET-3700-family"
         },
         "XP-520": {
             "aliases": [
@@ -41131,27 +36978,6 @@
                     ]
                 }
             ],
-            "recovery": {
-                "close": [
-                    102,
-                    108,
-                    1,
-                    0,
-                    3
-                ],
-                "enter": [
-                    102,
-                    108,
-                    1,
-                    0,
-                    1
-                ],
-                "reply": [
-                    79,
-                    75
-                ],
-                "service": "fwu:ctrl"
-            },
             "rkey": 1367,
             "rlen": 2,
             "wkey": "Bmuibfb/",
@@ -41269,27 +37095,6 @@
                     ]
                 }
             ],
-            "recovery": {
-                "close": [
-                    102,
-                    108,
-                    1,
-                    0,
-                    3
-                ],
-                "enter": [
-                    102,
-                    108,
-                    1,
-                    0,
-                    1
-                ],
-                "reply": [
-                    79,
-                    75
-                ],
-                "service": "fwu:ctrl"
-            },
             "rkey": 2344,
             "rlen": 2,
             "wkey": "Jsjthbsn",
@@ -41369,27 +37174,6 @@
                     ]
                 }
             ],
-            "recovery": {
-                "close": [
-                    103,
-                    109,
-                    1,
-                    0,
-                    3
-                ],
-                "enter": [
-                    103,
-                    109,
-                    1,
-                    0,
-                    1
-                ],
-                "reply": [
-                    79,
-                    75
-                ],
-                "service": "fwu:ctrl"
-            },
             "rkey": 1044,
             "rlen": 2,
             "wkey": "Gjsnjbob",
@@ -41459,27 +37243,6 @@
                     ]
                 }
             ],
-            "recovery": {
-                "close": [
-                    102,
-                    108,
-                    1,
-                    0,
-                    3
-                ],
-                "enter": [
-                    102,
-                    108,
-                    1,
-                    0,
-                    1
-                ],
-                "reply": [
-                    79,
-                    75
-                ],
-                "service": "fwu:ctrl"
-            },
             "rkey": 40,
             "rlen": 2,
             "wkey": "Ijcjtdvt",
@@ -41584,27 +37347,6 @@
                     ]
                 }
             ],
-            "recovery": {
-                "close": [
-                    102,
-                    108,
-                    1,
-                    0,
-                    3
-                ],
-                "enter": [
-                    102,
-                    108,
-                    1,
-                    0,
-                    1
-                ],
-                "reply": [
-                    79,
-                    75
-                ],
-                "service": "fwu:ctrl"
-            },
             "rkey": 1824,
             "rlen": 2,
             "wkey": "Djubncvs",
@@ -41697,27 +37439,6 @@
                     ]
                 }
             ],
-            "recovery": {
-                "close": [
-                    102,
-                    108,
-                    1,
-                    0,
-                    3
-                ],
-                "enter": [
-                    102,
-                    108,
-                    1,
-                    0,
-                    1
-                ],
-                "reply": [
-                    79,
-                    75
-                ],
-                "service": "fwu:ctrl"
-            },
             "rkey": 1367,
             "rlen": 2,
             "wkey": "Bmuibfb/",
@@ -41806,27 +37527,6 @@
                     ]
                 }
             ],
-            "recovery": {
-                "close": [
-                    102,
-                    108,
-                    1,
-                    0,
-                    3
-                ],
-                "enter": [
-                    102,
-                    108,
-                    1,
-                    0,
-                    1
-                ],
-                "reply": [
-                    79,
-                    75
-                ],
-                "service": "fwu:ctrl"
-            },
             "rkey": 2344,
             "rlen": 2,
             "wkey": "Jsjthbsn",
@@ -41913,27 +37613,6 @@
                     ]
                 }
             ],
-            "recovery": {
-                "close": [
-                    103,
-                    109,
-                    1,
-                    0,
-                    3
-                ],
-                "enter": [
-                    103,
-                    109,
-                    1,
-                    0,
-                    1
-                ],
-                "reply": [
-                    79,
-                    75
-                ],
-                "service": "fwu:ctrl"
-            },
             "rkey": 1044,
             "rlen": 2,
             "wkey": "Gjsnjbob",
@@ -42005,27 +37684,6 @@
                     ]
                 }
             ],
-            "recovery": {
-                "close": [
-                    102,
-                    108,
-                    1,
-                    0,
-                    3
-                ],
-                "enter": [
-                    102,
-                    108,
-                    1,
-                    0,
-                    1
-                ],
-                "reply": [
-                    79,
-                    75
-                ],
-                "service": "fwu:ctrl"
-            },
             "rkey": 40,
             "rlen": 2,
             "wkey": "Ijcjtdvt",
@@ -42200,27 +37858,6 @@
                     ]
                 }
             ],
-            "recovery": {
-                "close": [
-                    102,
-                    108,
-                    1,
-                    0,
-                    3
-                ],
-                "enter": [
-                    102,
-                    108,
-                    1,
-                    0,
-                    1
-                ],
-                "reply": [
-                    79,
-                    75
-                ],
-                "service": "fwu:ctrl"
-            },
             "rkey": 1367,
             "rlen": 2,
             "wkey": "Bmuibfb/",
@@ -42295,27 +37932,6 @@
                     ]
                 }
             ],
-            "recovery": {
-                "close": [
-                    102,
-                    108,
-                    1,
-                    0,
-                    3
-                ],
-                "enter": [
-                    102,
-                    108,
-                    1,
-                    0,
-                    1
-                ],
-                "reply": [
-                    79,
-                    75
-                ],
-                "service": "fwu:ctrl"
-            },
             "rkey": 40,
             "rlen": 2,
             "wkey": "Ijcjtdvt",
@@ -42404,27 +38020,6 @@
                     ]
                 }
             ],
-            "recovery": {
-                "close": [
-                    102,
-                    108,
-                    1,
-                    0,
-                    3
-                ],
-                "enter": [
-                    102,
-                    108,
-                    1,
-                    0,
-                    1
-                ],
-                "reply": [
-                    79,
-                    75
-                ],
-                "service": "fwu:ctrl"
-            },
             "rkey": 1367,
             "rlen": 2,
             "wkey": "Bmuibfb/",
@@ -42509,27 +38104,6 @@
                     ]
                 }
             ],
-            "recovery": {
-                "close": [
-                    102,
-                    108,
-                    1,
-                    0,
-                    3
-                ],
-                "enter": [
-                    102,
-                    108,
-                    1,
-                    0,
-                    1
-                ],
-                "reply": [
-                    79,
-                    75
-                ],
-                "service": "fwu:ctrl"
-            },
             "rkey": 2344,
             "rlen": 2,
             "wkey": "Jsjthbsn",
@@ -42565,27 +38139,6 @@
                     ]
                 }
             ],
-            "recovery": {
-                "close": [
-                    102,
-                    108,
-                    1,
-                    0,
-                    3
-                ],
-                "enter": [
-                    102,
-                    108,
-                    1,
-                    0,
-                    1
-                ],
-                "reply": [
-                    79,
-                    75
-                ],
-                "service": "fwu:ctrl"
-            },
             "rkey": 1556,
             "rlen": 2,
             "wkey": "Ojijxbuv",
@@ -42711,27 +38264,6 @@
                     ]
                 }
             ],
-            "recovery": {
-                "close": [
-                    103,
-                    109,
-                    1,
-                    0,
-                    3
-                ],
-                "enter": [
-                    103,
-                    109,
-                    1,
-                    0,
-                    1
-                ],
-                "reply": [
-                    79,
-                    75
-                ],
-                "service": "fwu:ctrl"
-            },
             "rkey": 1044,
             "rlen": 2,
             "wkey": "Gjsnjbob",
@@ -42840,27 +38372,6 @@
                     ]
                 }
             ],
-            "recovery": {
-                "close": [
-                    102,
-                    108,
-                    1,
-                    0,
-                    3
-                ],
-                "enter": [
-                    102,
-                    108,
-                    1,
-                    0,
-                    1
-                ],
-                "reply": [
-                    79,
-                    75
-                ],
-                "service": "fwu:ctrl"
-            },
             "rkey": 12808,
             "rlen": 2,
             "wkey": "Uitrgb0v",
@@ -43957,27 +39468,6 @@
                     ]
                 }
             ],
-            "recovery": {
-                "close": [
-                    103,
-                    109,
-                    1,
-                    0,
-                    3
-                ],
-                "enter": [
-                    103,
-                    109,
-                    1,
-                    0,
-                    1
-                ],
-                "reply": [
-                    79,
-                    75
-                ],
-                "service": "fwu:ctrl"
-            },
             "rkey": 1331,
             "rlen": 2,
             "wkey": "Qjohvjdv",
@@ -44168,27 +39658,6 @@
                     ]
                 }
             ],
-            "recovery": {
-                "close": [
-                    102,
-                    108,
-                    1,
-                    0,
-                    3
-                ],
-                "enter": [
-                    102,
-                    108,
-                    1,
-                    0,
-                    1
-                ],
-                "reply": [
-                    79,
-                    75
-                ],
-                "service": "fwu:ctrl"
-            },
             "rkey": 40,
             "rlen": 2,
             "wkey": "Ijcjtdvt",
@@ -44265,27 +39734,6 @@
                     ]
                 }
             ],
-            "recovery": {
-                "close": [
-                    102,
-                    108,
-                    1,
-                    0,
-                    3
-                ],
-                "enter": [
-                    102,
-                    108,
-                    1,
-                    0,
-                    1
-                ],
-                "reply": [
-                    79,
-                    75
-                ],
-                "service": "fwu:ctrl"
-            },
             "rkey": 1367,
             "rlen": 2,
             "wkey": "Bmuibfb/",
@@ -44376,27 +39824,6 @@
                     ]
                 }
             ],
-            "recovery": {
-                "close": [
-                    103,
-                    109,
-                    1,
-                    0,
-                    3
-                ],
-                "enter": [
-                    103,
-                    109,
-                    1,
-                    0,
-                    1
-                ],
-                "reply": [
-                    79,
-                    75
-                ],
-                "service": "fwu:ctrl"
-            },
             "rkey": 2418,
             "rlen": 2,
             "wkey": "Hmbejpmv",
@@ -44473,27 +39900,6 @@
                     ]
                 }
             ],
-            "recovery": {
-                "close": [
-                    102,
-                    108,
-                    1,
-                    0,
-                    3
-                ],
-                "enter": [
-                    102,
-                    108,
-                    1,
-                    0,
-                    1
-                ],
-                "reply": [
-                    79,
-                    75
-                ],
-                "service": "fwu:ctrl"
-            },
             "rkey": 2344,
             "rlen": 2,
             "wkey": "Jsjthbsn",
@@ -44606,27 +40012,6 @@
                     ]
                 }
             ],
-            "recovery": {
-                "close": [
-                    103,
-                    109,
-                    1,
-                    0,
-                    3
-                ],
-                "enter": [
-                    103,
-                    109,
-                    1,
-                    0,
-                    1
-                ],
-                "reply": [
-                    79,
-                    75
-                ],
-                "service": "fwu:ctrl"
-            },
             "rkey": 2064,
             "rlen": 2,
             "wkey": "Tjobcvoh",
@@ -44673,27 +40058,6 @@
                     ]
                 }
             ],
-            "recovery": {
-                "close": [
-                    103,
-                    109,
-                    1,
-                    0,
-                    3
-                ],
-                "enter": [
-                    103,
-                    109,
-                    1,
-                    0,
-                    1
-                ],
-                "reply": [
-                    79,
-                    75
-                ],
-                "service": "fwu:ctrl"
-            },
             "rkey": 1943,
             "rlen": 2,
             "wkey": "Nbsjcbzb",
@@ -44876,27 +40240,6 @@
                     ]
                 }
             ],
-            "recovery": {
-                "close": [
-                    103,
-                    109,
-                    1,
-                    0,
-                    3
-                ],
-                "enter": [
-                    103,
-                    109,
-                    1,
-                    0,
-                    1
-                ],
-                "reply": [
-                    79,
-                    75
-                ],
-                "service": "fwu:ctrl"
-            },
             "rkey": 13898,
             "rlen": 2,
             "wkey": "Nbsjcbzb",
@@ -45080,27 +40423,6 @@
                     ]
                 }
             ],
-            "recovery": {
-                "close": [
-                    103,
-                    109,
-                    1,
-                    0,
-                    3
-                ],
-                "enter": [
-                    103,
-                    109,
-                    1,
-                    0,
-                    1
-                ],
-                "reply": [
-                    79,
-                    75
-                ],
-                "service": "fwu:ctrl"
-            },
             "rkey": 2064,
             "rlen": 2,
             "wkey": "Tjobcvoh",
@@ -45185,113 +40507,10 @@
                     ]
                 }
             ],
-            "recovery": {
-                "close": [
-                    103,
-                    109,
-                    1,
-                    0,
-                    3
-                ],
-                "enter": [
-                    103,
-                    109,
-                    1,
-                    0,
-                    1
-                ],
-                "reply": [
-                    79,
-                    75
-                ],
-                "service": "fwu:ctrl"
-            },
             "rkey": 917,
             "rlen": 2,
             "wkey": "Nbojokbv",
             "wkey1": "Maninjau",
-            "wlen": 2
-        },
-        "ET-2650-family": {
-            "mem_high": 511,
-            "pad_groups": [
-                {
-                    "addresses": [
-                        24,
-                        25
-                    ],
-                    "counters": [
-                        {
-                            "bytes": [
-                                24,
-                                25,
-                                {
-                                    "addr": 30,
-                                    "mask": 255,
-                                    "weight": 250
-                                }
-                            ],
-                            "desc": "Main Pad Counter",
-                            "max": 6207
-                        }
-                    ],
-                    "desc": "Main Pad Counter",
-                    "kind": "main",
-                    "reset": [
-                        0,
-                        0
-                    ]
-                },
-                {
-                    "addresses": [
-                        28,
-                        29,
-                        46
-                    ],
-                    "desc": "Platen Pad Counter",
-                    "kind": "platen",
-                    "reset": [
-                        0,
-                        0,
-                        94
-                    ]
-                },
-                {
-                    "addresses": [
-                        30
-                    ],
-                    "desc": "Main Pad Counter",
-                    "kind": "main",
-                    "reset": [
-                        0
-                    ]
-                }
-            ],
-            "recovery": {
-                "close": [
-                    102,
-                    108,
-                    1,
-                    0,
-                    3
-                ],
-                "enter": [
-                    102,
-                    108,
-                    1,
-                    0,
-                    1
-                ],
-                "reply": [
-                    79,
-                    75
-                ],
-                "service": "fwu:ctrl"
-            },
-            "rkey": 2064,
-            "rlen": 2,
-            "wkey": "Tjobcvoh",
-            "wkey1": "Sinabung",
             "wlen": 2
         },
         "ET-2701-family": {
@@ -45334,27 +40553,6 @@
                     ]
                 }
             ],
-            "recovery": {
-                "close": [
-                    102,
-                    108,
-                    1,
-                    0,
-                    3
-                ],
-                "enter": [
-                    102,
-                    108,
-                    1,
-                    0,
-                    1
-                ],
-                "reply": [
-                    79,
-                    75
-                ],
-                "service": "fwu:ctrl"
-            },
             "rkey": 2121,
             "rlen": 2,
             "wkey": "Bsboujgp",
@@ -45445,27 +40643,6 @@
                     ]
                 }
             ],
-            "recovery": {
-                "close": [
-                    103,
-                    109,
-                    1,
-                    0,
-                    3
-                ],
-                "enter": [
-                    103,
-                    109,
-                    1,
-                    0,
-                    1
-                ],
-                "reply": [
-                    79,
-                    75
-                ],
-                "service": "fwu:ctrl"
-            },
             "rkey": 13898,
             "rlen": 2,
             "wkey": "Bsboujgp",
@@ -45494,76 +40671,6 @@
                     ]
                 }
             ],
-            "recovery": {
-                "close": [
-                    102,
-                    108,
-                    1,
-                    0,
-                    3
-                ],
-                "enter": [
-                    102,
-                    108,
-                    1,
-                    0,
-                    1
-                ],
-                "reply": [
-                    79,
-                    75
-                ],
-                "service": "fwu:ctrl"
-            },
-            "rkey": 2121,
-            "rlen": 2,
-            "wkey": "Bsboujgp",
-            "wkey1": "Arantifo",
-            "wlen": 2
-        },
-        "ET-3750-family": {
-            "mem_high": 2047,
-            "pad_groups": [
-                {
-                    "addresses": [
-                        28,
-                        47,
-                        50,
-                        51,
-                        55
-                    ],
-                    "desc": "Platen Pad Counter",
-                    "kind": "platen",
-                    "reset": [
-                        0,
-                        0,
-                        0,
-                        0,
-                        94
-                    ]
-                }
-            ],
-            "recovery": {
-                "close": [
-                    103,
-                    109,
-                    1,
-                    0,
-                    3
-                ],
-                "enter": [
-                    103,
-                    109,
-                    1,
-                    0,
-                    1
-                ],
-                "reply": [
-                    79,
-                    75
-                ],
-                "service": "fwu:ctrl"
-            },
             "rkey": 2121,
             "rlen": 2,
             "wkey": "Bsboujgp",
@@ -45729,59 +40836,10 @@
                     ]
                 }
             ],
-            "recovery": {
-                "close": [
-                    103,
-                    109,
-                    1,
-                    0,
-                    3
-                ],
-                "enter": [
-                    103,
-                    109,
-                    1,
-                    0,
-                    1
-                ],
-                "reply": [
-                    79,
-                    75
-                ],
-                "service": "fwu:ctrl"
-            },
             "rkey": 1943,
             "rlen": 2,
             "wkey": "Nbsjcbzb",
             "wkey1": "Maribaya",
-            "wlen": 2
-        },
-        "ET-4750-family": {
-            "mem_high": 2047,
-            "pad_groups": [
-                {
-                    "addresses": [
-                        28,
-                        47,
-                        50,
-                        51,
-                        55
-                    ],
-                    "desc": "Platen Pad Counter",
-                    "kind": "platen",
-                    "reset": [
-                        0,
-                        0,
-                        0,
-                        0,
-                        94
-                    ]
-                }
-            ],
-            "rkey": 2121,
-            "rlen": 2,
-            "wkey": "Bsboujgp",
-            "wkey1": "Arantifo",
             "wlen": 2
         },
         "ET-5150-family": {
@@ -45864,27 +40922,6 @@
                     ]
                 }
             ],
-            "recovery": {
-                "close": [
-                    103,
-                    109,
-                    1,
-                    0,
-                    3
-                ],
-                "enter": [
-                    103,
-                    109,
-                    1,
-                    0,
-                    1
-                ],
-                "reply": [
-                    79,
-                    75
-                ],
-                "service": "fwu:ctrl"
-            },
             "rkey": 8266,
             "rlen": 2,
             "wkey": "Nbibnfsv",
@@ -46184,27 +41221,6 @@
                     ]
                 }
             ],
-            "recovery": {
-                "close": [
-                    102,
-                    108,
-                    1,
-                    0,
-                    3
-                ],
-                "enter": [
-                    102,
-                    108,
-                    1,
-                    0,
-                    1
-                ],
-                "reply": [
-                    79,
-                    75
-                ],
-                "service": "fwu:ctrl"
-            },
             "rkey": 2121,
             "rlen": 2,
             "wkey": "Bsboujgp",
@@ -46295,27 +41311,6 @@
                     ]
                 }
             ],
-            "recovery": {
-                "close": [
-                    102,
-                    108,
-                    1,
-                    0,
-                    3
-                ],
-                "enter": [
-                    102,
-                    108,
-                    1,
-                    0,
-                    1
-                ],
-                "reply": [
-                    79,
-                    75
-                ],
-                "service": "fwu:ctrl"
-            },
             "rkey": 2369,
             "rlen": 2,
             "wkey": "Xblbupcj",
@@ -46377,27 +41372,6 @@
                     ]
                 }
             ],
-            "recovery": {
-                "close": [
-                    102,
-                    108,
-                    1,
-                    0,
-                    3
-                ],
-                "enter": [
-                    102,
-                    108,
-                    1,
-                    0,
-                    1
-                ],
-                "reply": [
-                    79,
-                    75
-                ],
-                "service": "fwu:ctrl"
-            },
             "rkey": 642,
             "rlen": 2,
             "wkey": "Hfscfsb+",
@@ -46545,27 +41519,6 @@
                     ]
                 }
             ],
-            "recovery": {
-                "close": [
-                    102,
-                    108,
-                    1,
-                    0,
-                    3
-                ],
-                "enter": [
-                    102,
-                    108,
-                    1,
-                    0,
-                    1
-                ],
-                "reply": [
-                    79,
-                    75
-                ],
-                "service": "fwu:ctrl"
-            },
             "rkey": 2369,
             "rlen": 2,
             "wkey": "Xblbupcj",
@@ -46652,27 +41605,6 @@
                     ]
                 }
             ],
-            "recovery": {
-                "close": [
-                    102,
-                    108,
-                    1,
-                    0,
-                    3
-                ],
-                "enter": [
-                    102,
-                    108,
-                    1,
-                    0,
-                    1
-                ],
-                "reply": [
-                    79,
-                    75
-                ],
-                "service": "fwu:ctrl"
-            },
             "rkey": 2064,
             "rlen": 2,
             "wkey": "Tjobcvoh",
@@ -46816,27 +41748,6 @@
                     ]
                 }
             ],
-            "recovery": {
-                "close": [
-                    102,
-                    108,
-                    1,
-                    0,
-                    3
-                ],
-                "enter": [
-                    102,
-                    108,
-                    1,
-                    0,
-                    1
-                ],
-                "reply": [
-                    79,
-                    75
-                ],
-                "service": "fwu:ctrl"
-            },
             "rkey": 2369,
             "rlen": 2,
             "wkey": "Xblbupcj",
@@ -47069,27 +41980,6 @@
                     ]
                 }
             ],
-            "recovery": {
-                "close": [
-                    102,
-                    108,
-                    1,
-                    0,
-                    3
-                ],
-                "enter": [
-                    102,
-                    108,
-                    1,
-                    0,
-                    1
-                ],
-                "reply": [
-                    79,
-                    75
-                ],
-                "service": "fwu:ctrl"
-            },
             "rkey": 360,
             "rlen": 2,
             "wkey": "KJNCbsbo",
@@ -47638,27 +42528,6 @@
                     ]
                 }
             ],
-            "recovery": {
-                "close": [
-                    102,
-                    108,
-                    1,
-                    0,
-                    3
-                ],
-                "enter": [
-                    102,
-                    108,
-                    1,
-                    0,
-                    1
-                ],
-                "reply": [
-                    79,
-                    75
-                ],
-                "service": "fwu:ctrl"
-            },
             "rkey": 1817,
             "rlen": 2,
             "wkey": "Xblbupcj",
@@ -47745,27 +42614,6 @@
                     ]
                 }
             ],
-            "recovery": {
-                "close": [
-                    102,
-                    108,
-                    1,
-                    0,
-                    3
-                ],
-                "enter": [
-                    102,
-                    108,
-                    1,
-                    0,
-                    1
-                ],
-                "reply": [
-                    79,
-                    75
-                ],
-                "service": "fwu:ctrl"
-            },
             "rkey": 1817,
             "rlen": 2,
             "wkey": "Xblbupcj",
@@ -48168,27 +43016,6 @@
                     ]
                 }
             ],
-            "recovery": {
-                "close": [
-                    102,
-                    108,
-                    1,
-                    0,
-                    3
-                ],
-                "enter": [
-                    102,
-                    108,
-                    1,
-                    0,
-                    1
-                ],
-                "reply": [
-                    79,
-                    75
-                ],
-                "service": "fwu:ctrl"
-            },
             "rkey": 2177,
             "rlen": 2,
             "wkey": "Xblbupcj",
@@ -48275,27 +43102,6 @@
                     ]
                 }
             ],
-            "recovery": {
-                "close": [
-                    102,
-                    108,
-                    1,
-                    0,
-                    3
-                ],
-                "enter": [
-                    102,
-                    108,
-                    1,
-                    0,
-                    1
-                ],
-                "reply": [
-                    79,
-                    75
-                ],
-                "service": "fwu:ctrl"
-            },
             "rkey": 1365,
             "rlen": 2,
             "wkey": "Nvtdbsj/",
@@ -48382,27 +43188,6 @@
                     ]
                 }
             ],
-            "recovery": {
-                "close": [
-                    102,
-                    108,
-                    1,
-                    0,
-                    3
-                ],
-                "enter": [
-                    102,
-                    108,
-                    1,
-                    0,
-                    1
-                ],
-                "reply": [
-                    79,
-                    75
-                ],
-                "service": "fwu:ctrl"
-            },
             "rkey": 102,
             "rlen": 2,
             "wkey": "Xblbupcj",
@@ -48877,27 +43662,6 @@
                     ]
                 }
             ],
-            "recovery": {
-                "close": [
-                    102,
-                    108,
-                    1,
-                    0,
-                    3
-                ],
-                "enter": [
-                    102,
-                    108,
-                    1,
-                    0,
-                    1
-                ],
-                "reply": [
-                    79,
-                    75
-                ],
-                "service": "fwu:ctrl"
-            },
             "rkey": 2169,
             "rlen": 2,
             "wkey": "Dbnfmmjb",
@@ -48926,27 +43690,6 @@
                     ]
                 }
             ],
-            "recovery": {
-                "close": [
-                    103,
-                    109,
-                    1,
-                    0,
-                    3
-                ],
-                "enter": [
-                    103,
-                    109,
-                    1,
-                    0,
-                    1
-                ],
-                "reply": [
-                    79,
-                    75
-                ],
-                "service": "fwu:ctrl"
-            },
             "rkey": 1363,
             "rlen": 2,
             "wkey": "lsblbubp",
@@ -48984,27 +43727,6 @@
                     ]
                 }
             ],
-            "recovery": {
-                "close": [
-                    102,
-                    108,
-                    1,
-                    0,
-                    3
-                ],
-                "enter": [
-                    102,
-                    108,
-                    1,
-                    0,
-                    1
-                ],
-                "reply": [
-                    79,
-                    75
-                ],
-                "service": "fwu:ctrl"
-            },
             "rkey": 403,
             "rlen": 2,
             "wkey": "Izbdjoui",
@@ -49066,27 +43788,6 @@
                     ]
                 }
             ],
-            "recovery": {
-                "close": [
-                    103,
-                    109,
-                    1,
-                    0,
-                    3
-                ],
-                "enter": [
-                    103,
-                    109,
-                    1,
-                    0,
-                    1
-                ],
-                "reply": [
-                    79,
-                    75
-                ],
-                "service": "fwu:ctrl"
-            },
             "rkey": 1354,
             "rlen": 2,
             "wkey": "Xblbupcj",
@@ -49149,27 +43850,6 @@
                     ]
                 }
             ],
-            "recovery": {
-                "close": [
-                    102,
-                    108,
-                    1,
-                    0,
-                    3
-                ],
-                "enter": [
-                    102,
-                    108,
-                    1,
-                    0,
-                    1
-                ],
-                "reply": [
-                    79,
-                    75
-                ],
-                "service": "fwu:ctrl"
-            },
             "rkey": 1540,
             "rlen": 2,
             "wkey": "7W6\u0086\u0096\u00b6\u0017G",
@@ -49249,27 +43929,6 @@
                     ]
                 }
             ],
-            "recovery": {
-                "close": [
-                    102,
-                    108,
-                    1,
-                    0,
-                    3
-                ],
-                "enter": [
-                    102,
-                    108,
-                    1,
-                    0,
-                    1
-                ],
-                "reply": [
-                    79,
-                    75
-                ],
-                "service": "fwu:ctrl"
-            },
             "rkey": 20994,
             "rlen": 2,
             "wkey": "\u0097&\u0086\u00976\u0016\u0016\u00b6",
@@ -49404,27 +44063,6 @@
                     ]
                 }
             ],
-            "recovery": {
-                "close": [
-                    102,
-                    108,
-                    1,
-                    0,
-                    3
-                ],
-                "enter": [
-                    102,
-                    108,
-                    1,
-                    0,
-                    1
-                ],
-                "reply": [
-                    79,
-                    75
-                ],
-                "service": "fwu:ctrl"
-            },
             "rkey": 102,
             "rlen": 2,
             "wkey": "Xblbupcj",
@@ -49469,27 +44107,6 @@
                     ]
                 }
             ],
-            "recovery": {
-                "close": [
-                    103,
-                    109,
-                    1,
-                    0,
-                    3
-                ],
-                "enter": [
-                    103,
-                    109,
-                    1,
-                    0,
-                    1
-                ],
-                "reply": [
-                    79,
-                    75
-                ],
-                "service": "fwu:ctrl"
-            },
             "rkey": 14667,
             "rlen": 2,
             "wkey": "Ubncpsb/",
@@ -49546,27 +44163,6 @@
                     ]
                 }
             ],
-            "recovery": {
-                "close": [
-                    102,
-                    108,
-                    1,
-                    0,
-                    3
-                ],
-                "enter": [
-                    102,
-                    108,
-                    1,
-                    0,
-                    1
-                ],
-                "reply": [
-                    79,
-                    75
-                ],
-                "service": "fwu:ctrl"
-            },
             "rkey": 2162,
             "rlen": 2,
             "wkey": "Tufmmbsj",
@@ -49619,27 +44215,6 @@
                     ]
                 }
             ],
-            "recovery": {
-                "close": [
-                    102,
-                    108,
-                    1,
-                    0,
-                    3
-                ],
-                "enter": [
-                    102,
-                    108,
-                    1,
-                    0,
-                    1
-                ],
-                "reply": [
-                    79,
-                    75
-                ],
-                "service": "fwu:ctrl"
-            },
             "rkey": 2084,
             "rlen": 2,
             "wkey": "Ejbouivt",
@@ -49692,80 +44267,10 @@
                     ]
                 }
             ],
-            "recovery": {
-                "close": [
-                    103,
-                    109,
-                    1,
-                    0,
-                    3
-                ],
-                "enter": [
-                    103,
-                    109,
-                    1,
-                    0,
-                    1
-                ],
-                "reply": [
-                    79,
-                    75
-                ],
-                "service": "fwu:ctrl"
-            },
             "rkey": 1591,
             "rlen": 2,
             "wkey": "Hzqtpqij",
             "wkey1": "Gypsophi",
-            "wlen": 2
-        },
-        "WF-2851-family": {
-            "mem_high": 2047,
-            "pad_groups": [
-                {
-                    "addresses": [
-                        28,
-                        336,
-                        339,
-                        340,
-                        344
-                    ],
-                    "desc": "Platen Pad Counter",
-                    "kind": "platen",
-                    "reset": [
-                        0,
-                        0,
-                        0,
-                        0,
-                        94
-                    ]
-                }
-            ],
-            "recovery": {
-                "close": [
-                    102,
-                    108,
-                    1,
-                    0,
-                    3
-                ],
-                "enter": [
-                    102,
-                    108,
-                    1,
-                    0,
-                    1
-                ],
-                "reply": [
-                    79,
-                    75
-                ],
-                "service": "fwu:ctrl"
-            },
-            "rkey": 2384,
-            "rlen": 2,
-            "wkey": "Cjebebsj",
-            "wkey1": "Bidadari",
             "wlen": 2
         },
         "WF-2961-family": {
@@ -49836,27 +44341,6 @@
                     ]
                 }
             ],
-            "recovery": {
-                "close": [
-                    103,
-                    109,
-                    1,
-                    0,
-                    3
-                ],
-                "enter": [
-                    103,
-                    109,
-                    1,
-                    0,
-                    1
-                ],
-                "reply": [
-                    79,
-                    75
-                ],
-                "service": "fwu:ctrl"
-            },
             "rkey": 2374,
             "rlen": 2,
             "wkey": "dspobsjb",
@@ -49963,27 +44447,6 @@
                     ]
                 }
             ],
-            "recovery": {
-                "close": [
-                    102,
-                    108,
-                    1,
-                    0,
-                    3
-                ],
-                "enter": [
-                    102,
-                    108,
-                    1,
-                    0,
-                    1
-                ],
-                "reply": [
-                    79,
-                    75
-                ],
-                "service": "fwu:ctrl"
-            },
             "rkey": 2384,
             "rlen": 2,
             "wkey": "Cjebebsj",
@@ -50040,27 +44503,6 @@
                     ]
                 }
             ],
-            "recovery": {
-                "close": [
-                    102,
-                    108,
-                    1,
-                    0,
-                    3
-                ],
-                "enter": [
-                    102,
-                    108,
-                    1,
-                    0,
-                    1
-                ],
-                "reply": [
-                    79,
-                    75
-                ],
-                "service": "fwu:ctrl"
-            },
             "rkey": 2177,
             "rlen": 2,
             "wkey": "Xblbupcj",
@@ -50163,27 +44605,6 @@
                     ]
                 }
             ],
-            "recovery": {
-                "close": [
-                    102,
-                    108,
-                    1,
-                    0,
-                    3
-                ],
-                "enter": [
-                    102,
-                    108,
-                    1,
-                    0,
-                    1
-                ],
-                "reply": [
-                    79,
-                    75
-                ],
-                "service": "fwu:ctrl"
-            },
             "rkey": 1365,
             "rlen": 2,
             "wkey": "Nvtdbsj/",
@@ -50240,27 +44661,6 @@
                     ]
                 }
             ],
-            "recovery": {
-                "close": [
-                    102,
-                    108,
-                    1,
-                    0,
-                    3
-                ],
-                "enter": [
-                    102,
-                    108,
-                    1,
-                    0,
-                    1
-                ],
-                "reply": [
-                    79,
-                    75
-                ],
-                "service": "fwu:ctrl"
-            },
             "rkey": 1413,
             "rlen": 2,
             "wkey": "Qpmzyfob",
@@ -50317,27 +44717,6 @@
                     ]
                 }
             ],
-            "recovery": {
-                "close": [
-                    103,
-                    109,
-                    1,
-                    0,
-                    3
-                ],
-                "enter": [
-                    103,
-                    109,
-                    1,
-                    0,
-                    1
-                ],
-                "reply": [
-                    79,
-                    75
-                ],
-                "service": "fwu:ctrl"
-            },
             "rkey": 1281,
             "rlen": 2,
             "wkey": "Tvsbnbev",
@@ -50440,27 +44819,6 @@
                     ]
                 }
             ],
-            "recovery": {
-                "close": [
-                    102,
-                    108,
-                    1,
-                    0,
-                    3
-                ],
-                "enter": [
-                    102,
-                    108,
-                    1,
-                    0,
-                    1
-                ],
-                "reply": [
-                    79,
-                    75
-                ],
-                "service": "fwu:ctrl"
-            },
             "rkey": 40,
             "rlen": 2,
             "wkey": "Ijcjtdvt",
@@ -50489,27 +44847,6 @@
                     ]
                 }
             ],
-            "recovery": {
-                "close": [
-                    102,
-                    108,
-                    1,
-                    0,
-                    3
-                ],
-                "enter": [
-                    102,
-                    108,
-                    1,
-                    0,
-                    1
-                ],
-                "reply": [
-                    79,
-                    75
-                ],
-                "service": "fwu:ctrl"
-            },
             "rkey": 1824,
             "rlen": 2,
             "wkey": "Djubncvs",
@@ -50602,27 +44939,6 @@
                     ]
                 }
             ],
-            "recovery": {
-                "close": [
-                    102,
-                    108,
-                    1,
-                    0,
-                    3
-                ],
-                "enter": [
-                    102,
-                    108,
-                    1,
-                    0,
-                    1
-                ],
-                "reply": [
-                    79,
-                    75
-                ],
-                "service": "fwu:ctrl"
-            },
             "rkey": 1367,
             "rlen": 2,
             "wkey": "Bmuibfb/",
@@ -50689,27 +45005,6 @@
                     ]
                 }
             ],
-            "recovery": {
-                "close": [
-                    102,
-                    108,
-                    1,
-                    0,
-                    3
-                ],
-                "enter": [
-                    102,
-                    108,
-                    1,
-                    0,
-                    1
-                ],
-                "reply": [
-                    79,
-                    75
-                ],
-                "service": "fwu:ctrl"
-            },
             "rkey": 2344,
             "rlen": 2,
             "wkey": "Jsjthbsn",
@@ -50756,27 +45051,6 @@
                     ]
                 }
             ],
-            "recovery": {
-                "close": [
-                    103,
-                    109,
-                    1,
-                    0,
-                    3
-                ],
-                "enter": [
-                    103,
-                    109,
-                    1,
-                    0,
-                    1
-                ],
-                "reply": [
-                    79,
-                    75
-                ],
-                "service": "fwu:ctrl"
-            },
             "rkey": 1044,
             "rlen": 2,
             "wkey": "Gjsnjbob",
@@ -50851,27 +45125,6 @@
                     ]
                 }
             ],
-            "recovery": {
-                "close": [
-                    102,
-                    108,
-                    1,
-                    0,
-                    3
-                ],
-                "enter": [
-                    102,
-                    108,
-                    1,
-                    0,
-                    1
-                ],
-                "reply": [
-                    79,
-                    75
-                ],
-                "service": "fwu:ctrl"
-            },
             "rkey": 1556,
             "rlen": 2,
             "wkey": "Ojijxbuv",

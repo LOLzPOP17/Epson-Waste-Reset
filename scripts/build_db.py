@@ -21,7 +21,7 @@ The one merge rule:
 Sources, in gap-filling priority order (facts merge, their files do not):
     reinkpy     epson.toml    write path: the shipped base (AGPL-3.0)
     ezreset     devices.xml   counter masks + service limits, commit
-                              steps, names, RCMODE recovery (no license)
+                              steps, names (no license)
     reink       printers.c    waste addresses of the old R220-class
                               models, cross-check, plus per-color
                               cartridge ink-reset maps (GPL-3.0-or-later)
@@ -37,8 +37,13 @@ wlen, mem_high, addresses/reset), the model keeps its shipped values and
 gets "conflict": true (so the exe can warn before writing); the build
 prints the details. Additive enrichments old clients ignore do merge: pad
 counters with masks + service limits, the post-reset commit step
-("close"), detection "aliases", and the firmware-recovery ("RCMODE")
-channel.
+("close") and detection "aliases".
+
+Never emitted: "recovery". ez-reset's <rcmode> blocks are its firmware-
+updater data, and EWR v1.3.0-v1.4.0 send them before every write to any
+model carrying the key, which leaves an L565 on "Preparing to update".
+Those clients read this file from main, so the build strips the key even
+when the committed file has it.
 
 Output guarantees:
   - database.json stays readable by every client in the field: the flat
@@ -421,40 +426,7 @@ def extract_ezreset(raw_bytes):
         if spec:
             specs[name] = spec
 
-    # Firmware recovery ('RCMODE') channels live in <EPSON-IPL><firmware>,
-    # separate from the per-model service specs above. Each <rcmode> block
-    # names one or more models via <model><label>, and carries the enter
-    # (<start>) and leave (<close>) commands plus the expected reply token.
-    recovery = []
-    for rc in root.iter("rcmode"):
-        model_el = rc.find("model")
-        labels = (model_el.findtext("label") if model_el is not None else "") or ""
-        labels = labels.split()
-        start = rc.find("start/raw")
-        if not labels or start is None:
-            continue
-        service = (start.findtext("group") or "").strip()
-        enter, bad_e = parse_hex_tokens(start.findtext("query"))
-        reply, _ = parse_hex_tokens(start.findtext("reply"))
-        close_raw = rc.find("close/raw")
-        close_cmd = []
-        if close_raw is not None:
-            close_cmd, _ = parse_hex_tokens(close_raw.findtext("query"))
-        if not service or not enter:
-            notes.append("rcmode " + " ".join(labels) + ": missing service or enter command")
-            continue
-        if bad_e:
-            notes.append("rcmode " + " ".join(labels) + ": unparsed enter tokens " + repr(bad_e))
-        recovery.append({
-            "labels": labels,
-            "service": service,
-            "enter": enter,
-            "close": close_cmd,
-            "reply": reply,
-        })
-
-    return {"specs": specs, "rows": rows, "recovery": recovery,
-            "notes": sorted(set(notes))}, version
+    return {"specs": specs, "rows": rows, "notes": sorted(set(notes))}, version
 
 
 # ---------------------------------------------------------------------------
@@ -817,67 +789,6 @@ def merge_sources(db, facts):
                 _apply_ezreset(db[model], model, spec_name, spec, rows, prov(model))
         coverage["ezreset_specs_unmatched"] = unmatched
         coverage["ezreset_ambiguous_matches"] = sorted(ambiguous)
-
-        # Firmware-recovery ('RCMODE') channels: match each block's labels to
-        # model entries and attach the channel additively. Older clients ignore
-        # the key; the new executor uses it to switch the printer into recovery
-        # around the EEPROM writes (issue #16). First match wins so the result
-        # is deterministic when families overlap.
-        rec_unmatched = []
-        for rec in ez.get("recovery", []):
-            matched = match_models(idx, rec["labels"])
-            if not matched:
-                rec_unmatched.append(" ".join(rec["labels"]))
-                continue
-            for model in sorted(matched):
-                if "recovery" in db[model]:
-                    continue
-                db[model]["recovery"] = {
-                    "service": rec["service"],
-                    "enter": list(rec["enter"]),
-                    "close": list(rec["close"]),
-                    "reply": list(rec["reply"]),
-                }
-                p = prov(model)
-                p.setdefault("enriched_by", []).append("ezreset:rcmode")
-                p.setdefault("added", []).append("recovery(" + rec["service"] + ")")
-        coverage["ezreset_rcmode_unmatched"] = sorted(set(rec_unmatched))
-
-        # A RCMODE <label> only names a representative of each family (e.g.
-        # "ET-2800"), but reinkpy ships finer sibling entries (ET-2801/2803/
-        # 2805) with a byte-identical write path. RCMODE is a firmware property
-        # of that shared mainboard, so propagate the channel to every sibling
-        # whose full write path matches a recovered model's. Only propagate
-        # when a write path resolves to a single channel; identical write paths
-        # that disagree are left untouched and reported instead.
-        def _writepath_key(entry):
-            return json.dumps([entry.get(k) for k in
-                               ("rkey", "wkey", "wkey1", "rlen", "wlen",
-                                "mem_high", "addresses", "reset")],
-                              sort_keys=True)
-        channel_by_writepath = {}
-        ambiguous_writepaths = set()
-        for entry in db.values():
-            if not entry.get("recovery"):
-                continue
-            wp = _writepath_key(entry)
-            chan = json.dumps(entry["recovery"], sort_keys=True)
-            if wp in channel_by_writepath and channel_by_writepath[wp] != chan:
-                ambiguous_writepaths.add(wp)
-            else:
-                channel_by_writepath[wp] = chan
-        propagated = 0
-        for name, entry in db.items():
-            if entry.get("recovery"):
-                continue
-            wp = _writepath_key(entry)
-            if wp in channel_by_writepath and wp not in ambiguous_writepaths:
-                entry["recovery"] = json.loads(channel_by_writepath[wp])
-                p = prov(name)
-                p.setdefault("enriched_by", []).append("ezreset:rcmode(family)")
-                p.setdefault("added", []).append("recovery(write-path sibling)")
-                propagated += 1
-        coverage["ezreset_rcmode_propagated"] = propagated
 
     rk = facts.get("reink")
     if rk:
@@ -1346,13 +1257,16 @@ def cmd_build(args):
     overlay_curated(db, committed, prov_models, coverage)
     order_counters_by_slot(db)
 
+    # Past the curated overlay on purpose: see "Never emitted" above.
+    for entry in db.values():
+        entry.pop("recovery", None)
+
     coverage["models_total"] = len(db)
     coverage["with_counters"] = sum(
         1 for e in db.values() if any("counters" in g for g in e["pad_groups"]))
     coverage["with_close"] = sum(1 for e in db.values() if e.get("close"))
     coverage["with_aliases"] = sum(1 for e in db.values() if e.get("aliases"))
     coverage["with_conflicts"] = sum(1 for e in db.values() if e.get("conflict"))
-    coverage["with_recovery"] = sum(1 for e in db.values() if e.get("recovery"))
     coverage["with_ink"] = sum(1 for e in db.values() if e.get("ink_groups"))
 
     payload = db if args.flat else compact(db)
@@ -1392,15 +1306,6 @@ def cmd_build(args):
         n = len(coverage["ezreset_specs_unmatched"])
         print(f"    coverage: {n} ez-reset spec groups have no model entry yet "
               f"(candidates for Phase 5)")
-    if coverage.get("with_recovery"):
-        print(f"    {coverage['with_recovery']} models carry a firmware-recovery "
-              f"(RCMODE) channel for issue-#16 writes")
-    if coverage.get("ezreset_rcmode_propagated"):
-        print(f"      (of those, {coverage['ezreset_rcmode_propagated']} propagated "
-              f"to write-path-identical siblings)")
-    if coverage.get("ezreset_rcmode_unmatched"):
-        print(f"    coverage: {len(coverage['ezreset_rcmode_unmatched'])} RCMODE "
-              f"label groups have no model entry yet")
     if coverage.get("with_ink"):
         print(f"    {coverage['with_ink']} models carry per-color cartridge "
               f"ink-reset maps (Phase 7, seeded from reink)")

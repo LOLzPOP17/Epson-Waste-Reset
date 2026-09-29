@@ -279,7 +279,7 @@ Video guide for this method: https://youtu.be/PQzxifFqMsA
 EWR would not exist without the people who reverse-engineered these protocols first. The database is assembled by an automated pipeline (`scripts/build_db.py`) that merges four upstream projects around the curated entries in this repository:
 
 * **[reinkpy](https://codeberg.org/atufi/reinkpy)** - the largest of the four, and the backbone of the model coverage.
-* **[ez-reset](https://github.com/CiRIP/ez-reset)** - per-counter byte maps and service limits, the firmware commit step, and the recovery channels.
+* **[ez-reset](https://github.com/CiRIP/ez-reset)** - per-counter byte maps and service limits, and the firmware commit step.
 * **[reink](https://github.com/lion-simba/reink)** - the original protocol work on the older Stylus generation.
 * **[Gutenprint](https://gutenprint.sourceforge.net/)** - model names and detection aliases.
 
