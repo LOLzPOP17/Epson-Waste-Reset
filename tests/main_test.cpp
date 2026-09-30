@@ -4025,7 +4025,8 @@ void test_search_read_key()
     }
 
     // A printer that ignores a key ends that session. The search resumes
-    // right after it, and no key is skipped or asked twice.
+    // right after it, so no key is skipped, and asks the ignored ones again
+    // in later passes before calling them silent.
     {
         KeyGateway gw;
         gw.answer = [&](uint16_t rkey, int) {
@@ -4037,16 +4038,57 @@ void test_search_read_key()
         CHECK(search.probes.size() == 40);
         CHECK(search.Count(ewr::ReadAnswer::Silent) == 2);
         CHECK(search.Count(ewr::ReadAnswer::Refused) == 38);
+
+        // Reported in candidate order, whatever order they were settled in.
+        for (size_t i = 0; i < search.probes.size(); ++i)
+            CHECK(search.probes[i].candidate.rkey == 100 + i);
         CHECK(search.probes[5].answer == ewr::ReadAnswer::Silent);
         CHECK(search.probes[6].answer == ewr::ReadAnswer::Refused);
         CHECK(search.probes[20].answer == ewr::ReadAnswer::Silent);
 
-        CHECK(gw.asked.size() == 40);
-        for (size_t i = 0; i < gw.asked.size(); ++i)
-            CHECK(gw.asked[i] == 100 + i);
+        // Every key once, the two ignored ones three times.
+        std::map<uint16_t, int> times;
+        for (uint16_t rkey : gw.asked)
+            times[rkey]++;
+        CHECK(times.size() == 40);
+        CHECK(times[105] == 3 && times[120] == 3);
+        CHECK(gw.asked.size() == 44);
 
-        // 100-105, 106-120, 121-136, 137-139.
-        CHECK(gw.sessions == 4);
+        // Pass 1: 100-105, 106-120, 121-136, 137-139. Passes 2 and 3: two each.
+        CHECK(gw.sessions == 8);
+    }
+
+    // The SX110 case: the session failed before the read was even sent (a
+    // refused D4 credit), so the key was never tried. It must be asked again,
+    // not written off - one of the four keys lost that way was the closest
+    // sibling's.
+    {
+        KeyGateway gw;
+        std::map<uint16_t, int> failuresLeft = { { 110, 1 }, { 130, 2 } };
+        gw.answer = [&](uint16_t rkey, int) {
+            auto it = failuresLeft.find(rkey);
+            if (it != failuresLeft.end() && it->second > 0)
+            {
+                it->second--;
+                return std::vector<unsigned char>{};
+            }
+            return rkey == 110 ? MakeEepromReadReplyEE16(0, 0x2A) : empty;
+        };
+
+        size_t lastTried = 0, lastTotal = 0;
+        const ewr::ReadKeySearch search = ewr::SearchReadKey(gw, candidates, ewr::DefaultQueryOptions(),
+            [&](size_t tried, size_t total) { lastTried = tried; lastTotal = total; });
+
+        CHECK(search.completed);
+        CHECK(search.probes.size() == 40);
+        CHECK(search.Count(ewr::ReadAnswer::Silent) == 0);
+        CHECK(search.Count(ewr::ReadAnswer::Value) == 1);
+        CHECK(search.Count(ewr::ReadAnswer::Empty) == 39);
+        CHECK(search.probes[10].candidate.rkey == 110);
+        CHECK(search.probes[10].answer == ewr::ReadAnswer::Value);
+        CHECK(search.probes[10].value == 0x2A);
+        CHECK(search.probes[30].answer == ewr::ReadAnswer::Empty);
+        CHECK(lastTried == 40 && lastTotal == 40);
     }
 
     // No printer, and a printer that will not open a session: both stop the

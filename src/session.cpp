@@ -278,72 +278,125 @@ namespace ewr {
                                 const ExecutorOptions& options,
                                 const std::function<void(size_t, size_t)>& progress)
     {
-        // One session per batch. A query session stops at the first read that
-        // draws no reply, so a printer that ignores a wrong key ends its batch
-        // there; the next batch resumes after that key instead of losing the
-        // rest of the search to it.
+        // One session per batch. A query session stops at the first exchange
+        // that draws no reply, and the candidates after it are never sent.
         constexpr size_t kBatch = 16;
+
+        // An unanswered exchange is not yet "the printer ignored this key":
+        // on an SX110 the printer refused the D4 credit four times in one
+        // search, so those reads never left - and one of the four keys was
+        // the closest sibling's. Such a candidate is asked again in a later
+        // pass, and is called silent only after this many tries.
+        constexpr int kPasses = 3;
 
         ReadKeySearch search;
 
-        // Asking again with a key the printer ignored buys nothing, and every
-        // retry costs a fresh session.
+        // Asking again inside one session buys nothing, and every retry
+        // there costs a fresh session; the passes above do the retrying.
         ExecutorOptions sweep = options;
         sweep.maxWriteAttempts = 1;
 
-        size_t next = 0;
-        while (next < candidates.size())
+        std::vector<ReadKeyProbe> probes(candidates.size());
+        std::vector<bool> answered(candidates.size(), false);
+        size_t resolved = 0;
+
+        std::vector<size_t> pending(candidates.size());
+        for (size_t i = 0; i < pending.size(); ++i)
+            pending[i] = i;
+
+        for (int pass = 1; pass <= kPasses && !pending.empty(); ++pass)
         {
-            const size_t end = std::min(candidates.size(), next + kBatch);
+            std::vector<size_t> unanswered;
 
-            std::vector<std::vector<unsigned char>> queries;
-            for (size_t i = next; i < end; ++i)
-                queries.push_back(UniversalGenerator::GenerateReadPacket(candidates[i].rkey, 0,
-                                                                         candidates[i].addressLength));
-
-            const QueryRunResult run = gateway.RunQuery(UniversalGenerator::GenerateHandshake(), queries, sweep);
-
-            if (!run.deviceFound)
+            size_t next = 0;
+            while (next < pending.size())
             {
-                search.error = run.query.error.empty() ? "No Epson printer answered." : run.query.error;
-                return search;
-            }
+                const size_t end = std::min(pending.size(), next + kBatch);
 
-            search.deviceFound = true;
+                std::vector<std::vector<unsigned char>> queries;
+                for (size_t slot = next; slot < end; ++slot)
+                {
+                    const ReadKeyCandidate& candidate = candidates[pending[slot]];
+                    queries.push_back(UniversalGenerator::GenerateReadPacket(candidate.rkey, 0, candidate.addressLength));
+                }
 
-            if (run.query.handshakeFailed)
-            {
-                search.error = run.query.error;
-                return search;
-            }
+                const QueryRunResult run = gateway.RunQuery(UniversalGenerator::GenerateHandshake(), queries, sweep);
 
-            // Replies are positional. The first empty one is the read that
-            // went unanswered; the session stopped there, so the candidates
-            // after it were never sent and stay for the next batch.
-            size_t tried = 0;
-            for (size_t i = next; i < end; ++i)
-            {
-                const size_t slot = i - next;
-                const std::vector<unsigned char> reply =
-                    slot < run.query.replies.size() ? run.query.replies[slot] : std::vector<unsigned char>{};
-
-                ReadKeyProbe probe;
-                probe.candidate = candidates[i];
-                probe.answer = ClassifyEepromReadReply(reply, probe.value, 0);
-                search.probes.push_back(std::move(probe));
-                tried++;
-
-                if (reply.empty())
+                if (!run.deviceFound)
+                {
+                    search.error = run.query.error.empty() ? "No Epson printer answered." : run.query.error;
                     break;
+                }
+
+                search.deviceFound = true;
+
+                if (run.query.handshakeFailed)
+                {
+                    search.error = run.query.error;
+                    break;
+                }
+
+                // Replies are positional. The first empty one is the exchange
+                // the session stopped at; everything after it was never sent
+                // and stays in this pass.
+                size_t consumed = 0;
+                for (size_t slot = next; slot < end; ++slot)
+                {
+                    const size_t index = pending[slot];
+                    const size_t position = slot - next;
+                    const std::vector<unsigned char> reply =
+                        position < run.query.replies.size() ? run.query.replies[position]
+                                                            : std::vector<unsigned char>{};
+                    consumed++;
+
+                    if (reply.empty())
+                    {
+                        unanswered.push_back(index);
+                        break;
+                    }
+
+                    probes[index].candidate = candidates[index];
+                    probes[index].answer = ClassifyEepromReadReply(reply, probes[index].value, 0);
+                    answered[index] = true;
+                    resolved++;
+                }
+
+                next += consumed;
+
+                if (progress)
+                    progress(resolved, candidates.size());
             }
 
-            next += tried;
+            if (!search.error.empty())
+                break;
 
-            if (progress)
-                progress(next, candidates.size());
+            pending = std::move(unanswered);
         }
 
+        // Stopped early: report what was answered, in candidate order.
+        if (!search.error.empty())
+        {
+            for (size_t i = 0; i < candidates.size(); ++i)
+            {
+                if (answered[i])
+                    search.probes.push_back(std::move(probes[i]));
+            }
+            return search;
+        }
+
+        // Still unanswered after every pass.
+        for (size_t index : pending)
+        {
+            probes[index].candidate = candidates[index];
+            probes[index].answer = ReadAnswer::Silent;
+        }
+
+        search.probes = std::move(probes);
         search.completed = true;
+
+        if (progress)
+            progress(candidates.size(), candidates.size());
+
         return search;
     }
 

@@ -293,8 +293,8 @@ Every entry has all four keys, `null` where one does not apply.
 
 `printer` is the name the printer reports, `null` when it reported none. `answers`
 counts how the reads were answered, one read per key: `value` (the key works),
-`refused` (`:41:NA;`), `empty` (`||:;`, no action code echoed), `silent` (no reply)
-and `other`. `keys` lists only the keys that returned a value, with the byte read
+`refused` (`:41:NA;`), `empty` (`||:;`, no action code echoed), `silent` (no reply
+in three tries, each in a fresh session) and `other`. `keys` lists only the keys that returned a value, with the byte read
 at address 0 and the database entries that use the key; it is `[]` when none did.
 
 A search that ran to the end is `ok: true` whether or not it found a key - read

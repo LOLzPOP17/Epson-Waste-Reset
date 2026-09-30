@@ -233,7 +233,7 @@ EWR cannot read a printer without its read key. Printers of one generation often
 ewr --find-key
 ```
 
-It reads one byte with each of the ~130 distinct read keys in the database - a few minutes - and reports how the printer answered:
+It reads one byte with each of the ~130 distinct read keys in the database - a few minutes - and reports how the printer answered. A key that draws no answer is asked again, up to three times, before it is counted as unanswered:
 
 * **A value came back**: that key works. The result names the database entries that use it; read the printer with one of them (`--dump`, `--find-addresses` below). Do not run a reset with that entry - the key fits, but its addresses are that model's, not yours.
 * **Every key was refused (`:41:NA;`)**: the printer knows the command and its key is not in the database.

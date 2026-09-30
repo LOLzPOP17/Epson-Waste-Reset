@@ -747,7 +747,7 @@ static int RunReadKeySearch(ewr::IDeviceGateway& gateway,
     std::cout << "  Answered with a value:   " << found << std::endl;
     std::cout << "  Refused (':41:NA;'):     " << refused << std::endl;
     std::cout << "  Empty answer ('||:;'):   " << empty << std::endl;
-    std::cout << "  No answer:               " << silent << std::endl;
+    std::cout << "  No answer in 3 tries:    " << silent << std::endl;
     if (other > 0)
         std::cout << "  Something else:          " << other << std::endl;
     std::cout << "--------------------------------------" << std::endl;
