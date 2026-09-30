@@ -1,6 +1,9 @@
 #include "ewr/session.h"
 #include "ewr/deviceid.h"
 
+#include <algorithm>
+#include <map>
+
 #include <cstdio>
 
 namespace ewr {
@@ -233,6 +236,115 @@ namespace ewr {
         out.available = true;
         out.status = ParseStatusReply(run.query.replies[0]);
         return out;
+    }
+
+    // ------------------------------------------------------------------
+    //  Read-key search
+    // ------------------------------------------------------------------
+
+    size_t ReadKeySearch::Count(ReadAnswer answer) const
+    {
+        size_t count = 0;
+        for (const ReadKeyProbe& probe : probes)
+            count += (probe.answer == answer) ? 1 : 0;
+        return count;
+    }
+
+    std::vector<ReadKeyCandidate> CollectReadKeyCandidates(const std::vector<DbPrinterModel>& models)
+    {
+        std::map<std::pair<uint16_t, uint8_t>, ReadKeyCandidate> byKey;
+        for (const DbPrinterModel& model : models)
+        {
+            ReadKeyCandidate& candidate = byKey[{ model.rkey, model.ReadAddressLength() }];
+            candidate.rkey = model.rkey;
+            candidate.addressLength = model.ReadAddressLength();
+            candidate.models.push_back(model.name);
+        }
+
+        std::vector<ReadKeyCandidate> out;
+        for (auto& entry : byKey)
+            out.push_back(std::move(entry.second));
+
+        // Ties keep the map's (key, width) order, so the list is stable.
+        std::stable_sort(out.begin(), out.end(), [](const ReadKeyCandidate& a, const ReadKeyCandidate& b) {
+            return a.models.size() > b.models.size();
+        });
+
+        return out;
+    }
+
+    ReadKeySearch SearchReadKey(IDeviceGateway& gateway,
+                                const std::vector<ReadKeyCandidate>& candidates,
+                                const ExecutorOptions& options,
+                                const std::function<void(size_t, size_t)>& progress)
+    {
+        // One session per batch. A query session stops at the first read that
+        // draws no reply, so a printer that ignores a wrong key ends its batch
+        // there; the next batch resumes after that key instead of losing the
+        // rest of the search to it.
+        constexpr size_t kBatch = 16;
+
+        ReadKeySearch search;
+
+        // Asking again with a key the printer ignored buys nothing, and every
+        // retry costs a fresh session.
+        ExecutorOptions sweep = options;
+        sweep.maxWriteAttempts = 1;
+
+        size_t next = 0;
+        while (next < candidates.size())
+        {
+            const size_t end = std::min(candidates.size(), next + kBatch);
+
+            std::vector<std::vector<unsigned char>> queries;
+            for (size_t i = next; i < end; ++i)
+                queries.push_back(UniversalGenerator::GenerateReadPacket(candidates[i].rkey, 0,
+                                                                         candidates[i].addressLength));
+
+            const QueryRunResult run = gateway.RunQuery(UniversalGenerator::GenerateHandshake(), queries, sweep);
+
+            if (!run.deviceFound)
+            {
+                search.error = run.query.error.empty() ? "No Epson printer answered." : run.query.error;
+                return search;
+            }
+
+            search.deviceFound = true;
+
+            if (run.query.handshakeFailed)
+            {
+                search.error = run.query.error;
+                return search;
+            }
+
+            // Replies are positional. The first empty one is the read that
+            // went unanswered; the session stopped there, so the candidates
+            // after it were never sent and stay for the next batch.
+            size_t tried = 0;
+            for (size_t i = next; i < end; ++i)
+            {
+                const size_t slot = i - next;
+                const std::vector<unsigned char> reply =
+                    slot < run.query.replies.size() ? run.query.replies[slot] : std::vector<unsigned char>{};
+
+                ReadKeyProbe probe;
+                probe.candidate = candidates[i];
+                probe.answer = ClassifyEepromReadReply(reply, probe.value, 0);
+                search.probes.push_back(std::move(probe));
+                tried++;
+
+                if (reply.empty())
+                    break;
+            }
+
+            next += tried;
+
+            if (progress)
+                progress(next, candidates.size());
+        }
+
+        search.completed = true;
+        return search;
     }
 
     // ------------------------------------------------------------------

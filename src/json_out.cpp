@@ -182,6 +182,39 @@ namespace ewr {
         return "not_started";
     }
 
+    nlohmann::json JsonKeySearchData(const std::string& printerReports, const ReadKeySearch& search)
+    {
+        nlohmann::json out;
+        out["printer"] = printerReports.empty() ? nlohmann::json(nullptr) : nlohmann::json(printerReports);
+        out["completed"] = search.completed;
+        out["tried"] = search.probes.size();
+
+        out["answers"] = {
+            { "value", search.Count(ReadAnswer::Value) },
+            { "refused", search.Count(ReadAnswer::Refused) },
+            { "empty", search.Count(ReadAnswer::Empty) },
+            { "silent", search.Count(ReadAnswer::Silent) },
+            { "other", search.Count(ReadAnswer::Other) },
+        };
+
+        nlohmann::json keys = nlohmann::json::array();
+        for (const ReadKeyProbe& probe : search.probes)
+        {
+            if (probe.answer != ReadAnswer::Value)
+                continue;
+
+            keys.push_back({
+                { "read_key", probe.candidate.rkey },
+                { "address_length", probe.candidate.addressLength },
+                { "value", probe.value },
+                { "models", probe.candidate.models },
+            });
+        }
+        out["keys"] = std::move(keys);
+
+        return out;
+    }
+
     nlohmann::json JsonResetData(const DbPrinterModel& model, bool ink, const ResetOutcome& outcome)
     {
         nlohmann::json out;

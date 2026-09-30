@@ -64,6 +64,7 @@ struct CliOptions
     bool dryRun = false;         // --dry-run: everything except the writes
     bool dump = false;           // --dump: read-only EEPROM dump to a file
     bool findAddresses = false;  // --find-addresses: repeated dumps around head cleanings
+    bool findKey = false;        // --find-key: try every read key in the database, read-only
     bool noUpdate = false;       // --no-update: offline run, nothing checked or swapped
     bool assumeYes = false;      // --yes: answer the write confirmation, nothing else
     bool forceYes = false;       // --force-yes: also overrule the gates that would stop it
@@ -236,6 +237,9 @@ static void PrintUsage()
               << "                   addresses for. Reads the EEPROM three times and asks you\n"
               << "                   to run a head cleaning between reads; the bytes that rise\n"
               << "                   every time are the counters. Read-only.\n"
+              << "  --find-key       For a printer the database has no entry for: try every\n"
+              << "                   read key in the database and report which one, if any,\n"
+              << "                   the printer answers. Takes no --model. Read-only.\n"
               << "  --json           Machine-readable output: one JSON object per line on\n"
               << "                   stdout, for callers driving EWR from another language.\n"
               << "                   Never prompts; see docs/json-output.md for the contract.\n"
@@ -680,6 +684,146 @@ static std::string WriteEepromDump(const ewr::DbPrinterModel& model,
     return filename;
 }
 
+// --find-key: for a printer no database entry matches. It runs before the
+// model menu because there is no model to pick - the search is for one.
+static int RunReadKeySearch(ewr::IDeviceGateway& gateway,
+                            const std::vector<ewr::DbPrinterModel>& models,
+                            const CliOptions& cli,
+                            const std::string& detectedMdl,
+                            const std::string& detectedMatch)
+{
+    const std::vector<ewr::ReadKeyCandidate> candidates = ewr::CollectReadKeyCandidates(models);
+
+    ewr::ExecutorOptions options = ewr::DefaultQueryOptions();
+    options.interfaceCandidate = cli.interfaceCandidate;
+    options.usbSoftReset = cli.usbSoftReset;
+    options.trace.printerReports = detectedMdl;
+    options.trace.detectedEntry = detectedMatch;
+    options.trace.selectedBy = "--find-key";
+
+    std::cout << "\n[*] READ KEY SEARCH";
+    if (!detectedMdl.empty())
+        std::cout << " for \"" << detectedMdl << "\"";
+    std::cout << ": trying the " << candidates.size() << " read keys in the database." << std::endl;
+    std::cout << "    Read-only: only read commands are sent. This takes a few minutes." << std::endl;
+
+    const bool animate = !g_json && StdoutIsTerminal();
+    const ewr::ReadKeySearch search = ewr::SearchReadKey(gateway, candidates, options,
+        [animate](size_t tried, size_t total)
+        {
+            if (animate)
+                std::cout << "\r[*] Trying read keys... " << tried << "/" << total << std::flush;
+        });
+
+    if (animate && !search.probes.empty())
+        std::cout << std::endl;
+
+    g_jsonData = ewr::JsonKeySearchData(detectedMdl, search);
+
+    if (!search.deviceFound)
+    {
+        std::cerr << "\n[ERROR] No printer answered. Is it turned on and plugged in?" << std::endl;
+        JsonFail("device_not_found", search.error);
+        return FinishRun(1);
+    }
+
+    if (!search.completed)
+    {
+        std::cerr << "\n[ERROR] The search stopped after " << search.probes.size() << " of "
+                  << candidates.size() << " keys: " << search.error << std::endl;
+        std::cerr << "        Check ewr_trace.log for the hardware trace." << std::endl;
+        JsonFail("read_failed", search.error);
+        return FinishRun(1);
+    }
+
+    const size_t found = search.Count(ewr::ReadAnswer::Value);
+    const size_t refused = search.Count(ewr::ReadAnswer::Refused);
+    const size_t empty = search.Count(ewr::ReadAnswer::Empty);
+    const size_t silent = search.Count(ewr::ReadAnswer::Silent);
+    const size_t other = search.Count(ewr::ReadAnswer::Other);
+
+    std::cout << "\n---------- READ KEY SEARCH -----------" << std::endl;
+    std::cout << "  Keys tried:              " << search.probes.size() << std::endl;
+    std::cout << "  Answered with a value:   " << found << std::endl;
+    std::cout << "  Refused (':41:NA;'):     " << refused << std::endl;
+    std::cout << "  Empty answer ('||:;'):   " << empty << std::endl;
+    std::cout << "  No answer:               " << silent << std::endl;
+    if (other > 0)
+        std::cout << "  Something else:          " << other << std::endl;
+    std::cout << "--------------------------------------" << std::endl;
+
+    if (found > 0)
+    {
+        for (const ewr::ReadKeyProbe& probe : search.probes)
+        {
+            if (probe.answer != ewr::ReadAnswer::Value)
+                continue;
+
+            char line[160];
+            snprintf(line, sizeof(line),
+                     "\n[SUCCESS] Read key 0x%04X (%u) with %u-byte addresses works: address 0x00 holds 0x%02X.",
+                     probe.candidate.rkey, probe.candidate.rkey,
+                     static_cast<unsigned>(probe.candidate.addressLength), probe.value);
+            std::cout << line << std::endl;
+
+            std::cout << "          Database entries with this key: ";
+            const std::vector<std::string>& names = probe.candidate.models;
+            for (size_t i = 0; i < names.size() && i < 6; ++i)
+                std::cout << (i ? ", " : "") << names[i];
+            if (names.size() > 6)
+                std::cout << " (+" << (names.size() - 6) << " more)";
+            std::cout << std::endl;
+
+            bool ownEntry = false;
+            for (const std::string& name : names)
+                ownEntry = ownEntry || (!detectedMatch.empty() && name == detectedMatch);
+
+            if (ownEntry)
+            {
+                std::cout << "          " << detectedMatch
+                          << " is the entry this printer matches: the database already has its key." << std::endl;
+            }
+            else
+            {
+                std::cout << "\n    The printer speaks EWR's protocol with that key. To look at its memory,\n"
+                             "    read it with one of those entries - both of these are read-only:\n"
+                             "        ewr --model \"" << names.front() << "\" --dump\n"
+                             "        ewr --model \"" << names.front() << "\" --find-addresses\n"
+                             "\n    Do NOT run a reset with that entry: the key fits, but its addresses are\n"
+                             "    that model's, not this printer's. Open an issue with ewr_trace.log and\n"
+                             "    the dump instead." << std::endl;
+            }
+        }
+
+        return FinishRun(0);
+    }
+
+    std::cout << "\n[RESULT] No read key in the database works on this printer." << std::endl;
+
+    if (empty == search.probes.size())
+    {
+        std::cout << "    Every key drew the same empty answer, which does not even echo the read's\n"
+                     "    action code. The printer most likely does not take the keyed read command\n"
+                     "    EWR uses at all, in which case no key would work." << std::endl;
+    }
+    else if (refused == search.probes.size())
+    {
+        std::cout << "    Every key was refused: the printer knows the read command and turns these\n"
+                     "    keys down. Its own key is simply not in the database." << std::endl;
+    }
+    else if (silent == search.probes.size())
+    {
+        std::cout << "    The printer answered none of the reads. That is what a wrong key looks\n"
+                     "    like on some firmware, so its own key may just not be in the database." << std::endl;
+    }
+
+    std::cout << "    Please attach ewr_trace.log to an issue or a discussion: it records how\n"
+                 "    every key was answered." << std::endl;
+
+    // The search ran to the end; finding nothing is an answer, not a failure.
+    return FinishRun(0);
+}
+
 int main(int argc, char* argv[])
 {
     SetWorkingDirectoryToExecutable();
@@ -741,6 +885,10 @@ int main(int argc, char* argv[])
         else if (arg == "--find-addresses")
         {
             cli.findAddresses = true;
+        }
+        else if (arg == "--find-key")
+        {
+            cli.findKey = true;
         }
         else if (arg == "--no-update")
         {
@@ -836,9 +984,15 @@ int main(int argc, char* argv[])
         }
     }
 
+    // The search is for a printer whose model is unknown; naming one would
+    // only suggest that entry's key gets special treatment.
+    if (cli.findKey && !cli.modelOverride.empty())
+        return UsageError(cli, "--find-key takes no --model: it tries every read key in the database.");
+
     const bool statusOnly = cli.statusOnly;
 
     g_jsonCommand = cli.listOnly       ? "list"
+                  : cli.findKey        ? "find-key"
                   : cli.statusOnly     ? "status"
                   : cli.dump           ? "dump"
                   : cli.findAddresses  ? "find-addresses"
@@ -849,14 +1003,16 @@ int main(int argc, char* argv[])
     // --yes means nobody is at the keyboard, so the closing "press Enter" read
     // would block the caller after the reset it just asked for.
     g_exitPause = !cli.json && StdinIsInteractive()
-        && !(cli.statusOnly || cli.listOnly || cli.dryRun || cli.dump || cli.assumeYes);
+        && !(cli.statusOnly || cli.listOnly || cli.dryRun || cli.dump || cli.findKey || cli.assumeYes);
 
     std::cout << "========================================" << std::endl;
     std::cout << "       EWR - Epson Waste Reset          " << std::endl;
     std::cout << "       Version " << kEwrCurrentVersion << std::endl;
     std::cout << "========================================\n" << std::endl;
 
-    if (statusOnly)
+    if (cli.findKey)
+        std::cout << "[i] READ KEY SEARCH: read commands only, no EEPROM writes will be sent.\n" << std::endl;
+    else if (statusOnly)
         std::cout << "[i] READ-ONLY STATUS MODE: no EEPROM writes will be sent.\n" << std::endl;
     else if (cli.dryRun)
         std::cout << "[i] DRY RUN: EWR will detect, read and plan, but write nothing.\n" << std::endl;
@@ -1136,6 +1292,9 @@ int main(int argc, char* argv[])
             std::cout << std::endl;
         }
     }
+
+    if (cli.findKey)
+        return RunReadKeySearch(gateway, smartModels, cli, detectedMdl, detectedMatch);
 
     MenuOption selected;
     bool hasSelected = false;

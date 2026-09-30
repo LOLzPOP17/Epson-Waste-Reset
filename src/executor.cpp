@@ -1058,9 +1058,11 @@ namespace ewr {
 
     std::string DescribeTraceContext(const ExecutorOptions::TraceContext& context)
     {
+        // A run with no entry on purpose (--find-key) still says why.
         std::string selected = context.selectedEntry.empty() ? "(unknown)" : context.selectedEntry;
-        if (!context.selectedEntry.empty() && !context.selectedBy.empty())
-            selected += " (" + context.selectedBy + ")";
+        if (!context.selectedBy.empty())
+            selected = context.selectedEntry.empty() ? "(none: " + context.selectedBy + ")"
+                                                     : selected + " (" + context.selectedBy + ")";
 
         std::string out;
         out += "Printer reports: " + (context.printerReports.empty() ? std::string("(unknown)") : context.printerReports) + "\n";

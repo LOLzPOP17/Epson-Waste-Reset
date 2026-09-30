@@ -54,6 +54,22 @@ namespace ewr {
     // a mismatching echo is rejected. Returns true and sets value on success.
     bool ParseEepromReadReply(const std::vector<unsigned char>& raw, uint8_t& value, int expectedAddress = -1);
 
+    // How a printer answered one EEPROM read. The refusals are kept apart
+    // because they are not the same evidence: ':41:NA;' names the read and
+    // turns it down (an R220 with any wrong key), while a bare '||:;' does
+    // not even echo the action code (an SX110, with the one key tried on it).
+    enum class ReadAnswer
+    {
+        Value,    // the byte came back: this key works
+        Refused,  // '||:41:NA;'
+        Empty,    // '||:;'
+        Silent,   // nothing arrived
+        Other,    // something else entirely
+    };
+
+    // `value` is set only for ReadAnswer::Value.
+    ReadAnswer ClassifyEepromReadReply(const std::vector<unsigned char>& raw, uint8_t& value, int expectedAddress = -1);
+
     std::string DescribePrinterCondition(const PrinterStatus& status);
 
 } // namespace ewr

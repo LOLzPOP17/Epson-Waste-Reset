@@ -324,6 +324,32 @@ namespace ewr {
         return false;
     }
 
+    ReadAnswer ClassifyEepromReadReply(const std::vector<unsigned char>& raw, uint8_t& value, int expectedAddress)
+    {
+        if (raw.empty())
+            return ReadAnswer::Silent;
+
+        if (ParseEepromReadReply(raw, value, expectedAddress))
+            return ReadAnswer::Value;
+
+        const std::vector<unsigned char> payload = ExtractD4Payload(raw);
+        std::string text(payload.begin(), payload.end());
+
+        // Replies end in a form feed; some firmware adds a line break.
+        while (!text.empty() && (text.back() == '\f' || text.back() == '\r' || text.back() == '\n'
+                                 || text.back() == ' ' || text.back() == '\0'))
+            text.pop_back();
+
+        if (text.empty())
+            return ReadAnswer::Silent;
+        if (text.find(":41:NA;") != std::string::npos)
+            return ReadAnswer::Refused;
+        if (text == "||:;")
+            return ReadAnswer::Empty;
+
+        return ReadAnswer::Other;
+    }
+
     std::string DescribePrinterCondition(const PrinterStatus& status)
     {
         if (!status.valid)

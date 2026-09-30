@@ -57,7 +57,7 @@ Every line carries these:
 | --- | --- | --- |
 | `ewr` | string | EWR version, e.g. `"1.4.1"`. |
 | `platform` | string | `windows`, `linux` or `macos`. |
-| `command` | string | `status`, `dump`, `list`, `dry-run`, `reset` or `find-addresses`. |
+| `command` | string | `status`, `dump`, `list`, `dry-run`, `reset`, `find-addresses` or `find-key`. |
 | `model` | string/null | What `--model` named, before matching. `null` when not given. |
 | `flags` | object | The switches that change behavior: `no_update`, `yes`, `force_yes`, `cartridge`, `usb_soft_reset`, `interface` (int, 0 = automatic). |
 
@@ -282,6 +282,24 @@ Every entry has all four keys, `null` where one does not apply.
  "trends": [{"addresses": [12, 13], "pair": true, "values": [0, 40, 91],
              "deltas": [40, 51], "direction": "rising"}]}
 ```
+
+**find-key**
+
+```json
+{"printer": "Stylus Photo R220", "completed": true, "tried": 131,
+ "answers": {"value": 1, "refused": 130, "empty": 0, "silent": 0, "other": 0},
+ "keys": [{"read_key": 15120, "address_length": 1, "value": 0, "models": ["R230", "R220"]}]}
+```
+
+`printer` is the name the printer reports, `null` when it reported none. `answers`
+counts how the reads were answered, one read per key: `value` (the key works),
+`refused` (`:41:NA;`), `empty` (`||:;`, no action code echoed), `silent` (no reply)
+and `other`. `keys` lists only the keys that returned a value, with the byte read
+at address 0 and the database entries that use the key; it is `[]` when none did.
+
+A search that ran to the end is `ok: true` whether or not it found a key - read
+`keys`. `completed` is `false`, with `read_failed` or `device_not_found`, when it
+stopped early; `tried` and `answers` then cover the keys it got to.
 
 ## Answering gates without a keyboard
 

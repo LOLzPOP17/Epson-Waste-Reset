@@ -63,6 +63,7 @@ Running with no options is the supported path. These exist for diagnosis and for
 | `--dry-run` | Detect, read, and show exactly what a reset *would* write - then stop. |
 | `--dump` | Read the EEPROM into a timestamped file. Dump twice around a change and diff to map an unknown printer. |
 | `--find-addresses` | For a model with no reset addresses yet: read the EEPROM three times, asking you to run a head cleaning between reads, and report the bytes that rise every time. Read-only. |
+| `--find-key` | For a printer the database has no entry for: try every read key in the database and report which one, if any, the printer answers. Takes no `--model`. Read-only. |
 | `--yes`, `-y` | Answer the reset confirmation with yes, for callers driving EWR non-interactively. See below. |
 | `--force-yes` | `--yes`, and overrule the gates that would stop it: a model mismatch, a printer error, a database conflict. Last resort. |
 | `--cartridge`, `-c` | Reset the cartridge ink levels instead of the waste ink pads, on models that carry a per-color ink map. |
@@ -222,7 +223,23 @@ On macOS the downloaded binary is quarantined by Gatekeeper. Clear it with `xatt
 
 Adding or fixing a printer means **editing `database.json` and opening a pull request** - no C++ required. `database.json` is the curated source of truth: the weekly rebuild merges upstream sources *around* your values and can never overwrite a hand edit. See **[CONTRIBUTING.md](CONTRIBUTING.md)** for the field reference and what makes a good pull request.
 
-If your model is missing entirely, its addresses have to be found. Start with the safe method - EWR ships the tooling for it, and it never writes anything.
+If your model is missing entirely, two things have to be found: a read key the printer answers to, and then its addresses. Start with the safe methods - EWR ships the tooling for both, and neither writes anything.
+
+### Is there a key for it? (read-only)
+
+EWR cannot read a printer without its read key. Printers of one generation often share keys, so a missing model may answer to a key the database already has for a sibling:
+
+```
+ewr --find-key
+```
+
+It reads one byte with each of the ~130 distinct read keys in the database - a few minutes - and reports how the printer answered:
+
+* **A value came back**: that key works. The result names the database entries that use it; read the printer with one of them (`--dump`, `--find-addresses` below). Do not run a reset with that entry - the key fits, but its addresses are that model's, not yours.
+* **Every key was refused (`:41:NA;`)**: the printer knows the command and its key is not in the database.
+* **Every key drew an empty answer (`||:;`)**: the printer most likely does not take this read command at all.
+
+Either way, attach `ewr_trace.log` to an issue: it records how every key was answered.
 
 ### Finding the counters yourself (read-only)
 

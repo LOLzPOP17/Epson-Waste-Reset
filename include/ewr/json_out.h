@@ -105,4 +105,8 @@ namespace ewr {
     // The contract's spelling for a reset phase.
     const char* JsonResetPhaseName(ResetPhase phase);
 
+    // What `find-key` found: how every key was answered, and the ones that
+    // work. `printerReports` empty becomes null - the printer named nothing.
+    nlohmann::json JsonKeySearchData(const std::string& printerReports, const ReadKeySearch& search);
+
 } // namespace ewr

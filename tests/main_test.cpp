@@ -3778,6 +3778,16 @@ void test_trace_context_description()
     unmatched.printerReports = "EPSON Mystery 9000";
     unmatched.selectedEntry = "L3110";
     CHECK(ewr::DescribeTraceContext(unmatched).find("[!]") == std::string::npos);
+
+    // A run with no entry on purpose says why, and is no mismatch: --find-key
+    // on a printer the database does know selects nothing.
+    ewr::ExecutorOptions::TraceContext searching;
+    searching.printerReports = "Stylus Photo R220";
+    searching.detectedEntry = "R220";
+    searching.selectedBy = "--find-key";
+    const std::string search = ewr::DescribeTraceContext(searching);
+    CHECK(search.find("Selected entry:  (none: --find-key)\n") != std::string::npos);
+    CHECK(search.find("[!]") == std::string::npos);
 }
 
 // Every host gets the entry into the trace, the C API included, without
@@ -3811,6 +3821,298 @@ void test_session_names_its_model_in_the_trace_context()
     CHECK(told.lastResetOptions.trace.printerReports == "TestJet 100 Series");
     CHECK(told.lastResetOptions.trace.detectedEntry == "TestJet 100");
     CHECK(told.lastResetOptions.trace.selectedBy == "--model \"testjet\"");
+}
+
+// The refusals are different evidence, so they must not collapse into one:
+// ':41:NA;' turns a known read down, a bare '||:;' never echoes the action
+// code at all (an SX110 answered every read that way).
+void test_classify_eeprom_read_reply()
+{
+    std::cout << "[TEST] test_classify_eeprom_read_reply" << std::endl;
+
+    auto text = [](const std::string& s) { return WrapD4Data(std::vector<unsigned char>(s.begin(), s.end())); };
+
+    uint8_t value = 0;
+    CHECK(ewr::ClassifyEepromReadReply({}, value, 0) == ewr::ReadAnswer::Silent);
+
+    CHECK(ewr::ClassifyEepromReadReply(MakeEepromReadReplyEE16(0, 0x5E), value, 0) == ewr::ReadAnswer::Value);
+    CHECK(value == 0x5E);
+    CHECK(ewr::ClassifyEepromReadReply(MakeEepromReadReplyEE(0, 0x07), value, 0) == ewr::ReadAnswer::Value);
+    CHECK(value == 0x07);
+
+    CHECK(ewr::ClassifyEepromReadReply(text("||:41:NA;\f"), value, 0) == ewr::ReadAnswer::Refused);
+    CHECK(ewr::ClassifyEepromReadReply(text("||:;\f"), value, 0) == ewr::ReadAnswer::Empty);
+    CHECK(ewr::ClassifyEepromReadReply(text("||:;\r\n\f"), value, 0) == ewr::ReadAnswer::Empty);
+
+    // Neither a value nor a known refusal: reported, never guessed at.
+    CHECK(ewr::ClassifyEepromReadReply(text("zz:;\f"), value, 0) == ewr::ReadAnswer::Other);
+    // A value for another address is not an answer to this read.
+    CHECK(ewr::ClassifyEepromReadReply(MakeEepromReadReplyEE16(0x18, 1), value, 0) == ewr::ReadAnswer::Other);
+}
+
+void test_collect_read_key_candidates()
+{
+    std::cout << "[TEST] test_collect_read_key_candidates" << std::endl;
+
+    auto model = [](const char* name, uint16_t rkey, uint16_t rlen) {
+        ewr::DbPrinterModel m;
+        m.name = name;
+        m.rkey = rkey;
+        m.rlen = rlen;
+        return m;
+    };
+
+    // The same key at another address width is another candidate: the width
+    // changes the packet.
+    const std::vector<ewr::ReadKeyCandidate> got = ewr::CollectReadKeyCandidates(
+        { model("A", 1, 2), model("D", 9, 2), model("B", 1, 2), model("C", 1, 1), model("E", 1, 2) });
+
+    CHECK(got.size() == 3);
+    if (got.size() == 3)
+    {
+        // Most shared first, then (key, width) order.
+        CHECK(got[0].rkey == 1 && got[0].addressLength == 2);
+        CHECK(got[0].models == std::vector<std::string>({ "A", "B", "E" }));
+        CHECK(got[1].rkey == 1 && got[1].addressLength == 1);
+        CHECK(got[2].rkey == 9 && got[2].addressLength == 2);
+    }
+
+    // The real database: every model lands in exactly one candidate.
+    ewr::UniversalGenerator gen;
+    CHECK(gen.LoadDatabase("database.json"));
+    const auto models = gen.GetAvailableModels();
+    const auto real = ewr::CollectReadKeyCandidates(models);
+
+    size_t covered = 0;
+    std::map<std::pair<uint16_t, uint8_t>, int> seen;
+    for (const auto& candidate : real)
+    {
+        covered += candidate.models.size();
+        seen[{ candidate.rkey, candidate.addressLength }]++;
+        CHECK(candidate.addressLength == 1 || candidate.addressLength == 2);
+    }
+    CHECK(covered == models.size());
+    CHECK(seen.size() == real.size());
+    CHECK(real.size() > 50);
+    for (size_t i = 1; i < real.size(); ++i)
+        CHECK(real[i - 1].models.size() >= real[i].models.size());
+}
+
+// Answers each read by its key, the way a printer does, and ends the session
+// at the first read it ignores - which is what the real query session does.
+struct KeyGateway : ewr::IDeviceGateway
+{
+    std::function<std::vector<unsigned char>(uint16_t, int)> answer;
+    bool deviceFound = true;
+    bool handshakeFailed = false;
+    int sessions = 0;
+    int resets = 0;
+    int nonReads = 0;
+    std::vector<uint16_t> asked;
+    ewr::ExecutorOptions lastOptions;
+
+    ewr::QueryRunResult RunQuery(const std::vector<std::vector<unsigned char>>&,
+                                 const std::vector<std::vector<unsigned char>>& queries,
+                                 const ewr::ExecutorOptions& options) override
+    {
+        sessions++;
+        lastOptions = options;
+
+        ewr::QueryRunResult run;
+        run.deviceFound = deviceFound;
+        if (!deviceFound)
+            return run;
+
+        if (handshakeFailed)
+        {
+            run.query.handshakeFailed = true;
+            run.query.error = "no handshake";
+            return run;
+        }
+
+        run.query.handshakeConfirmed = true;
+        for (const auto& q : queries)
+        {
+            // D4 header (6), '||', length (2), key (2), action 0x41 + 0xBE.
+            if (q.size() < 16 || q[12] != 0x41 || q[13] != 0xBE)
+                nonReads++;
+
+            const uint16_t rkey = static_cast<uint16_t>(q[10] | (q[11] << 8));
+            asked.push_back(rkey);
+            run.query.packetsSent++;
+
+            std::vector<unsigned char> reply = answer(rkey, q[8] - 5);
+            if (reply.empty())
+            {
+                run.query.error = "The printer stopped answering";
+                run.query.replies.resize(queries.size());
+                return run;
+            }
+
+            run.query.replies.push_back(std::move(reply));
+        }
+
+        run.query.success = true;
+        return run;
+    }
+
+    ewr::ResetRunResult RunReset(const std::vector<std::vector<unsigned char>>&,
+                                 const ewr::ExecutorOptions&) override
+    {
+        resets++;
+        return {};
+    }
+};
+
+void test_search_read_key()
+{
+    std::cout << "[TEST] test_search_read_key" << std::endl;
+
+    auto text = [](const std::string& s) { return WrapD4Data(std::vector<unsigned char>(s.begin(), s.end())); };
+    const std::vector<unsigned char> refused = text("||:41:NA;\f");
+    const std::vector<unsigned char> empty = text("||:;\f");
+
+    // 40 keys: three batches when nothing goes wrong.
+    std::vector<ewr::ReadKeyCandidate> candidates;
+    for (uint16_t rkey = 100; rkey < 140; ++rkey)
+        candidates.push_back({ rkey, 2, { "Model " + std::to_string(rkey) } });
+
+    // One key fits.
+    {
+        KeyGateway gw;
+        gw.answer = [&](uint16_t rkey, int) { return rkey == 123 ? MakeEepromReadReplyEE16(0, 0x5E) : refused; };
+
+        size_t lastTried = 0, lastTotal = 0;
+        ewr::ExecutorOptions options = ewr::DefaultQueryOptions();
+        options.interfaceCandidate = 2;
+        options.trace.selectedBy = "--find-key";
+
+        const ewr::ReadKeySearch search = ewr::SearchReadKey(gw, candidates, options,
+            [&](size_t tried, size_t total) { lastTried = tried; lastTotal = total; });
+
+        CHECK(search.deviceFound);
+        CHECK(search.completed);
+        CHECK(search.error.empty());
+        CHECK(search.probes.size() == 40);
+        CHECK(search.Count(ewr::ReadAnswer::Value) == 1);
+        CHECK(search.Count(ewr::ReadAnswer::Refused) == 39);
+        CHECK(search.probes[23].candidate.rkey == 123);
+        CHECK(search.probes[23].answer == ewr::ReadAnswer::Value);
+        CHECK(search.probes[23].value == 0x5E);
+
+        CHECK(gw.sessions == 3);
+        CHECK(lastTried == 40 && lastTotal == 40);
+
+        // A search for a key never writes, and never sends anything but reads.
+        CHECK(gw.resets == 0);
+        CHECK(gw.nonReads == 0);
+
+        // The host's options travel; retries on an ignored key do not.
+        CHECK(gw.lastOptions.interfaceCandidate == 2);
+        CHECK(gw.lastOptions.trace.selectedBy == "--find-key");
+        CHECK(gw.lastOptions.maxWriteAttempts == 1);
+    }
+
+    // Every key, the same empty answer - what an SX110's one reply suggests.
+    {
+        KeyGateway gw;
+        gw.answer = [&](uint16_t, int) { return empty; };
+
+        const ewr::ReadKeySearch search = ewr::SearchReadKey(gw, candidates);
+        CHECK(search.completed);
+        CHECK(search.Count(ewr::ReadAnswer::Empty) == 40);
+        CHECK(search.Count(ewr::ReadAnswer::Value) == 0);
+    }
+
+    // A printer that ignores a key ends that session. The search resumes
+    // right after it, and no key is skipped or asked twice.
+    {
+        KeyGateway gw;
+        gw.answer = [&](uint16_t rkey, int) {
+            return (rkey == 105 || rkey == 120) ? std::vector<unsigned char>{} : refused;
+        };
+
+        const ewr::ReadKeySearch search = ewr::SearchReadKey(gw, candidates);
+        CHECK(search.completed);
+        CHECK(search.probes.size() == 40);
+        CHECK(search.Count(ewr::ReadAnswer::Silent) == 2);
+        CHECK(search.Count(ewr::ReadAnswer::Refused) == 38);
+        CHECK(search.probes[5].answer == ewr::ReadAnswer::Silent);
+        CHECK(search.probes[6].answer == ewr::ReadAnswer::Refused);
+        CHECK(search.probes[20].answer == ewr::ReadAnswer::Silent);
+
+        CHECK(gw.asked.size() == 40);
+        for (size_t i = 0; i < gw.asked.size(); ++i)
+            CHECK(gw.asked[i] == 100 + i);
+
+        // 100-105, 106-120, 121-136, 137-139.
+        CHECK(gw.sessions == 4);
+    }
+
+    // No printer, and a printer that will not open a session: both stop the
+    // search and say why, without pretending any key was tried.
+    {
+        KeyGateway gw;
+        gw.deviceFound = false;
+        const ewr::ReadKeySearch search = ewr::SearchReadKey(gw, candidates);
+        CHECK(!search.deviceFound);
+        CHECK(!search.completed);
+        CHECK(search.probes.empty());
+        CHECK(!search.error.empty());
+    }
+    {
+        KeyGateway gw;
+        gw.handshakeFailed = true;
+        const ewr::ReadKeySearch search = ewr::SearchReadKey(gw, candidates);
+        CHECK(search.deviceFound);
+        CHECK(!search.completed);
+        CHECK(search.probes.empty());
+        CHECK(search.error == "no handshake");
+        CHECK(gw.sessions == 1);
+    }
+
+    // Nothing to try is a finished search, with no device session opened.
+    {
+        KeyGateway gw;
+        const ewr::ReadKeySearch search = ewr::SearchReadKey(gw, {});
+        CHECK(search.completed);
+        CHECK(gw.sessions == 0);
+    }
+}
+
+void test_json_key_search_data()
+{
+    std::cout << "[TEST] test_json_key_search_data" << std::endl;
+
+    ewr::ReadKeySearch search;
+    search.deviceFound = true;
+    search.completed = true;
+    search.probes.push_back({ { 15120, 1, { "R200", "R220" } }, ewr::ReadAnswer::Value, 0x07 });
+    search.probes.push_back({ { 373, 2, { "SX210" } }, ewr::ReadAnswer::Empty, 0 });
+    search.probes.push_back({ { 1609, 2, { "SX200" } }, ewr::ReadAnswer::Refused, 0 });
+
+    const nlohmann::json data = ewr::JsonKeySearchData("Stylus Photo R220", search);
+    CHECK(data["printer"] == "Stylus Photo R220");
+    CHECK(data["completed"] == true);
+    CHECK(data["tried"] == 3);
+    CHECK(data["answers"]["value"] == 1);
+    CHECK(data["answers"]["refused"] == 1);
+    CHECK(data["answers"]["empty"] == 1);
+    CHECK(data["answers"]["silent"] == 0);
+    CHECK(data["answers"]["other"] == 0);
+
+    // Only the keys that work are listed.
+    CHECK(data["keys"].size() == 1);
+    CHECK(data["keys"][0]["read_key"] == 15120);
+    CHECK(data["keys"][0]["address_length"] == 1);
+    CHECK(data["keys"][0]["value"] == 7);
+    CHECK(data["keys"][0]["models"] == nlohmann::json({ "R200", "R220" }));
+
+    // A printer that named nothing is null, never an empty string.
+    const nlohmann::json unnamed = ewr::JsonKeySearchData("", ewr::ReadKeySearch{});
+    CHECK(unnamed["printer"].is_null());
+    CHECK(unnamed["keys"].is_array() && unnamed["keys"].empty());
+    CHECK(unnamed["completed"] == false);
 }
 
 void test_evaluate_ink_blocker()
@@ -6540,6 +6842,10 @@ int main()
     test_interface_pin_option_threading();
     test_trace_context_description();
     test_session_names_its_model_in_the_trace_context();
+    test_classify_eeprom_read_reply();
+    test_collect_read_key_candidates();
+    test_search_read_key();
+    test_json_key_search_data();
     test_query_session_failfast_on_silence();
     test_query_session_happy_path();
     test_d4_framer_length_framing();
