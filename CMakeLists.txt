@@ -7,6 +7,12 @@ set(CMAKE_CXX_STANDARD 17)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 set(CMAKE_CXX_EXTENSIONS OFF)
 
+# Static MSVC runtime, for every target including the fetched libusb. Against
+# the DLL one, ewr.exe crashed at startup on a PC whose VC++ redistributable
+# predated our toolset (std::mutex in MSVCP140 14.29), and ewrc.dll would get
+# whatever MSVCP140 its host process loaded first.
+set(CMAKE_MSVC_RUNTIME_LIBRARY "MultiThreaded$<$<CONFIG:Debug>:Debug>")
+
 # The version string the self-updater compares against GitHub release tags is
 # generated from the project() version above, so there is exactly one copy of it.
 configure_file(
