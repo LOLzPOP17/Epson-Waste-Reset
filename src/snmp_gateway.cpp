@@ -311,6 +311,16 @@ namespace ewr {
                   + std::to_string(result.writesTotal) + "\n"
                   "Result:             " + (result.success ? std::string("SUCCESS") : ("FAILED - " + result.error)) + "\n"
                   "==================================================\n\n");
+
+            // The console hides the per-write verdicts and leaves the reason
+            // to this, as usb.reset_not_confirmed does on USB. A printer that
+            // never answered is session.device_not_found's to report.
+            if (!result.success && m_answered)
+            {
+                reporter.Log(log::Level::Error, log::Stage::Write, "snmp.reset_not_confirmed",
+                             "\n[ERROR] " + result.error + "\n[!] The waste counter was NOT confirmed as reset.\n"
+                             "    Check ewr_trace.log for the full network trace.");
+            }
             return run;
         };
 

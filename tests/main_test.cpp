@@ -6660,14 +6660,18 @@ void test_console_hides_the_machinery()
         sink(event(L::Info, "session.commit", "[*] Commit step: latching the new counter values..."));
         sink(event(L::Info, "exec.write_verified", "-> Command 1 / 1", 1, 1));
         sink(event(L::Error, "usb.reset_not_confirmed", "[ERROR] no ack\n[!] The waste counter was NOT confirmed as reset."));
+        sink(event(L::Error, "snmp.reset_not_confirmed", "[ERROR] no network ack\n[!] The waste counter was NOT confirmed as reset."));
         sink(event(L::Info, "session.commit_failed", "[!] Commit step did not complete (no ack)."));
         sink(event(L::Error, "usb.reset_not_confirmed", "[ERROR] the reset itself\n[!] The waste counter was NOT confirmed as reset."));
+        sink(event(L::Error, "snmp.reset_not_confirmed", "[ERROR] the network reset itself\n[!] The waste counter was NOT confirmed as reset."));
 
         CHECK(out.str().find("Commit step: latching") == std::string::npos);
         CHECK(out.str().find("Writing to the printer") == std::string::npos);
         CHECK(out.str().find("Commit step did not complete") != std::string::npos);
         CHECK(err.str().find("no ack") == std::string::npos);
+        CHECK(err.str().find("no network ack") == std::string::npos);
         CHECK(err.str().find("the reset itself") != std::string::npos);
+        CHECK(err.str().find("the network reset itself") != std::string::npos);
     }
 
     // Everything the rules touch is Info except usb.claim_failed, which
@@ -6675,7 +6679,8 @@ void test_console_hides_the_machinery()
     // any other warning or error would lose a real problem.
     const char* const hiddenOnPurpose[] = { "usb.claim_failed" };
     const char* const errorCodes[] = {
-        "usb.reset_not_confirmed", "usb.claim_all_failed", "usb.another_run", "session.device_not_found",
+        "usb.reset_not_confirmed", "snmp.reset_not_confirmed", "usb.claim_all_failed", "usb.another_run",
+        "session.device_not_found",
         "session.preflight_required", "session.db_conflict", "db.parse_error", "usb.busy_status_monitor",
         "usb.access_denied", "usb.open_failed", "usb.soft_reset_settle_timeout",
     };
@@ -7369,14 +7374,40 @@ void test_snmp_reset_stops_at_a_refused_write()
     ewr::SnmpDeviceGateway gateway("192.0.2.1", std::move(printer));
     ewr::log::Reporter quiet;
     ewr::Session session(model, gateway, quiet);
+
+    // What the CLI prints: the per-write verdicts are hidden there, so
+    // without the gateway's own event the run ended on a bare RESET FAILED.
+    std::ostringstream out, err;
+    const int consoleId = ewr::log::Default().AddSink(ewr::cli::ConsoleFor(out, err, false));
     const ewr::ResetOutcome outcome = session.Reset();
+    ewr::log::Default().RemoveSink(consoleId);
 
     CHECK(!outcome.success);
     CHECK(outcome.phase == ewr::ResetPhase::WriteFailed);
     CHECK(outcome.error.find(":42:NA;") != std::string::npos);
+    CHECK(err.str().find(":42:NA;") != std::string::npos);
+    CHECK(err.str().find("NOT confirmed as reset") != std::string::npos);
     // The first refusal ends the run: the second write is never sent.
     CHECK(script->writesSeen == 1);
     CHECK(script->eeprom[0x30] == 0xCA && script->eeprom[0x1FE] == 0x18);
+
+    // Nothing ever answered: session.device_not_found says so, not this.
+    auto silent = std::make_unique<snmp_test::ScriptedPrinter>();
+    silent->silent = true;
+    ewr::SnmpDeviceGateway silentGateway("192.0.2.1", std::move(silent));
+
+    int notConfirmed = 0;
+    const int countId = ewr::log::Default().AddSink([&](const ewr::log::Event& e)
+    {
+        if (e.code == "snmp.reset_not_confirmed")
+            ++notConfirmed;
+    });
+    ewr::UniversalGenerator generator;
+    const ewr::ResetRunResult run = silentGateway.RunReset(generator.GenerateSequence(model), ewr::ExecutorOptions{});
+    ewr::log::Default().RemoveSink(countId);
+
+    CHECK(!run.deviceFound);
+    CHECK(notConfirmed == 0);
 }
 
 void test_snmp_reset_refuses_a_replay_dump()

@@ -73,8 +73,8 @@ Every line carries these:
 | `total` | int/null | Length of that sequence. |
 | `fields` | object | String to string. Keys are as stable as `code`. |
 
-Codes are namespaced by layer (`db.`, `usb.`, `exec.`, `d4.`, `end4.`,
-`update.`). A release can add codes; it will not repurpose one.
+Codes are namespaced by layer (`db.`, `usb.`, `snmp.`, `exec.`, `d4.`,
+`end4.`, `update.`). A release can add codes; it will not repurpose one.
 
 Events that carry `fields` so far (values are decimal strings, like every field):
 
