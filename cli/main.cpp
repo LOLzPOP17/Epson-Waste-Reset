@@ -955,6 +955,13 @@ int main(int argc, char* argv[])
             }
             else if (arg == "--ip")
             {
+                // Empty is how the rest of main() reads "no --ip": an unset
+                // variable in `--ip "$PRINTER"` would reset a USB printer.
+                if (value.empty())
+                {
+                    return UsageError(cli, "--ip needs an address, e.g. --ip 192.168.1.100.");
+                }
+
                 cli.ip = value;
             }
             else
@@ -1211,9 +1218,9 @@ int main(int argc, char* argv[])
     // Before any device call, so a second run says why it stopped instead of
     // reporting a printer that cannot be read. The gateway logs the reason as
     // an event; the result line has to name it too, because a caller is
-    // promised it can act on the verdict alone. Network reads are stateless
-    // GETs with nothing to share, so they take no claim.
-    if (!netGateway && !usbGateway.ClaimPrinter())
+    // promised it can act on the verdict alone.
+    const bool claimed = netGateway ? netGateway->ClaimPrinter() : usbGateway.ClaimPrinter();
+    if (!claimed)
     {
         JsonFail("another_run", "Another EWR run is already driving a printer on this machine.");
         return FinishRun(1);

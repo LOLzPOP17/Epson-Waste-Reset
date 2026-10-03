@@ -6680,7 +6680,7 @@ void test_console_hides_the_machinery()
     const char* const hiddenOnPurpose[] = { "usb.claim_failed" };
     const char* const errorCodes[] = {
         "usb.reset_not_confirmed", "snmp.reset_not_confirmed", "usb.claim_all_failed", "usb.another_run",
-        "session.device_not_found",
+        "snmp.another_run", "session.device_not_found",
         "session.preflight_required", "session.db_conflict", "db.parse_error", "usb.busy_status_monitor",
         "usb.access_denied", "usb.open_failed", "usb.soft_reset_settle_timeout",
     };
@@ -7430,6 +7430,56 @@ void test_snmp_reset_refuses_a_replay_dump()
     CHECK(script->writesSeen == 0);
 }
 
+void test_snmp_gateway_waits_for_the_run_lock()
+{
+    std::cout << "[TEST] test_snmp_gateway_waits_for_the_run_lock" << std::endl;
+
+    ewr::RunLock otherRun;
+    {
+        ewr::RunLock probe;
+        if (probe.Held())
+        {
+            std::cout << "  (no run lock can be created here - skipped)" << std::endl;
+            return;
+        }
+    }
+
+    auto readTrace = []() -> std::string
+    {
+        std::ifstream in("ewr_trace.log", std::ios::binary);
+        return in ? std::string(std::istreambuf_iterator<char>(in), {}) : std::string("(absent)");
+    };
+    const std::string traceBefore = readTrace();
+
+    std::vector<std::string> codes;
+    const int sinkId = ewr::log::Default().AddSink([&](const ewr::log::Event& e) { codes.push_back(e.code); });
+
+    ewr::SnmpDeviceGateway gateway("192.0.2.1");
+    CHECK(!gateway.ClaimPrinter());
+    CHECK(!gateway.QueryDeviceId().found);
+
+    const ewr::QueryRunResult query = gateway.RunQuery({}, { ewr::UniversalGenerator::GenerateStatusQueryPacket() },
+                                                       ewr::DefaultQueryOptions());
+    CHECK(!query.query.success);
+    CHECK(query.query.error.find("Another EWR run") != std::string::npos);
+
+    ewr::UniversalGenerator generator;
+    const ewr::ResetRunResult reset = gateway.RunReset(generator.GenerateSequence(snmp_test::TwoByteModel()),
+                                                       ewr::ExecutorOptions{});
+    CHECK(!reset.exec.success);
+    CHECK(reset.exec.packetsSent == 0);
+    CHECK(reset.exec.error.find("Another EWR run") != std::string::npos);
+
+    ewr::log::Default().RemoveSink(sinkId);
+
+    // Refused before anything was opened: the other run's trace is intact
+    // and no socket was ever pointed at the printer.
+    CHECK(readTrace() == traceBefore);
+    CHECK(gateway.OpenError().empty());
+    CHECK(!gateway.Answered() && !gateway.SendBlocked());
+    CHECK(std::find(codes.begin(), codes.end(), "snmp.another_run") != codes.end());
+}
+
 int main()
 {
     std::cout << "========================================" << std::endl;
@@ -7595,6 +7645,7 @@ int main()
     test_snmp_reset_falls_back_to_the_alternate_key();
     test_snmp_reset_stops_at_a_refused_write();
     test_snmp_reset_refuses_a_replay_dump();
+    test_snmp_gateway_waits_for_the_run_lock();
 
     std::cout << "\n----------------------------------------" << std::endl;
     if (g_failures == 0)

@@ -42,6 +42,10 @@ namespace ewr {
             return command.size() >= 2 && command[0] == 's' && command[1] == 't';
         }
 
+        // UsbDeviceGateway's wording, so a host sees one reason either way.
+        const char* const kAnotherRunError =
+            "Another EWR run is already driving a printer on this machine.";
+
     } // namespace
 
     snmp::Oid SnmpDeviceIdOid()
@@ -62,27 +66,54 @@ namespace ewr {
     }
 
     SnmpDeviceGateway::SnmpDeviceGateway(const std::string& host)
-        : m_host(host)
+        : m_host(host), m_claimsRunLock(true)
     {
-        m_traceFile.open("ewr_trace.log", std::ios::out | std::ios::trunc);
-        m_trace = &m_traceFile;
-
-        Trace("==================================================\n"
-              "EWR NETWORK TRACE LOG (SNMP v1)\n"
-              "EWR Version: " + std::string(EWR_VERSION) + "\n"
-              "Printer address: " + m_host + ", UDP " + std::to_string(snmp::kPort) + "\n"
-              "==================================================\n\n");
-
-        m_channel = snmp::OpenUdpChannel(m_host, snmp::kPort, m_openError);
-        if (!m_channel)
-            Trace("[!] " + m_openError + "\n");
     }
 
     SnmpDeviceGateway::SnmpDeviceGateway(const std::string& host,
                                          std::unique_ptr<snmp::IDatagramChannel> channel,
                                          std::ostream* trace)
-        : m_host(host), m_channel(std::move(channel)), m_trace(trace)
+        : m_host(host), m_channel(std::move(channel)), m_trace(trace), m_started(true)
     {
+    }
+
+    bool SnmpDeviceGateway::ClaimPrinter()
+    {
+        if (!m_claimsRunLock)
+            return true;
+
+        if (!m_runLock)
+            m_runLock = std::make_unique<RunLock>();
+
+        if (!m_runLock->Held())
+        {
+            log::Log(log::Level::Error, log::Stage::Detect, "snmp.another_run",
+                     "[!] " + std::string(kAnotherRunError) + "\n"
+                     "    Two runs could be driving the same printer, one of them mid-write, so this\n"
+                     "    one stops here. Close the other run - or look for a leftover ewr process\n"
+                     "    waiting at a prompt - and try again.");
+            return false;
+        }
+
+        if (!m_started)
+        {
+            m_started = true;
+
+            m_traceFile.open("ewr_trace.log", std::ios::out | std::ios::trunc);
+            m_trace = &m_traceFile;
+
+            Trace("==================================================\n"
+                  "EWR NETWORK TRACE LOG (SNMP v1)\n"
+                  "EWR Version: " + std::string(EWR_VERSION) + "\n"
+                  "Printer address: " + m_host + ", UDP " + std::to_string(snmp::kPort) + "\n"
+                  "==================================================\n\n");
+
+            m_channel = snmp::OpenUdpChannel(m_host, snmp::kPort, m_openError);
+            if (!m_channel)
+                Trace("[!] " + m_openError + "\n");
+        }
+
+        return true;
     }
 
     void SnmpDeviceGateway::Trace(const std::string& text)
@@ -188,6 +219,8 @@ namespace ewr {
     DeviceIdQueryResult SnmpDeviceGateway::QueryDeviceId()
     {
         DeviceIdQueryResult out;
+        if (!ClaimPrinter())
+            return out;
 
         Trace("---- IEEE 1284 device ID ----\n");
 
@@ -206,6 +239,11 @@ namespace ewr {
         const ExecutorOptions& options)
     {
         QueryRunResult run;
+        if (!ClaimPrinter())
+        {
+            run.query.error = kAnotherRunError;
+            return run;
+        }
 
         Trace("==================================================\n"
               "BEGIN QUERY SESSION (read-only)\n"
@@ -279,6 +317,12 @@ namespace ewr {
         const ExecutorOptions& options)
     {
         ResetRunResult run;
+        if (!ClaimPrinter())
+        {
+            run.exec.error = kAnotherRunError;
+            return run;
+        }
+
         ExecutionResult& result = run.exec;
         log::Reporter& reporter = log::Default();
 

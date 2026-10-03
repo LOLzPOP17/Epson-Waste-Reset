@@ -1,4 +1,5 @@
 #pragma once
+#include "ewr/run_lock.h"
 #include "ewr/session.h"
 #include "ewr/snmp.h"
 
@@ -36,13 +37,21 @@ namespace ewr {
     class SnmpDeviceGateway final : public IDeviceGateway
     {
     public:
-        // Production: UDP to `host`, tracing to ewr_trace.log.
+        // Production: UDP to `host`, tracing to ewr_trace.log. Neither is
+        // opened until the run lock is claimed, so a second run cannot
+        // truncate the trace of the one it was refused for.
         explicit SnmpDeviceGateway(const std::string& host);
 
-        // Tests: a scripted channel, and a trace stream or none.
+        // Tests: a scripted channel, and a trace stream or none. Takes no run
+        // lock: a live run on the same machine would fail every test.
         SnmpDeviceGateway(const std::string& host,
                           std::unique_ptr<snmp::IDatagramChannel> channel,
                           std::ostream* trace = nullptr);
+
+        // UsbDeviceGateway::ClaimPrinter's twin, and the same lock: one run
+        // at a time machine-wide, whichever transport it uses. Every device
+        // call claims first, so a host cannot skip it by forgetting.
+        bool ClaimPrinter();
 
         // Non-empty when no channel could be opened at all (a host name that
         // does not resolve). Every call then fails with it.
@@ -83,7 +92,10 @@ namespace ewr {
         std::unique_ptr<snmp::IDatagramChannel> m_channel;
         std::ofstream m_traceFile;
         std::ostream* m_trace = nullptr;
+        std::unique_ptr<RunLock> m_runLock;
         int32_t m_nextRequestId = 1;
+        bool m_claimsRunLock = false;
+        bool m_started = false;
         bool m_answered = false;
         bool m_sendFailed = false;
         bool m_sendSucceeded = false;
