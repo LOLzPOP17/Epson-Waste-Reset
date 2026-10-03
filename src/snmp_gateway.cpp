@@ -328,11 +328,10 @@ namespace ewr {
 
         // The handshake and credit packets of the sequence belong to a D4
         // channel that does not exist here; the writes are all that travels.
-        std::vector<std::vector<unsigned char>> writes;
-        for (const auto& packet : sequence)
+        std::vector<CtrlCommand> writes;
+        for (CtrlCommand& command : ExtractCtrlCommands(sequence))
         {
-            std::vector<unsigned char> command;
-            if (IsWritePacket(packet) && ExtractDataPayload(packet, command))
+            if (command.isWrite)
                 writes.push_back(std::move(command));
         }
 
@@ -368,19 +367,6 @@ namespace ewr {
             return run;
         };
 
-        auto progress = [&](const char* code, std::size_t index, const std::string& text)
-        {
-            log::Event event;
-            event.level = log::Level::Info;
-            event.stage = log::Stage::Write;
-            event.code = code;
-            event.message = "-> Command " + std::to_string(index + 1) + " / " + std::to_string(writes.size())
-                          + " | " + text;
-            event.index = static_cast<int>(index + 1);
-            event.total = static_cast<int>(writes.size());
-            reporter.Emit(event);
-        };
-
         // A replay dump is opaque bytes with nothing to confirm them by, and
         // this transport sends no write it cannot confirm.
         if (!options.verifyWrites)
@@ -390,107 +376,28 @@ namespace ewr {
             return finish();
         }
 
-        if (writes.empty())
+        // The loop's retries and verdicts, into this run's trace as on USB.
+        struct SinkGuard
         {
-            result.error = "The sequence contains no EEPROM write packets - nothing was reset.";
-            return finish();
-        }
+            log::Reporter& reporter;
+            int id;
+            ~SinkGuard() { reporter.RemoveSink(id); }
+        };
+        const SinkGuard traceSink{ reporter, m_trace ? reporter.AddSink(log::OStreamSink(*m_trace, log::Level::Trace)) : 0 };
 
-        result.writesTotal = writes.size();
-        const int maxAttempts = options.maxWriteAttempts > 0 ? options.maxWriteAttempts : 1;
-
-        for (std::size_t i = 0; i < writes.size(); ++i)
+        // A GET whose OID carries the command. Silence before anything ever
+        // answered means nothing at this address will.
+        const CtrlExchange exchange = [this](const std::vector<unsigned char>& command,
+                                             std::vector<unsigned char>& reply, std::string& error)
         {
-            // Copied: a ':42:NG;' may rebuild it with the alternate keyword.
-            std::vector<unsigned char> command = writes[i];
-            bool triedAlternateKey = false;
-            bool confirmed = false;
-            bool anyReply = false;
+            if (Get(SnmpControlOid(command), reply) || m_answered)
+                return true;
 
-            for (int attempt = 1; attempt <= maxAttempts && !confirmed; ++attempt)
-            {
-                if (attempt > 1)
-                    progress("exec.write_retry", i, "Retrying write (attempt " + std::to_string(attempt)
-                                                    + "/" + std::to_string(maxAttempts) + ")...");
+            error = SilenceError();
+            return false;
+        };
 
-                // A write sets a byte to a value, so repeating one whose
-                // answer was lost changes nothing.
-                std::vector<unsigned char> reply;
-                const bool heard = Get(SnmpControlOid(command), reply);
-                result.packetsSent++;
-
-                if (!heard && !m_answered)
-                {
-                    result.error = SilenceError();
-                    return finish();
-                }
-
-                if (reply.empty())
-                    continue;
-
-                anyReply = true;
-                result.ackCount++;
-
-                if (IsEepromWriteNgAck(reply))
-                {
-                    std::vector<unsigned char> alternate;
-                    if (!triedAlternateKey
-                        && SubstituteTrailingWriteKey(command, options.writeKey, options.alternateWriteKey, alternate))
-                    {
-                        triedAlternateKey = true;
-                        command = std::move(alternate);
-                        progress("exec.write_key_retry", i,
-                                 "Key rejected (||:42:NG;) - retrying with the alternate keyword.");
-                        Trace("[RETRY] Write rejected with ':42:NG;'; retrying with the alternate keyword ('wkey1')\n");
-                        --attempt; // the keyword swap is not one of the attempts
-                        continue;
-                    }
-
-                    result.writesRejected++;
-                    result.error = "Printer REJECTED EEPROM write (command " + std::to_string(i + 1)
-                                 + ", reply ':42:NG;'). The write key may not match this model.";
-                    progress("exec.write_rejected", i, "EEPROM write REJECTED (||:42:NG;).");
-                    return finish();
-                }
-
-                if (IsEepromWriteNaAck(reply))
-                {
-                    result.writesRejected++;
-                    result.error = "Printer REFUSED EEPROM write (command " + std::to_string(i + 1)
-                                 + ", reply ':42:NA;'). The printer is likely locked by another error"
-                                   " state (empty cartridge, paper jam, open cover). Clear that error"
-                                   " first, then run EWR again.";
-                    progress("exec.write_refused", i,
-                             "EEPROM write REFUSED (||:42:NA;) - printer locked by another error.");
-                    return finish();
-                }
-
-                if (IsEepromWriteOkAck(reply))
-                {
-                    confirmed = true;
-                    result.writesVerified++;
-                    progress("exec.write_verified", i, "EEPROM write verified (||:42:OK;).");
-                }
-            }
-
-            if (confirmed && triedAlternateKey)
-                result.alternateKeyUsed = true;
-
-            if (!confirmed)
-            {
-                result.writesUnverified = true;
-                result.error = anyReply
-                    ? "EEPROM write not confirmed after " + std::to_string(maxAttempts) + " attempts (command "
-                      + std::to_string(i + 1) + "): the printer replies, but never with ':42:OK;'. Some writes"
-                        " may have been applied without confirmation - power-cycle the printer and check"
-                        " whether the error cleared before retrying."
-                    : "EEPROM write not acknowledged after " + std::to_string(maxAttempts) + " attempts (command "
-                      + std::to_string(i + 1) + ")";
-                return finish();
-            }
-        }
-
-        result.success = (result.writesVerified == result.writesTotal);
+        RunCtrlCommands(exchange, writes, reporter, options, result);
         return finish();
     }
 
