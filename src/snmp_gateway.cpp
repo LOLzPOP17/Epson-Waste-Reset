@@ -1,0 +1,443 @@
+#include "ewr/snmp_gateway.h"
+#include "ewr/d4session.h"
+#include "ewr/deviceid.h"
+#include "ewr/version.h"
+
+#include <chrono>
+
+namespace ewr {
+
+    namespace {
+
+        // Epson printers answer reads on the default community.
+        const char* const kCommunity = "public";
+
+        // A printer on Wi-Fi can drop a datagram or be slow to wake, so each
+        // request is sent up to this many times. A read is idempotent, and the
+        // repeat carries the same request ID, so a late answer to an earlier
+        // send is still the answer.
+        constexpr int kAttempts = 3;
+        constexpr int kAttemptTimeoutMs = 1000;
+
+        // Frames a reply the way the D4 session hands one up: a data packet
+        // on the EPSON-CTRL socket, end-of-message set.
+        std::vector<unsigned char> FrameAsD4Data(const std::vector<unsigned char>& value)
+        {
+            constexpr std::size_t kHeader = 6;
+            const std::size_t body = (value.size() > 0xFFFF - kHeader) ? (0xFFFF - kHeader) : value.size();
+            const std::size_t total = kHeader + body;
+
+            std::vector<unsigned char> packet = {
+                EpsonD4::SOCKET_EPSON_CTRL, EpsonD4::SOCKET_EPSON_CTRL,
+                static_cast<unsigned char>((total >> 8) & 0xFF),
+                static_cast<unsigned char>(total & 0xFF),
+                0x00, 0x01
+            };
+            packet.insert(packet.end(), value.begin(), value.begin() + static_cast<std::ptrdiff_t>(body));
+            return packet;
+        }
+
+        bool IsStatusCommand(const std::vector<unsigned char>& command)
+        {
+            return command.size() >= 2 && command[0] == 's' && command[1] == 't';
+        }
+
+    } // namespace
+
+    snmp::Oid SnmpDeviceIdOid()
+    {
+        return { 1, 3, 6, 1, 4, 1, 1248, 1, 2, 2, 1, 1, 1, 1, 1 };
+    }
+
+    snmp::Oid SnmpStatusOid()
+    {
+        return { 1, 3, 6, 1, 4, 1, 1248, 1, 2, 2, 1, 1, 1, 4, 1 };
+    }
+
+    snmp::Oid SnmpControlOid(const std::vector<unsigned char>& command)
+    {
+        snmp::Oid oid = { 1, 3, 6, 1, 4, 1, 1248, 1, 2, 2, 44, 1, 1, 2, 1 };
+        oid.insert(oid.end(), command.begin(), command.end());
+        return oid;
+    }
+
+    SnmpDeviceGateway::SnmpDeviceGateway(const std::string& host)
+        : m_host(host)
+    {
+        m_traceFile.open("ewr_trace.log", std::ios::out | std::ios::trunc);
+        m_trace = &m_traceFile;
+
+        Trace("==================================================\n"
+              "EWR NETWORK TRACE LOG (SNMP v1)\n"
+              "EWR Version: " + std::string(EWR_VERSION) + "\n"
+              "Printer address: " + m_host + ", UDP " + std::to_string(snmp::kPort) + "\n"
+              "==================================================\n\n");
+
+        m_channel = snmp::OpenUdpChannel(m_host, snmp::kPort, m_openError);
+        if (!m_channel)
+            Trace("[!] " + m_openError + "\n");
+    }
+
+    SnmpDeviceGateway::SnmpDeviceGateway(const std::string& host,
+                                         std::unique_ptr<snmp::IDatagramChannel> channel,
+                                         std::ostream* trace)
+        : m_host(host), m_channel(std::move(channel)), m_trace(trace)
+    {
+    }
+
+    void SnmpDeviceGateway::Trace(const std::string& text)
+    {
+        if (!m_trace)
+            return;
+
+        (*m_trace) << text;
+        m_trace->flush();
+    }
+
+    std::string SnmpDeviceGateway::SilenceError() const
+    {
+        if (!m_openError.empty())
+            return m_openError;
+
+        if (SendBlocked())
+            return "This computer refused to send to " + m_host + " (UDP " + std::to_string(snmp::kPort)
+                + "): it is blocked on this machine.";
+
+        return "No SNMP answer from " + m_host + " (UDP " + std::to_string(snmp::kPort) + ").";
+    }
+
+    bool SnmpDeviceGateway::Get(const snmp::Oid& oid, std::vector<unsigned char>& value)
+    {
+        value.clear();
+
+        if (!m_channel)
+            return false;
+
+        const int32_t requestId = m_nextRequestId++;
+        const std::vector<unsigned char> request = snmp::EncodeGetRequest(kCommunity, requestId, oid);
+        if (request.empty())
+            return false;
+
+        Trace("[OUT] GET " + snmp::FormatOid(oid) + "\n");
+
+        for (int attempt = 1; attempt <= kAttempts; ++attempt)
+        {
+            if (attempt > 1)
+                Trace("[RETRY] No answer - sending the request again (attempt " + std::to_string(attempt)
+                      + " of " + std::to_string(kAttempts) + ").\n");
+
+            if (!m_channel->Send(request))
+            {
+                m_sendFailed = true;
+                Trace("[!] SEND FAILED: this machine refused to send the datagram.\n");
+                continue;
+            }
+
+            m_sendSucceeded = true;
+
+            // Anything that is not the answer to this request - a late reply
+            // to an earlier one, a malformed datagram - is skipped without
+            // restarting the wait.
+            const auto deadline = std::chrono::steady_clock::now() + std::chrono::milliseconds(kAttemptTimeoutMs);
+            for (;;)
+            {
+                const auto left = std::chrono::duration_cast<std::chrono::milliseconds>(
+                    deadline - std::chrono::steady_clock::now()).count();
+                if (left <= 0)
+                    break;
+
+                const std::vector<unsigned char> datagram = m_channel->Receive(static_cast<int>(left));
+                if (datagram.empty())
+                    break;
+
+                snmp::GetResponse response;
+                if (!snmp::DecodeGetResponse(datagram, response) || response.requestId != requestId)
+                {
+                    Trace("[i] Skipped a datagram that does not answer this request.\n");
+                    continue;
+                }
+
+                m_answered = true;
+
+                if (response.errorStatus != 0)
+                {
+                    Trace("[IN]  SNMP error-status " + std::to_string(response.errorStatus)
+                          + (response.errorStatus == 2 ? " (noSuchName: the printer does not serve this OID)" : "")
+                          + "\n\n");
+                    return true;
+                }
+
+                if (response.valueTag != snmp::kTagOctetString)
+                {
+                    Trace("[IN]  A value that is not a string (BER tag "
+                          + std::to_string(response.valueTag) + ") - ignored.\n\n");
+                    return true;
+                }
+
+                value = response.value;
+                Trace("[IN]  " + std::to_string(value.size()) + " bytes:\n"
+                      + HexDumpCapped(value.data(), value.size(), kTraceDumpCapBytes) + "\n");
+                return true;
+            }
+        }
+
+        Trace("[!] No answer.\n\n");
+        return false;
+    }
+
+    DeviceIdQueryResult SnmpDeviceGateway::QueryDeviceId()
+    {
+        DeviceIdQueryResult out;
+
+        Trace("---- IEEE 1284 device ID ----\n");
+
+        std::vector<unsigned char> value;
+        if (!Get(SnmpDeviceIdOid(), value) || value.empty())
+            return out;
+
+        out.deviceId = ExtractDeviceIdString(value.data(), value.size());
+        out.found = !out.deviceId.empty();
+        return out;
+    }
+
+    QueryRunResult SnmpDeviceGateway::RunQuery(
+        const std::vector<std::vector<unsigned char>>& /*handshake*/,
+        const std::vector<std::vector<unsigned char>>& queries,
+        const ExecutorOptions& options)
+    {
+        QueryRunResult run;
+
+        Trace("==================================================\n"
+              "BEGIN QUERY SESSION (read-only)\n"
+              + DescribeTraceContext(options.trace)
+              + "Queries:       " + std::to_string(queries.size()) + "\n"
+              "==================================================\n\n");
+
+        // One-for-one with the queries, empty where nothing came back.
+        run.query.replies.assign(queries.size(), {});
+
+        for (std::size_t i = 0; i < queries.size(); ++i)
+        {
+            std::vector<unsigned char> command;
+            if (!ExtractDataPayload(queries[i], command))
+                continue;
+
+            // The query path stays read-only, whatever it is handed.
+            if (IsWritePacket(queries[i]))
+            {
+                Trace("[!] Query " + std::to_string(i + 1) + " is an EEPROM write - not sent.\n");
+                continue;
+            }
+
+            std::vector<unsigned char> value;
+            bool heard = false;
+
+            if (IsStatusCommand(command))
+            {
+                heard = Get(SnmpStatusOid(), value);
+                // Some firmware serves the status only as a control command.
+                if (heard && value.empty())
+                    heard = Get(SnmpControlOid(command), value);
+            }
+            else
+            {
+                heard = Get(SnmpControlOid(command), value);
+            }
+
+            run.query.packetsSent++;
+
+            if (!value.empty())
+                run.query.replies[i] = FrameAsD4Data(value);
+
+            // Nothing has ever answered at this address: the remaining
+            // queries would only wait out the same timeouts.
+            if (!heard && !m_answered)
+                break;
+        }
+
+        // There is no channel to open on this transport; a printer that
+        // answered SNMP at all stands in for the handshake.
+        run.deviceFound = m_answered;
+        run.candidatesTried = m_answered ? 1 : 0;
+        run.query.handshakeConfirmed = m_answered;
+        run.query.handshakeFailed = !m_answered;
+        run.query.success = m_answered;
+        if (!m_answered)
+            run.query.error = SilenceError();
+
+        Trace("==================================================\n"
+              "QUERY SESSION COMPLETE\n"
+              "Requests sent:      " + std::to_string(run.query.packetsSent) + "\n"
+              "Result:             " + (run.query.success ? std::string("SUCCESS") : ("FAILED - " + run.query.error)) + "\n"
+              "==================================================\n\n");
+
+        return run;
+    }
+
+    ResetRunResult SnmpDeviceGateway::RunReset(
+        const std::vector<std::vector<unsigned char>>& sequence,
+        const ExecutorOptions& options)
+    {
+        ResetRunResult run;
+        ExecutionResult& result = run.exec;
+        log::Reporter& reporter = log::Default();
+
+        // The handshake and credit packets of the sequence belong to a D4
+        // channel that does not exist here; the writes are all that travels.
+        std::vector<std::vector<unsigned char>> writes;
+        for (const auto& packet : sequence)
+        {
+            std::vector<unsigned char> command;
+            if (IsWritePacket(packet) && ExtractDataPayload(packet, command))
+                writes.push_back(std::move(command));
+        }
+
+        Trace("==================================================\n"
+              "BEGIN WRITE SESSION\n"
+              + DescribeTraceContext(options.trace)
+              + "Writes:        " + std::to_string(writes.size()) + "\n"
+              "==================================================\n\n");
+
+        auto finish = [&]() -> ResetRunResult&
+        {
+            run.deviceFound = m_answered;
+            run.candidatesTried = m_answered ? 1 : 0;
+            result.handshakeConfirmed = m_answered;
+            result.handshakeFailed = !m_answered;
+
+            Trace("==================================================\n"
+                  "WRITE SESSION COMPLETE\n"
+                  "Writes verified:    " + std::to_string(result.writesVerified) + " of "
+                  + std::to_string(result.writesTotal) + "\n"
+                  "Result:             " + (result.success ? std::string("SUCCESS") : ("FAILED - " + result.error)) + "\n"
+                  "==================================================\n\n");
+            return run;
+        };
+
+        auto progress = [&](const char* code, std::size_t index, const std::string& text)
+        {
+            log::Event event;
+            event.level = log::Level::Info;
+            event.stage = log::Stage::Write;
+            event.code = code;
+            event.message = "-> Command " + std::to_string(index + 1) + " / " + std::to_string(writes.size())
+                          + " | " + text;
+            event.index = static_cast<int>(index + 1);
+            event.total = static_cast<int>(writes.size());
+            reporter.Emit(event);
+        };
+
+        // A replay dump is opaque bytes with nothing to confirm them by, and
+        // this transport sends no write it cannot confirm.
+        if (!options.verifyWrites)
+        {
+            result.error = "Replay dumps cannot be sent over the network: only database models, whose"
+                           " writes are confirmed one by one.";
+            return finish();
+        }
+
+        if (writes.empty())
+        {
+            result.error = "The sequence contains no EEPROM write packets - nothing was reset.";
+            return finish();
+        }
+
+        result.writesTotal = writes.size();
+        const int maxAttempts = options.maxWriteAttempts > 0 ? options.maxWriteAttempts : 1;
+
+        for (std::size_t i = 0; i < writes.size(); ++i)
+        {
+            // Copied: a ':42:NG;' may rebuild it with the alternate keyword.
+            std::vector<unsigned char> command = writes[i];
+            bool triedAlternateKey = false;
+            bool confirmed = false;
+            bool anyReply = false;
+
+            for (int attempt = 1; attempt <= maxAttempts && !confirmed; ++attempt)
+            {
+                if (attempt > 1)
+                    progress("exec.write_retry", i, "Retrying write (attempt " + std::to_string(attempt)
+                                                    + "/" + std::to_string(maxAttempts) + ")...");
+
+                // A write sets a byte to a value, so repeating one whose
+                // answer was lost changes nothing.
+                std::vector<unsigned char> reply;
+                const bool heard = Get(SnmpControlOid(command), reply);
+                result.packetsSent++;
+
+                if (!heard && !m_answered)
+                {
+                    result.error = SilenceError();
+                    return finish();
+                }
+
+                if (reply.empty())
+                    continue;
+
+                anyReply = true;
+                result.ackCount++;
+
+                if (IsEepromWriteNgAck(reply))
+                {
+                    std::vector<unsigned char> alternate;
+                    if (!triedAlternateKey
+                        && SubstituteTrailingWriteKey(command, options.writeKey, options.alternateWriteKey, alternate))
+                    {
+                        triedAlternateKey = true;
+                        command = std::move(alternate);
+                        progress("exec.write_key_retry", i,
+                                 "Key rejected (||:42:NG;) - retrying with the alternate keyword.");
+                        Trace("[RETRY] Write rejected with ':42:NG;'; retrying with the alternate keyword ('wkey1')\n");
+                        --attempt; // the keyword swap is not one of the attempts
+                        continue;
+                    }
+
+                    result.writesRejected++;
+                    result.error = "Printer REJECTED EEPROM write (command " + std::to_string(i + 1)
+                                 + ", reply ':42:NG;'). The write key may not match this model.";
+                    progress("exec.write_rejected", i, "EEPROM write REJECTED (||:42:NG;).");
+                    return finish();
+                }
+
+                if (IsEepromWriteNaAck(reply))
+                {
+                    result.writesRejected++;
+                    result.error = "Printer REFUSED EEPROM write (command " + std::to_string(i + 1)
+                                 + ", reply ':42:NA;'). The printer is likely locked by another error"
+                                   " state (empty cartridge, paper jam, open cover). Clear that error"
+                                   " first, then run EWR again.";
+                    progress("exec.write_refused", i,
+                             "EEPROM write REFUSED (||:42:NA;) - printer locked by another error.");
+                    return finish();
+                }
+
+                if (IsEepromWriteOkAck(reply))
+                {
+                    confirmed = true;
+                    result.writesVerified++;
+                    progress("exec.write_verified", i, "EEPROM write verified (||:42:OK;).");
+                }
+            }
+
+            if (confirmed && triedAlternateKey)
+                result.alternateKeyUsed = true;
+
+            if (!confirmed)
+            {
+                result.writesUnverified = true;
+                result.error = anyReply
+                    ? "EEPROM write not confirmed after " + std::to_string(maxAttempts) + " attempts (command "
+                      + std::to_string(i + 1) + "): the printer replies, but never with ':42:OK;'. Some writes"
+                        " may have been applied without confirmation - power-cycle the printer and check"
+                        " whether the error cleared before retrying."
+                    : "EEPROM write not acknowledged after " + std::to_string(maxAttempts) + " attempts (command "
+                      + std::to_string(i + 1) + ")";
+                return finish();
+            }
+        }
+
+        result.success = (result.writesVerified == result.writesTotal);
+        return finish();
+    }
+
+} // namespace ewr
