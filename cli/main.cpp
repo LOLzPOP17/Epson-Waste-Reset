@@ -1259,10 +1259,7 @@ int main(int argc, char* argv[])
         // fall back to, and a menu would only postpone the same timeout.
         if (!netGateway->Answered())
         {
-            const std::string why = !netGateway->OpenError().empty() ? netGateway->OpenError()
-                : netGateway->SendBlocked()
-                    ? "This computer refused to send to " + cli.ip + " (UDP 161): it is blocked on this machine."
-                    : "No SNMP answer from " + cli.ip + " (UDP 161).";
+            const std::string why = netGateway->SilenceError();
 
             std::cout << "no answer." << std::endl;
             std::cerr << "[ERROR] " << why << std::endl;

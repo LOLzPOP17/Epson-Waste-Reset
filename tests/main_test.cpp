@@ -6827,7 +6827,7 @@ void test_json_never_leaks_minus_one()
     CHECK(st["error_code"].is_null());
 }
 
-// ---- SNMP (the --ip read-only transport) --------------------------------
+// ---- SNMP (the --ip network transport) ----------------------------------
 
 namespace snmp_test {
 
@@ -6847,6 +6847,80 @@ namespace snmp_test {
         out.insert(out.end(), content.begin(), content.end());
     }
 
+    // Shortest BER form of a non-negative INTEGER.
+    std::vector<unsigned char> IntegerContent(int value)
+    {
+        std::vector<unsigned char> bytes;
+        do
+        {
+            bytes.insert(bytes.begin(), static_cast<unsigned char>(value & 0xFF));
+            value >>= 8;
+        } while (value > 0);
+
+        if (bytes[0] & 0x80)
+            bytes.insert(bytes.begin(), 0x00);
+        return bytes;
+    }
+
+    // A GetRequest read back the way an agent reads it: its ID and its one
+    // OID. False for anything else, or for a community other than "public".
+    bool ParseRequest(const std::vector<unsigned char>& datagram, int& id, ewr::snmp::Oid& oid)
+    {
+        std::size_t pos = 0;
+
+        // One TLV of `tag` at pos: stepped into, or over with its content kept.
+        auto tlv = [&](unsigned char tag, bool enter, std::vector<unsigned char>* content) -> bool
+        {
+            if (pos + 2 > datagram.size() || datagram[pos] != tag)
+                return false;
+
+            std::size_t length = datagram[pos + 1];
+            pos += 2;
+            if (length & 0x80)
+            {
+                const std::size_t count = length & 0x7F;
+                length = 0;
+                for (std::size_t i = 0; i < count && pos < datagram.size(); ++i)
+                    length = (length << 8) | datagram[pos++];
+            }
+
+            if (length > datagram.size() - pos)
+                return false;
+            if (content)
+                content->assign(datagram.begin() + static_cast<long>(pos),
+                                datagram.begin() + static_cast<long>(pos + length));
+            if (!enter)
+                pos += length;
+            return true;
+        };
+
+        std::vector<unsigned char> community, idBytes, oidBytes;
+        if (!tlv(0x30, true, nullptr) || !tlv(0x02, false, nullptr) || !tlv(0x04, false, &community)
+            || std::string(community.begin(), community.end()) != "public"
+            || !tlv(0xA0, true, nullptr) || !tlv(0x02, false, &idBytes)
+            || !tlv(0x02, false, nullptr) || !tlv(0x02, false, nullptr)
+            || !tlv(0x30, true, nullptr) || !tlv(0x30, true, nullptr) || !tlv(0x06, false, &oidBytes)
+            || idBytes.empty() || oidBytes.empty())
+            return false;
+
+        id = 0;
+        for (unsigned char b : idBytes)
+            id = (id << 8) | b;
+
+        oid = { oidBytes[0] / 40u, oidBytes[0] % 40u };
+        uint32_t arc = 0;
+        for (std::size_t i = 1; i < oidBytes.size(); ++i)
+        {
+            arc = (arc << 7) | (oidBytes[i] & 0x7Fu);
+            if ((oidBytes[i] & 0x80) == 0)
+            {
+                oid.push_back(arc);
+                arc = 0;
+            }
+        }
+        return true;
+    }
+
     // A GetResponse as an agent would send it. The OID is not echoed
     // faithfully - the decoder only steps over it.
     std::vector<unsigned char> MakeResponse(int requestId, int errorStatus, unsigned char valueTag,
@@ -6860,8 +6934,8 @@ namespace snmp_test {
         AppendTlv(list, 0x30, binding);
 
         std::vector<unsigned char> pdu;
-        AppendTlv(pdu, 0x02, { static_cast<unsigned char>(requestId) });
-        AppendTlv(pdu, 0x02, { static_cast<unsigned char>(errorStatus) });
+        AppendTlv(pdu, 0x02, IntegerContent(requestId));
+        AppendTlv(pdu, 0x02, IntegerContent(errorStatus));
         AppendTlv(pdu, 0x02, { 0x00 });
         AppendTlv(pdu, 0x30, list);
 
@@ -6891,37 +6965,30 @@ namespace snmp_test {
             if (refuseSend)
                 return false;
 
-            // Requests carry no OID the test can read back without a decoder
-            // of its own, so each one is recognised by re-encoding the
-            // candidates and comparing.
-            for (int id = 1; id < 128; ++id)
+            int id = 0;
+            ewr::snmp::Oid oid;
+            if (!ParseRequest(datagram, id, oid) || std::find(known.begin(), known.end(), oid) == known.end())
             {
-                for (const auto& oid : known)
-                {
-                    if (datagram != ewr::snmp::EncodeGetRequest("public", id, oid))
-                        continue;
-
-                    const std::string name = ewr::snmp::FormatOid(oid);
-                    requested.push_back(name);
-
-                    if (silent)
-                        return true;
-                    if (dropFirst > 0)
-                    {
-                        --dropFirst;
-                        return true;
-                    }
-
-                    const auto hit = served.find(name);
-                    if (hit == served.end())
-                        pending.push_back(MakeResponse(id, 2, 0x05, {}));
-                    else
-                        pending.push_back(MakeResponse(id, 0, 0x04, hit->second));
-                    return true;
-                }
+                requested.push_back("?");
+                return true;
             }
 
-            requested.push_back("?");
+            const std::string name = ewr::snmp::FormatOid(oid);
+            requested.push_back(name);
+
+            if (silent)
+                return true;
+            if (dropFirst > 0)
+            {
+                --dropFirst;
+                return true;
+            }
+
+            const auto hit = served.find(name);
+            if (hit == served.end())
+                pending.push_back(MakeResponse(id, 2, 0x05, {}));
+            else
+                pending.push_back(MakeResponse(id, 0, 0x04, hit->second));
             return true;
         }
 
@@ -6978,7 +7045,7 @@ namespace snmp_test {
 
 void test_snmp_get_request_is_byte_exact()
 {
-    std::cout << "\n[TEST] SNMP GetRequest encoding" << std::endl;
+    std::cout << "[TEST] test_snmp_get_request_is_byte_exact" << std::endl;
 
     // sysDescr.0, community "public", request ID 1.
     const std::vector<unsigned char> expected = {
@@ -7004,11 +7071,24 @@ void test_snmp_get_request_is_byte_exact()
 
     CHECK(ewr::snmp::EncodeGetRequest("public", 1, { 1 }).empty());
     CHECK(ewr::snmp::FormatOid({ 1, 3, 6, 1248 }) == "1.3.6.1248");
+
+    // The scripted printers below read requests with their own decoder and
+    // answer with their own encoder; both have to agree past one-byte IDs.
+    int id = 0;
+    ewr::snmp::Oid oid;
+    const ewr::snmp::Oid control = ewr::SnmpControlOid({ 0x7C, 0x7C, 0xBE });
+    CHECK(snmp_test::ParseRequest(ewr::snmp::EncodeGetRequest("public", 70000, control), id, oid));
+    CHECK(id == 70000 && oid == control);
+    CHECK(!snmp_test::ParseRequest(ewr::snmp::EncodeGetRequest("private", 1, control), id, oid));
+
+    ewr::snmp::GetResponse response;
+    CHECK(ewr::snmp::DecodeGetResponse(snmp_test::MakeResponse(300, 0, 0x04, {}), response));
+    CHECK(response.requestId == 300);
 }
 
 void test_snmp_response_decoding_is_bounded()
 {
-    std::cout << "\n[TEST] SNMP GetResponse decoding" << std::endl;
+    std::cout << "[TEST] test_snmp_response_decoding_is_bounded" << std::endl;
 
     const std::vector<unsigned char> value = snmp_test::Bytes("@BDC PS\r\nEE:003012;\f");
     const std::vector<unsigned char> datagram = snmp_test::MakeResponse(7, 0, 0x04, value);
@@ -7042,7 +7122,7 @@ void test_snmp_response_decoding_is_bounded()
 
 void test_snmp_control_oid_carries_the_read_command()
 {
-    std::cout << "\n[TEST] SNMP control OID" << std::endl;
+    std::cout << "[TEST] test_snmp_control_oid_carries_the_read_command" << std::endl;
 
     // The form every SNMP tool for these printers sends:
     // <ctrl>.124.124.7.0.<rkey lo>.<rkey hi>.65.190.160.<addr lo>.<addr hi>
@@ -7055,7 +7135,7 @@ void test_snmp_control_oid_carries_the_read_command()
 
 void test_snmp_gateway_reads_state_through_the_session()
 {
-    std::cout << "\n[TEST] SNMP gateway: status and counters" << std::endl;
+    std::cout << "[TEST] test_snmp_gateway_reads_state_through_the_session" << std::endl;
 
     const ewr::DbPrinterModel model = snmp_test::TwoByteModel();
 
@@ -7102,7 +7182,7 @@ void test_snmp_gateway_reads_state_through_the_session()
 
 void test_snmp_gateway_retries_a_lost_datagram()
 {
-    std::cout << "\n[TEST] SNMP gateway: lost datagram" << std::endl;
+    std::cout << "[TEST] test_snmp_gateway_retries_a_lost_datagram" << std::endl;
 
     auto printer = std::make_unique<snmp_test::ScriptedPrinter>();
     snmp_test::ScriptedPrinter* script = printer.get();
@@ -7119,7 +7199,7 @@ void test_snmp_gateway_retries_a_lost_datagram()
 
 void test_snmp_gateway_reports_silence_without_asking_on()
 {
-    std::cout << "\n[TEST] SNMP gateway: silent address" << std::endl;
+    std::cout << "[TEST] test_snmp_gateway_reports_silence_without_asking_on" << std::endl;
 
     const ewr::DbPrinterModel model = snmp_test::TwoByteModel();
 
@@ -7150,7 +7230,7 @@ void test_snmp_gateway_reports_silence_without_asking_on()
 
 void test_snmp_gateway_tells_a_blocked_send_from_a_silent_printer()
 {
-    std::cout << "\n[TEST] SNMP gateway: send refused locally" << std::endl;
+    std::cout << "[TEST] test_snmp_gateway_tells_a_blocked_send_from_a_silent_printer" << std::endl;
 
     auto blocked = std::make_unique<snmp_test::ScriptedPrinter>();
     blocked->refuseSend = true;
@@ -7168,7 +7248,7 @@ void test_snmp_gateway_tells_a_blocked_send_from_a_silent_printer()
 
 void test_snmp_query_path_never_sends_a_write()
 {
-    std::cout << "\n[TEST] SNMP gateway: read-only" << std::endl;
+    std::cout << "[TEST] test_snmp_query_path_never_sends_a_write" << std::endl;
 
     const ewr::DbPrinterModel model = snmp_test::TwoByteModel();
     const std::vector<unsigned char> write =
@@ -7179,7 +7259,7 @@ void test_snmp_query_path_never_sends_a_write()
     script->Serve(ewr::SnmpControlOid(snmp_test::CommandOf(write)), snmp_test::Bytes("@BDC PS\r\n||:42:OK;\f"));
 
     ewr::SnmpDeviceGateway gateway("192.0.2.1", std::move(printer));
-    CHECK(std::string(gateway.TransportName()) == "network");
+    CHECK(gateway.OverNetwork());
 
     // Handed to the query path, a write is dropped, not forwarded.
     const ewr::QueryRunResult query = gateway.RunQuery({}, { write }, ewr::DefaultQueryOptions());
@@ -7192,9 +7272,9 @@ void test_snmp_query_path_never_sends_a_write()
 
 namespace snmp_test {
 
-    // A printer with an EEPROM: reads answer from it, writes with the right
-    // keyword change it. `ngKey` is a keyword it rejects, `refuse` makes every
-    // write come back ':42:NA;'.
+    // A printer with an EEPROM: reads answer from it, writes with
+    // `acceptedKey` change it, writes with any other keyword come back
+    // ':42:NG;', and `refuse` makes every write come back ':42:NA;'.
     struct EepromPrinter final : ewr::snmp::IDatagramChannel
     {
         ewr::DbPrinterModel model;
@@ -7204,60 +7284,58 @@ namespace snmp_test {
         int writesSeen = 0;
         std::vector<std::vector<unsigned char>> pending;
 
-        bool Answer(int id, const std::vector<unsigned char>& datagram, const ewr::snmp::Oid& oid,
-                    const std::vector<unsigned char>& value)
-        {
-            if (datagram != ewr::snmp::EncodeGetRequest("public", id, oid))
-                return false;
-            pending.push_back(MakeResponse(id, 0, 0x04, value));
-            return true;
-        }
-
         bool Send(const std::vector<unsigned char>& datagram) override
         {
             static const char* hex = "0123456789ABCDEF";
 
-            for (int id = 1; id < 128; ++id)
-            {
-                if (Answer(id, datagram, ewr::SnmpStatusOid(), Bytes("@BDC ST2\r\n\x03" + std::string(1, '\0') + "\x01\x01\x04")))
-                    return true;
+            int id = 0;
+            ewr::snmp::Oid oid;
+            if (!ParseRequest(datagram, id, oid))
+                return true;
 
-                for (auto& cell : eeprom)
+            if (oid == ewr::SnmpStatusOid())
+            {
+                pending.push_back(MakeResponse(id, 0, 0x04,
+                    Bytes("@BDC ST2\r\n\x03" + std::string(1, '\0') + "\x01\x01\x04")));
+                return true;
+            }
+
+            for (auto& cell : eeprom)
+            {
+                if (oid == ewr::SnmpControlOid(CommandOf(
+                               ewr::UniversalGenerator::GenerateReadPacket(model.rkey, cell.first))))
                 {
                     std::string read = "@BDC PS\r\nEE:";
                     read += hex[(cell.first >> 12) & 0xF]; read += hex[(cell.first >> 8) & 0xF];
                     read += hex[(cell.first >> 4) & 0xF];  read += hex[cell.first & 0xF];
                     read += hex[(cell.second >> 4) & 0xF]; read += hex[cell.second & 0xF];
                     read += ";\f";
-                    if (Answer(id, datagram, ewr::SnmpControlOid(CommandOf(
-                                   ewr::UniversalGenerator::GenerateReadPacket(model.rkey, cell.first))), Bytes(read)))
-                        return true;
+                    pending.push_back(MakeResponse(id, 0, 0x04, Bytes(read)));
+                    return true;
+                }
 
-                    for (const std::string& key : { model.wkey, model.wkey1 })
+                for (const std::string& key : { model.wkey, model.wkey1 })
+                {
+                    if (key.empty())
+                        continue;
+
+                    for (int value : { 0x00, 0x5E })
                     {
-                        if (key.empty())
+                        if (oid != ewr::SnmpControlOid(CommandOf(ewr::UniversalGenerator::GenerateWritePacket(
+                                       model.rkey, cell.first, static_cast<uint8_t>(value), key))))
                             continue;
 
-                        for (int value : { 0x00, 0x5E })
-                        {
-                            const ewr::snmp::Oid oid = ewr::SnmpControlOid(CommandOf(
-                                ewr::UniversalGenerator::GenerateWritePacket(model.rkey, cell.first,
-                                                                             static_cast<uint8_t>(value), key)));
-                            if (datagram != ewr::snmp::EncodeGetRequest("public", id, oid))
-                                continue;
+                        ++writesSeen;
+                        std::string verdict = "OK";
+                        if (refuse)
+                            verdict = "NA";
+                        else if (key != acceptedKey)
+                            verdict = "NG";
+                        else
+                            cell.second = static_cast<uint8_t>(value);
 
-                            ++writesSeen;
-                            std::string verdict = "OK";
-                            if (refuse)
-                                verdict = "NA";
-                            else if (key != acceptedKey)
-                                verdict = "NG";
-                            else
-                                cell.second = static_cast<uint8_t>(value);
-
-                            pending.push_back(MakeResponse(id, 0, 0x04, Bytes("@BDC PS\r\n||:42:" + verdict + ";\f")));
-                            return true;
-                        }
+                        pending.push_back(MakeResponse(id, 0, 0x04, Bytes("@BDC PS\r\n||:42:" + verdict + ";\f")));
+                        return true;
                     }
                 }
             }
@@ -7291,7 +7369,7 @@ namespace snmp_test {
 
 void test_snmp_reset_writes_and_verifies_through_the_session()
 {
-    std::cout << "\n[TEST] SNMP reset: write and read back" << std::endl;
+    std::cout << "[TEST] test_snmp_reset_writes_and_verifies_through_the_session" << std::endl;
 
     auto printer = snmp_test::FullPads();
     snmp_test::EepromPrinter* script = printer.get();
@@ -7342,7 +7420,7 @@ void test_snmp_reset_writes_and_verifies_through_the_session()
 
 void test_snmp_reset_falls_back_to_the_alternate_key()
 {
-    std::cout << "\n[TEST] SNMP reset: alternate keyword" << std::endl;
+    std::cout << "[TEST] test_snmp_reset_falls_back_to_the_alternate_key" << std::endl;
 
     auto printer = snmp_test::FullPads();
     snmp_test::EepromPrinter* script = printer.get();
@@ -7364,7 +7442,7 @@ void test_snmp_reset_falls_back_to_the_alternate_key()
 
 void test_snmp_reset_stops_at_a_refused_write()
 {
-    std::cout << "\n[TEST] SNMP reset: refused write" << std::endl;
+    std::cout << "[TEST] test_snmp_reset_stops_at_a_refused_write" << std::endl;
 
     auto printer = snmp_test::FullPads();
     snmp_test::EepromPrinter* script = printer.get();
@@ -7412,7 +7490,7 @@ void test_snmp_reset_stops_at_a_refused_write()
 
 void test_snmp_reset_refuses_a_replay_dump()
 {
-    std::cout << "\n[TEST] SNMP reset: replay dump" << std::endl;
+    std::cout << "[TEST] test_snmp_reset_refuses_a_replay_dump" << std::endl;
 
     auto printer = snmp_test::FullPads();
     snmp_test::EepromPrinter* script = printer.get();

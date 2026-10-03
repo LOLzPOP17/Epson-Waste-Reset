@@ -117,9 +117,8 @@ namespace ewr {
     {
         virtual ~IDeviceGateway() = default;
 
-        // How this gateway reaches the printer, for the lines a session
-        // prints about it: "USB" or "network".
-        virtual const char* TransportName() const { return "USB"; }
+        // For the lines a session prints about how it reaches the printer.
+        virtual bool OverNetwork() const { return false; }
 
         virtual QueryRunResult RunQuery(
             const std::vector<std::vector<unsigned char>>& handshake,

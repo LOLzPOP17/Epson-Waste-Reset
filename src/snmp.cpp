@@ -274,10 +274,9 @@ namespace snmp {
         void CloseSocket(SocketHandle s) { close(s); }
 #endif
 
-        // A send towards an address nothing answers at can fail with EPIPE,
-        // and the default for that is a signal that ends the process before
-        // the run can say what happened. Linux turns it off per call, macOS
-        // per socket (see OpenUdpChannel).
+        // SIGPIPE belongs to stream sockets and UDP should never raise it,
+        // but if it did the run would end mid-write without a word, so it is
+        // off anyway: per call on Linux, per socket on macOS (OpenUdpChannel).
 #if defined(MSG_NOSIGNAL)
         constexpr int kSendFlags = MSG_NOSIGNAL;
 #else

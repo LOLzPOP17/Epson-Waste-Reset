@@ -784,7 +784,7 @@ namespace ewr {
             return out;
         }
 
-        const bool overUsb = std::string(m_gateway.TransportName()) == "USB";
+        const bool overUsb = !m_gateway.OverNetwork();
 
         m_reporter.Log(log::Level::Info, log::Stage::Detect, "session.scanning",
                        overUsb ? "Scanning USB ports for Epson device..."

@@ -67,7 +67,11 @@ namespace ewr {
         // without the Local Network permission - not a printer that is off.
         bool SendBlocked() const { return m_sendFailed && !m_sendSucceeded; }
 
-        const char* TransportName() const override { return "network"; }
+        bool OverNetwork() const override { return true; }
+
+        // Why nothing came back, in the words the CLI prints: the open
+        // error, a send this machine refused, or plain silence.
+        std::string SilenceError() const;
 
         DeviceIdQueryResult QueryDeviceId();
 
@@ -85,7 +89,6 @@ namespace ewr {
         // answered with an SNMP error or something other than a string.
         bool Get(const snmp::Oid& oid, std::vector<unsigned char>& value);
         void Trace(const std::string& text);
-        std::string SilenceError() const;
 
         std::string m_host;
         std::string m_openError;
