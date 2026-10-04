@@ -2311,6 +2311,23 @@ int main(int argc, char* argv[])
         std::cout << "\n[i] --cartridge: resetting the cartridge ink levels of "
                   << selected.smartModel.name << ", not its waste ink pads." << std::endl;
     }
+    else if (netGateway && selected.smartModel.HasInkReset())
+    {
+        // --cartridge is refused with --ip on the command line; the menu and
+        // the ink-only default below must not reach that reset another way.
+        if (!selected.smartModel.HasResettableCounters())
+        {
+            const std::string why = selected.smartModel.name
+                + " has only a cartridge ink map, and the cartridge ink reset needs USB.";
+            std::cerr << "\n[!] " << why << std::endl;
+            JsonFail("not_supported", why);
+            return FinishRun(1);
+        }
+
+        std::cout << "\n[i] " << selected.smartModel.name
+                  << " also offers a cartridge ink reset, which needs USB;" << std::endl;
+        std::cout << "    this network run resets the waste ink pad counters." << std::endl;
+    }
     else if (selected.smartModel.HasInkReset() && !selected.smartModel.HasResettableCounters())
     {
         // Ink map but no waste-pad addresses: the ink reset is the only path.
