@@ -5,6 +5,7 @@
 #include "ewr/json_out.h"
 #include "ewr/log.h"
 #include "ewr/session.h"
+#include "ewr/snmp_gateway.h"
 #include "ewr/version.h"
 
 #include <algorithm>
@@ -46,7 +47,10 @@ namespace {
 struct ewr_session
 {
     ewr::UniversalGenerator database;
-    ewr::UsbDeviceGateway gateway;
+    // One way to the printer for the session's whole life: the network when
+    // it was opened with ewr_session_open_network, USB otherwise.
+    ewr::UsbDeviceGateway usb;
+    std::unique_ptr<ewr::SnmpDeviceGateway> net;
     ewr::ExecutorOptions options = ewr::DefaultQueryOptions();
 
     ewr_event_cb eventCallback = nullptr;
@@ -63,6 +67,33 @@ struct ewr_session
     int sinkId = 0;
 
     void Fail(const std::string& detail) { lastError = detail; }
+
+    ewr::IDeviceGateway& Gateway()
+    {
+        return net ? static_cast<ewr::IDeviceGateway&>(*net) : static_cast<ewr::IDeviceGateway&>(usb);
+    }
+
+    bool ClaimPrinter() { return net ? net->ClaimPrinter() : usb.ClaimPrinter(); }
+
+    ewr::DeviceIdQueryResult QueryDeviceId() { return net ? net->QueryDeviceId() : usb.QueryDeviceId(); }
+
+    // Why the printer said nothing. The network can tell a host that does not
+    // resolve, or a send this machine refused, from a printer that is silent.
+    std::string Unanswered(const std::string& text) const
+    {
+        return (net && !net->Answered()) ? net->SilenceError() : text;
+    }
+
+    // The CLI's --ip scope, held to here too: what was never tried over the
+    // network is refused rather than attempted.
+    bool RefuseOverNetwork(const char* what)
+    {
+        if (!net)
+            return false;
+
+        Fail(std::string(what) + " needs USB; this session reaches its printer over the network.");
+        return true;
+    }
 
     void Emit(const ewr::log::Event& event) const
     {
@@ -191,6 +222,59 @@ namespace {
         return EWR_OK;
     }
 
+    // `host` null is a USB session.
+    int OpenSession(const char* databasePath, const char* host, ewr_session** out)
+    {
+        std::unique_ptr<ewr_session> session;
+        try
+        {
+            session = std::make_unique<ewr_session>();
+            if (host)
+                session->net = std::make_unique<ewr::SnmpDeviceGateway>(host);
+        }
+        catch (...)
+        {
+            return EWR_ERR_FAILED;
+        }
+
+        ewr_session* raw = session.get();
+        session->sinkId = ewr::log::Default().AddSink([raw](const ewr::log::Event& event)
+        {
+            raw->Emit(event);
+        });
+
+        // Before the database, so a second process learns why it cannot start
+        // rather than spending a second parsing 1450 models first.
+        if (!session->ClaimPrinter())
+        {
+            ewr::log::Default().RemoveSink(session->sinkId);
+            return EWR_ERR_ANOTHER_RUN;
+        }
+
+        const std::string path = (databasePath && *databasePath) ? databasePath : "database.json";
+        if (!session->database.LoadDatabase(path))
+        {
+            session->Fail("Could not load the printer database at \"" + path + "\".");
+            // Kept open: the caller can still read the error, and the handle is
+            // theirs to close.
+            *out = session.release();
+            return EWR_ERR_DATABASE;
+        }
+
+        // The claim opened the channel, so a host that does not resolve is
+        // known now rather than at the first call. Kept open like the above,
+        // and the database calls still work.
+        if (session->net && !session->net->OpenError().empty())
+        {
+            session->Fail(session->net->OpenError());
+            *out = session.release();
+            return EWR_ERR_DEVICE_NOT_FOUND;
+        }
+
+        *out = session.release();
+        return EWR_OK;
+    }
+
 } // namespace
 
 extern "C" {
@@ -202,7 +286,7 @@ const char* ewr_version(void)
 
 int ewr_abi_version(void)
 {
-    return 1;
+    return 2;
 }
 
 int ewr_json_contract_version(void)
@@ -244,43 +328,22 @@ int ewr_session_open(const char* database_path, ewr_session** out_session)
         return EWR_ERR_INVALID_ARGUMENT;
 
     *out_session = nullptr;
+    return OpenSession(database_path, nullptr, out_session);
+}
 
-    std::unique_ptr<ewr_session> session;
-    try
-    {
-        session = std::make_unique<ewr_session>();
-    }
-    catch (...)
-    {
-        return EWR_ERR_FAILED;
-    }
+int ewr_session_open_network(const char* database_path, const char* host, ewr_session** out_session)
+{
+    if (!out_session)
+        return EWR_ERR_INVALID_ARGUMENT;
 
-    ewr_session* raw = session.get();
-    session->sinkId = ewr::log::Default().AddSink([raw](const ewr::log::Event& event)
-    {
-        raw->Emit(event);
-    });
+    *out_session = nullptr;
 
-    // Before the database, so a second process learns why it cannot start
-    // rather than spending a second parsing 1450 models first.
-    if (!session->gateway.ClaimPrinter())
-    {
-        ewr::log::Default().RemoveSink(session->sinkId);
-        return EWR_ERR_ANOTHER_RUN;
-    }
+    // Not "no host, so USB": a USB session in its place could reset
+    // whichever printer is plugged in instead of the one that was meant.
+    if (!host || !*host)
+        return EWR_ERR_INVALID_ARGUMENT;
 
-    const std::string path = (database_path && *database_path) ? database_path : "database.json";
-    if (!session->database.LoadDatabase(path))
-    {
-        session->Fail("Could not load the printer database at \"" + path + "\".");
-        // Kept open: the caller can still read the error, and the handle is
-        // theirs to close.
-        *out_session = session.release();
-        return EWR_ERR_DATABASE;
-    }
-
-    *out_session = session.release();
-    return EWR_OK;
+    return OpenSession(database_path, host, out_session);
 }
 
 void ewr_session_close(ewr_session* session)
@@ -346,13 +409,16 @@ int ewr_list_interfaces(ewr_session* session, char** out_json)
 {
     return Guard(session, [&]() -> int
     {
+        if (session->RefuseOverNetwork("Listing USB interfaces"))
+            return EWR_ERR_NOT_SUPPORTED;
+
         nlohmann::json interfaces = nlohmann::json::array();
 
         std::vector<ewr::ModelNameEntry> entries;
         for (const auto& model : session->database.GetAvailableModels())
             entries.push_back({ model.name, model.aliases });
 
-        for (const ewr::InterfaceInfo& info : session->gateway.ListInterfaces())
+        for (const ewr::InterfaceInfo& info : session->usb.ListInterfaces())
         {
             const ewr::DeviceIdInfo reported = ewr::ParseIeee1284DeviceId(info.deviceId);
             const std::vector<std::string> matches = reported.model.empty()
@@ -374,10 +440,10 @@ int ewr_detect_model(ewr_session* session, char** out_json)
 {
     return Guard(session, [&]() -> int
     {
-        const ewr::DeviceIdQueryResult query = session->gateway.QueryDeviceId();
+        const ewr::DeviceIdQueryResult query = session->QueryDeviceId();
         if (!query.found)
         {
-            session->Fail("No Epson interface answered the device ID query.");
+            session->Fail(session->Unanswered("No Epson interface answered the device ID query."));
             return EWR_ERR_DEVICE_NOT_FOUND;
         }
 
@@ -475,12 +541,12 @@ int ewr_read_status(ewr_session* session, const char* model, char** out_json)
         if (found != EWR_OK)
             return found;
 
-        ewr::Session reader(target, session->gateway, ewr::log::Default(), session->options);
+        ewr::Session reader(target, session->Gateway(), ewr::log::Default(), session->options);
         const ewr::StateSnapshot state = reader.ReadState();
 
         if (!state.available)
         {
-            session->Fail("The printer did not answer the status query.");
+            session->Fail(session->Unanswered("The printer did not answer the status query."));
             return EWR_ERR_READ_FAILED;
         }
 
@@ -497,12 +563,15 @@ int ewr_dump(ewr_session* session, const char* model, char** out_json)
         if (found != EWR_OK)
             return found;
 
+        if (session->RefuseOverNetwork("An EEPROM dump"))
+            return EWR_ERR_NOT_SUPPORTED;
+
         std::vector<uint16_t> addresses;
         const uint32_t end = std::min<uint32_t>(target.mem_high, 0xFF);
         for (uint32_t address = 0; address <= end; ++address)
             addresses.push_back(static_cast<uint16_t>(address));
 
-        ewr::Session reader(target, session->gateway, ewr::log::Default(), session->options);
+        ewr::Session reader(target, session->Gateway(), ewr::log::Default(), session->options);
         const ewr::StateSnapshot state = reader.ReadAddresses(addresses);
 
         if (!state.available)
@@ -553,13 +622,26 @@ int ewr_reset(ewr_session* session, const char* model, int ink, char** out_json)
             return EWR_ERR_NOT_SUPPORTED;
         }
 
+        if (ink && session->RefuseOverNetwork("The cartridge ink reset"))
+            return EWR_ERR_NOT_SUPPORTED;
+
         // The CLI refuses a wrong-model write at its own gate; an embedder
         // has no such gate, so the check lives here. Only a printer that
         // names a database entry can contradict the caller: an unlisted one
         // says nothing either way. Allowed, the mismatch still goes on record.
         std::string mismatchPassed;
         {
-            const ewr::DeviceIdQueryResult query = session->gateway.QueryDeviceId();
+            const ewr::DeviceIdQueryResult query = session->QueryDeviceId();
+
+            // As the CLI stops at --ip silence: there is no other interface to
+            // try, and the confirm callback would be asked about a printer
+            // that has never answered.
+            if (!query.found && session->net && !session->net->Answered())
+            {
+                session->Fail(session->net->SilenceError());
+                return EWR_ERR_DEVICE_NOT_FOUND;
+            }
+
             if (query.found)
             {
                 const ewr::DeviceIdInfo reported = ewr::ParseIeee1284DeviceId(query.deviceId);
@@ -605,7 +687,7 @@ int ewr_reset(ewr_session* session, const char* model, int ink, char** out_json)
             return session->confirmCallback(ask.dump().c_str(), session->confirmUser) != 0;
         };
 
-        ewr::Session lifecycle(target, session->gateway, ewr::log::Default(), session->options);
+        ewr::Session lifecycle(target, session->Gateway(), ewr::log::Default(), session->options);
         ewr::ResetOutcome outcome = ink ? lifecycle.ResetInk(handlers) : lifecycle.Reset(handlers);
 
         if (!mismatchPassed.empty())

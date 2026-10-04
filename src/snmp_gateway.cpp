@@ -73,7 +73,7 @@ namespace ewr {
     SnmpDeviceGateway::SnmpDeviceGateway(const std::string& host,
                                          std::unique_ptr<snmp::IDatagramChannel> channel,
                                          std::ostream* trace)
-        : m_host(host), m_channel(std::move(channel)), m_trace(trace), m_started(true)
+        : m_host(host), m_channel(std::move(channel)), m_trace(trace), m_started(true), m_traceStarted(true)
     {
     }
 
@@ -98,22 +98,31 @@ namespace ewr {
         if (!m_started)
         {
             m_started = true;
-
-            m_traceFile.open("ewr_trace.log", std::ios::out | std::ios::trunc);
-            m_trace = &m_traceFile;
-
-            Trace("==================================================\n"
-                  "EWR NETWORK TRACE LOG (SNMP v1)\n"
-                  "EWR Version: " + std::string(EWR_VERSION) + "\n"
-                  "Printer address: " + m_host + ", UDP " + std::to_string(snmp::kPort) + "\n"
-                  "==================================================\n\n");
-
             m_channel = snmp::OpenUdpChannel(m_host, snmp::kPort, m_openError);
-            if (!m_channel)
-                Trace("[!] " + m_openError + "\n");
         }
 
         return true;
+    }
+
+    // The first device call starts the trace fresh, as on USB: a session
+    // opened only for the database calls leaves the last run's trace alone.
+    void SnmpDeviceGateway::StartTrace()
+    {
+        if (m_traceStarted)
+            return;
+
+        m_traceStarted = true;
+        m_traceFile.open("ewr_trace.log", std::ios::out | std::ios::trunc);
+        m_trace = &m_traceFile;
+
+        Trace("==================================================\n"
+              "EWR NETWORK TRACE LOG (SNMP v1)\n"
+              "EWR Version: " + std::string(EWR_VERSION) + "\n"
+              "Printer address: " + m_host + ", UDP " + std::to_string(snmp::kPort) + "\n"
+              "==================================================\n\n");
+
+        if (!m_openError.empty())
+            Trace("[!] " + m_openError + "\n");
     }
 
     void SnmpDeviceGateway::Trace(const std::string& text)
@@ -222,6 +231,8 @@ namespace ewr {
         if (!ClaimPrinter())
             return out;
 
+        StartTrace();
+
         Trace("---- IEEE 1284 device ID ----\n");
 
         std::vector<unsigned char> value;
@@ -244,6 +255,8 @@ namespace ewr {
             run.query.error = kAnotherRunError;
             return run;
         }
+
+        StartTrace();
 
         Trace("==================================================\n"
               "BEGIN QUERY SESSION (read-only)\n"
@@ -322,6 +335,8 @@ namespace ewr {
             run.exec.error = kAnotherRunError;
             return run;
         }
+
+        StartTrace();
 
         ExecutionResult& result = run.exec;
         log::Reporter& reporter = log::Default();

@@ -5713,7 +5713,8 @@ void test_c_abi_constants_and_status_names()
 {
     std::cout << "[TEST] test_c_abi_constants_and_status_names" << std::endl;
 
-    CHECK(ewr_abi_version() == 1);
+    // 2 added ewr_session_open_network.
+    CHECK(ewr_abi_version() == 2);
     CHECK(ewr_json_contract_version() == ewr::JsonEmitter::kContractVersion);
     CHECK(std::string(ewr_version()) == EWR_VERSION);
 
@@ -5821,6 +5822,73 @@ void test_c_abi_reports_a_missing_database()
     CHECK(ewr_list_models(session, &json) == EWR_ERR_DATABASE);
     CHECK(json == nullptr);
 
+    ewr_session_close(session);
+}
+
+// A network session is chosen at open and keeps to the CLI's --ip scope: what
+// was never tried over the network is refused, not attempted. Nothing here
+// sends a datagram - 192.0.2.1 is TEST-NET-1 and is only ever pointed at.
+void test_c_abi_network_session()
+{
+    std::cout << "[TEST] test_c_abi_network_session" << std::endl;
+
+    // No host is the caller's mistake, never a USB session in its place.
+    ewr_session* session = nullptr;
+    CHECK(ewr_session_open_network("database.json", nullptr, &session) == EWR_ERR_INVALID_ARGUMENT);
+    CHECK(ewr_session_open_network("database.json", "", &session) == EWR_ERR_INVALID_ARGUMENT);
+    CHECK(session == nullptr);
+    CHECK(ewr_session_open_network("database.json", "192.0.2.1", nullptr) == EWR_ERR_INVALID_ARGUMENT);
+
+    // One lock, whichever way a run reaches its printer.
+    ewr_session* usb = nullptr;
+    const int usbOpened = ewr_session_open("database.json", &usb);
+    if (usbOpened == EWR_ERR_ANOTHER_RUN)
+    {
+        std::cout << "  [skip] another EWR run holds the printer" << std::endl;
+        ewr_session_close(usb);
+        return;
+    }
+    CHECK(usbOpened == EWR_OK);
+    CHECK(ewr_session_open_network("database.json", "192.0.2.1", &session) == EWR_ERR_ANOTHER_RUN);
+    CHECK(session == nullptr);
+    ewr_session_close(usb);
+
+    auto readTrace = []() -> std::string
+    {
+        std::ifstream in("ewr_trace.log", std::ios::binary);
+        return in ? std::string(std::istreambuf_iterator<char>(in), {}) : std::string("(absent)");
+    };
+    const std::string traceBefore = readTrace();
+
+    CHECK(ewr_session_open_network("database.json", "192.0.2.1", &session) == EWR_OK);
+    CHECK(session != nullptr);
+
+    char* json = nullptr;
+    CHECK(ewr_list_models(session, &json) == EWR_OK);
+    ewr_string_free(json);
+    json = nullptr;
+    CHECK(ewr_plan(session, "R220", 0, &json) == EWR_OK);
+    ewr_string_free(json);
+    json = nullptr;
+
+    CHECK(ewr_list_interfaces(session, &json) == EWR_ERR_NOT_SUPPORTED);
+    CHECK(ewr_dump(session, "R220", &json) == EWR_ERR_NOT_SUPPORTED);
+    CHECK(ewr_reset(session, "R220", 1, &json) == EWR_ERR_NOT_SUPPORTED);
+    CHECK(json == nullptr);
+    CHECK(std::string(ewr_session_last_error(session)).find("network") != std::string::npos);
+
+    // Opened and refused without a device call: the last run's trace stands.
+    CHECK(readTrace() == traceBefore);
+    ewr_session_close(session);
+
+    // A host that does not resolve is known at open, with the session there
+    // to say so and the database calls still working.
+    session = nullptr;
+    CHECK(ewr_session_open_network("database.json", "no-such-printer.invalid", &session) == EWR_ERR_DEVICE_NOT_FOUND);
+    CHECK(session != nullptr);
+    CHECK(std::string(ewr_session_last_error(session)).find("no-such-printer.invalid") != std::string::npos);
+    CHECK(ewr_list_models(session, &json) == EWR_OK);
+    ewr_string_free(json);
     ewr_session_close(session);
 }
 
@@ -7692,6 +7760,7 @@ int main()
     test_c_abi_constants_and_status_names();
     test_c_abi_database_calls_need_no_printer();
     test_c_abi_reports_a_missing_database();
+    test_c_abi_network_session();
     test_json_contract_envelope_and_order();
     test_json_contract_reports_absent_progress_as_null();
     test_run_lock_admits_one_run_at_a_time();

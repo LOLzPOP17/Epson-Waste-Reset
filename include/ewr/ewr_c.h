@@ -111,7 +111,7 @@ typedef void (*ewr_event_cb)(const ewr_event* event, void* user);
 typedef int (*ewr_decision_cb)(const char* json, void* user);
 
 EWR_API const char* ewr_version(void);              /* "1.4.1" */
-EWR_API int         ewr_abi_version(void);          /* this header's revision */
+EWR_API int         ewr_abi_version(void);          /* this header's revision: 2 */
 EWR_API int         ewr_json_contract_version(void);/* docs/json-output.md `v` */
 
 /* "ok", "blocked", ... for logging. Never NULL, even for an unknown code. */
@@ -127,6 +127,19 @@ typedef struct ewr_session ewr_session;
  * working directory. Returns EWR_ERR_ANOTHER_RUN when another EWR already
  * holds the printer. */
 EWR_API int  ewr_session_open(const char* database_path, ewr_session** out_session);
+
+/* ABI 2. The same session for a printer on the network: `host` (an address
+ * or a name) is reached over SNMP, UDP 161, for the session's whole life.
+ * Status, plan and the waste pad reset work as over USB, with the same gates
+ * and read-back; ewr_list_interfaces, ewr_dump and the ink reset need USB and
+ * answer EWR_ERR_NOT_SUPPORTED, and the interface and soft-reset settings do
+ * not apply. Takes the same lock as ewr_session_open. A NULL or empty `host`
+ * is EWR_ERR_INVALID_ARGUMENT, never a USB session. A host that does not
+ * resolve is EWR_ERR_DEVICE_NOT_FOUND, with the session still returned so
+ * the reason can be read. */
+EWR_API int  ewr_session_open_network(const char* database_path, const char* host,
+                                      ewr_session** out_session);
+
 EWR_API void ewr_session_close(ewr_session* session);
 
 /* All optional; pass NULL to unset. Set before the call they apply to. */

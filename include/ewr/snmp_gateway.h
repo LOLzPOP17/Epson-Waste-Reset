@@ -37,9 +37,10 @@ namespace ewr {
     class SnmpDeviceGateway final : public IDeviceGateway
     {
     public:
-        // Production: UDP to `host`, tracing to ewr_trace.log. Neither is
-        // opened until the run lock is claimed, so a second run cannot
-        // truncate the trace of the one it was refused for.
+        // Production: UDP to `host`, tracing to ewr_trace.log. The channel
+        // opens when the run lock is claimed and the trace at the first
+        // device call, so a second run cannot truncate the trace of the one
+        // it was refused for.
         explicit SnmpDeviceGateway(const std::string& host);
 
         // Tests: a scripted channel, and a trace stream or none. Takes no run
@@ -88,6 +89,7 @@ namespace ewr {
         // False on silence. True with an empty `value` when the printer
         // answered with an SNMP error or something other than a string.
         bool Get(const snmp::Oid& oid, std::vector<unsigned char>& value);
+        void StartTrace();
         void Trace(const std::string& text);
 
         std::string m_host;
@@ -99,6 +101,7 @@ namespace ewr {
         int32_t m_nextRequestId = 1;
         bool m_claimsRunLock = false;
         bool m_started = false;
+        bool m_traceStarted = false;
         bool m_answered = false;
         bool m_sendFailed = false;
         bool m_sendSucceeded = false;
