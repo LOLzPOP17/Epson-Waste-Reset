@@ -36,9 +36,10 @@ The point of this API is that a newer EWR does not mean a rewrite.
   valid until the next call on it.
 - A session is not thread-safe, and callbacks arrive on the thread that made
   the call. Do not call back into the session from inside a callback.
-- One session at a time per machine. `ewr_session_open` takes the same lock
-  the CLI does and answers `EWR_ERR_ANOTHER_RUN` when another run holds the
-  printer, because two runs sharing a printer take each other's replies.
+- One session at a time per machine. `ewr_session_open` and
+  `ewr_session_open_network` take the same lock the CLI does, over USB or the
+  network alike, and answer `EWR_ERR_ANOTHER_RUN` when another run holds it,
+  because two runs sharing a printer take each other's replies.
 - **Nothing is assumed on your behalf.** Without a confirm callback a reset
   stops with `EWR_ERR_BLOCKED`; without a blocker callback, so does a printer
   that reports an error. Silence is never consent to write.
@@ -52,6 +53,34 @@ The point of this API is that a newer EWR does not mean a rewrite.
 - `ewr_dump` fills its JSON *and* returns `EWR_ERR_INCOMPLETE_DUMP` when any
   byte went unread. The bytes are yours either way; the code says they are not
   a backup.
+
+## A printer on the network (ABI 2)
+
+`ewr_session_open_network` is the library side of the CLI's `--ip`: the same
+session, reaching the printer over SNMP (UDP 161) instead of USB for its whole
+life. Check `ewr_abi_version() >= 2` before calling it.
+
+```c
+ewr_session* session = NULL;
+int rc = ewr_session_open_network(NULL, "192.168.1.100", &session);
+```
+
+- `ewr_detect_model`, `ewr_read_status` and the waste pad `ewr_reset` work as
+  over USB, with the same gates, confirmation and read-back; the database
+  calls need no printer either way.
+- `ewr_list_interfaces`, `ewr_dump` and the ink reset answer
+  `EWR_ERR_NOT_SUPPORTED`: none has been tried over the network.
+  `ewr_session_set_interface` and `ewr_session_set_soft_reset` do not apply.
+- A NULL or empty `host` is `EWR_ERR_INVALID_ARGUMENT`, never a USB session in
+  its place.
+- A host name that does not resolve is `EWR_ERR_DEVICE_NOT_FOUND` from the
+  open itself. The session is still returned, so `ewr_session_last_error` can
+  say why, and the database calls work on it.
+- A printer that never answers is `EWR_ERR_DEVICE_NOT_FOUND` from the first
+  call that needs it, and `ewr_reset` stops there, before the confirm callback
+  is asked anything. The last error tells silence apart from a send this
+  machine refused: a VPN, a firewall, or macOS's Local Network permission.
+- The network transport's own events are namespaced `snmp.`.
 
 ## A whole run, in C
 

@@ -16,9 +16,16 @@ int main(void)
     ewr_event event;
     const char* name;
 
-    if (ewr_abi_version() < 1)
+    if (ewr_abi_version() < 2)
     {
-        printf("[FAIL] ewr_abi_version() < 1\n");
+        printf("[FAIL] ewr_abi_version() < 2\n");
+        return 1;
+    }
+
+    /* Revision 2's addition, refused before it could open anything. */
+    if (ewr_session_open_network(NULL, "192.0.2.1", NULL) != EWR_ERR_INVALID_ARGUMENT)
+    {
+        printf("[FAIL] ewr_session_open_network accepted a NULL out-parameter\n");
         return 1;
     }
 
